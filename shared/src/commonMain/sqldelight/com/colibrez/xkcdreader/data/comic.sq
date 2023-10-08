@@ -22,6 +22,9 @@ SELECT * FROM comic ORDER BY num;
 selectLatest:
 SELECT * FROM comic ORDER BY num LIMIT 1;
 
+selectPaged:
+SELECT * FROM comic WHERE num >= ? ORDER BY num LIMIT ?;
+
 insert:
 INSERT
 INTO comic (num, title, transcript, img, alt, link, year, month, day)

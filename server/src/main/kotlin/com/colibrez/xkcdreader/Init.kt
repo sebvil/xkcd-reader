@@ -1,20 +1,14 @@
 package com.colibrez.xkcdreader
 
-import com.colibrez.xkcdreader.data.DriverFactory
-import com.colibrez.xkcdreader.data.createDatabase
 import com.colibrez.xkcdreader.model.Comic
 import com.colibrez.xkcdreader.network.XkcdClient
 import com.colibrez.xkcdreader.repository.ComicRepository
 import io.ktor.server.application.Application
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.DelicateCoroutinesApi
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.joinAll
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.newSingleThreadContext
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 
@@ -24,7 +18,7 @@ fun Application.init(
     applicationScope: CoroutineScope
 ) {
     applicationScope.launch {
-        val latestComic = xkcdClient.getLatest()
+        val latestComic = xkcdClient.getLatest().getOrElse { return@launch }
         val comicNum = latestComic.num
         val savedComics = comicRepository.getAllComics().map { it.map { comic -> comic.num }.toSet()  }.first()
         val comics = mutableListOf<Comic>()
@@ -44,7 +38,6 @@ fun Application.init(
         }
         jobs.joinAll()
         comicRepository.insertComics(comics)
-
     }
 
 }

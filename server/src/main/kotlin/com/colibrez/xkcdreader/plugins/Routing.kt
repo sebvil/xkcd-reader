@@ -1,5 +1,6 @@
 package com.colibrez.xkcdreader.plugins
 
+import com.colibrez.xkcdreader.network.Comics
 import com.colibrez.xkcdreader.network.XkcdClient
 import com.colibrez.xkcdreader.repository.ComicRepository
 import io.ktor.resources.Resource
@@ -16,20 +17,17 @@ import kotlinx.coroutines.flow.first
 fun Application.configureRouting(comicRepository: ComicRepository) {
     install(Resources)
     routing {
-        get("/") {
-            val comics = comicRepository.getAllComics().first()
-            val count = comicRepository.getCount().first()
-            call.respond(Pair(count, comics))
+        get<Comics> { params ->
+            val comics = comicRepository.getComicsPaged(params.next, params.limit).first()
+            call.respond(comics)
         }
 
 
-        get<XkcdComic> { comic ->
+        get<Comics.Num> { comic ->
             call.respond(comicRepository.getComic(comic.num).first())
         }
     }
 }
 
-@Resource("/{num}")
-private data class XkcdComic(val num: Long)
 
 

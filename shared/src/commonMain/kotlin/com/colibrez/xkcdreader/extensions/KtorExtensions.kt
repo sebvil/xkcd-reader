@@ -1,0 +1,20 @@
+package com.colibrez.xkcdreader.extensions
+
+import com.colibrez.xkcdreader.network.Route
+import io.ktor.client.HttpClient
+import io.ktor.client.call.NoTransformationFoundException
+import io.ktor.client.call.body
+import io.ktor.client.plugins.resources.get
+import io.ktor.client.statement.HttpResponse
+
+suspend inline fun <reified T> HttpResponse.result(): Result<T> {
+    return try {
+        Result.success(body<T>())
+    } catch (e: NoTransformationFoundException) {
+        Result.failure(e)
+    }
+}
+
+suspend inline fun <reified T, reified R: Route<T>> HttpClient.getResult(route: R): Result<T> {
+    return this.get(route).result()
+}

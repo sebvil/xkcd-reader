@@ -3,14 +3,28 @@ package com.colibrez.xkcdreader.android
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.activity.viewModels
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.paging.compose.collectAsLazyPagingItems
+import androidx.paging.compose.itemKey
 import com.colibrez.xkcdreader.Greeting
+import com.colibrez.xkcdreader.android.repository.ComicsPagingSource
+import com.colibrez.xkcdreader.network.ApiClient
+import kotlinx.coroutines.Dispatchers
 
 class MainActivity : ComponentActivity() {
+
+    private val viewModel: MainViewModel by viewModels {
+        MainViewModel.Factory(ComicsPagingSource(ApiClient(Dispatchers.IO)))
+    }
+
+    @OptIn(ExperimentalMaterialApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
@@ -19,22 +33,20 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colors.background
                 ) {
-                    GreetingView(Greeting().greet())
+                    val lazyPagingItems = viewModel.pagedComics.collectAsLazyPagingItems()
+                    LazyColumn {
+                        items(
+                            lazyPagingItems.itemCount,
+                            key = lazyPagingItems.itemKey { it.num }
+                        ) { index ->
+                            val item = lazyPagingItems[index] ?: return@items
+                            ListItem {
+                                Text(text = "${item.num}. ${item.title}")
+                            }
+                        }
+                    }
                 }
             }
         }
-    }
-}
-
-@Composable
-fun GreetingView(text: String) {
-    Text(text = text)
-}
-
-@Preview
-@Composable
-fun DefaultPreview() {
-    MyApplicationTheme {
-        GreetingView("Hello, Android!")
     }
 }

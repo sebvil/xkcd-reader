@@ -29,6 +29,11 @@ class ComicRepository(
         return comicQueries.selectAll(::mapComicSelecting).asFlow().mapToList(ioDispatcher)
     }
 
+    fun getComicsPaged(next: Long, limit: Long): Flow<List<Comic>> {
+        return comicQueries.selectPaged(next, limit, ::mapComicSelecting).asFlow()
+            .mapToList(ioDispatcher)
+    }
+
     suspend fun insertComics(comics: List<Comic>) {
         withContext(ioDispatcher) {
             comicQueries.transaction {
