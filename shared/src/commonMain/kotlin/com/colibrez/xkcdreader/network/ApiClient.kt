@@ -20,7 +20,9 @@ class ApiClient(private val ioDispatcher: CoroutineDispatcher) {
             install(Resources)
 
             defaultRequest {
-                url("http://10.0.2.2:8080")
+                // Run the following command to connect to the server from Android device
+                // adb reverse tcp:8080 tcp:8080
+                url("http://localhost:8080")
             }
 
             install(ContentNegotiation) {

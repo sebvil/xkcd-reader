@@ -56,6 +56,14 @@ kotlin {
                 implementation(libs.sqlite.driver)
             }
         }
+
+        val androidMain by getting {
+            dependsOn(commonMain)
+
+            dependencies {
+                implementation(libs.android.driver)
+            }
+        }
     }
 }
 

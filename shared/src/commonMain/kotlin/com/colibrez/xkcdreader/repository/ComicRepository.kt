@@ -30,7 +30,7 @@ class ComicRepository(
     }
 
     fun getComicsPaged(next: Long, limit: Long): Flow<List<Comic>> {
-        return comicQueries.selectPaged(next, limit, ::mapComicSelecting).asFlow()
+        return comicQueries.selectPaged(limit = limit, offset = next, mapper = ::mapComicSelecting).asFlow()
             .mapToList(ioDispatcher)
     }
 
@@ -54,17 +54,20 @@ class ComicRepository(
         }
     }
 
-    private fun mapComicSelecting(
-        num: Long,
-        title: String,
-        transcript: String,
-        img: String,
-        alt: String,
-        link: String,
-        year: Long,
-        month: Long,
-        day: Long,
-    ): Comic {
-        return Comic(num, title, transcript, img, alt, link, year, month, day)
+    companion object{
+        fun mapComicSelecting(
+            num: Long,
+            title: String,
+            transcript: String,
+            img: String,
+            alt: String,
+            link: String,
+            year: Long,
+            month: Long,
+            day: Long,
+        ): Comic {
+            return Comic(num, title, transcript, img, alt, link, year, month, day)
+        }
     }
+
 }

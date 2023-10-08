@@ -15,13 +15,27 @@ import androidx.paging.compose.collectAsLazyPagingItems
 import androidx.paging.compose.itemKey
 import com.colibrez.xkcdreader.Greeting
 import com.colibrez.xkcdreader.android.repository.ComicsPagingSource
+import com.colibrez.xkcdreader.android.repository.ComicsRemoteMediator
+import com.colibrez.xkcdreader.data.DriverFactory
+import com.colibrez.xkcdreader.data.createDatabase
 import com.colibrez.xkcdreader.network.ApiClient
+import com.colibrez.xkcdreader.repository.ComicRepository
 import kotlinx.coroutines.Dispatchers
 
 class MainActivity : ComponentActivity() {
 
     private val viewModel: MainViewModel by viewModels {
-        MainViewModel.Factory(ComicsPagingSource(ApiClient(Dispatchers.IO)))
+        val comicQueries = createDatabase(DriverFactory(this)).comicQueries
+        MainViewModel.Factory(
+            comicsRemoteMediator = ComicsRemoteMediator(
+                comicRepository = ComicRepository(
+                    comicQueries = comicQueries,
+                    ioDispatcher = Dispatchers.IO
+                ),
+                apiClient = ApiClient(Dispatchers.IO)
+            ),
+            comicQueries = comicQueries
+        )
     }
 
     @OptIn(ExperimentalMaterialApi::class)
