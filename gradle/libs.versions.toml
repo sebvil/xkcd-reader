@@ -2,6 +2,7 @@
 activity-compose = "1.8.0"
 agp = "8.2.0-beta06"
 androidx-material = "1.5.3"
+coil-compose = "2.4.0"
 foundation = "1.5.3"
 kotlin = "1.9.10"
 kotlin-css-jvm = "1.0.0-pre.129-kotlin-1.4.20"
@@ -31,6 +32,7 @@ androidx-paging3-extensions = { module = "app.cash.sqldelight:androidx-paging3-e
 androidx-ui = { module = "androidx.compose.ui:ui", version.ref = "ui" }
 androidx-ui-tooling = { module = "androidx.compose.ui:ui-tooling", version.ref = "ui" }
 androidx-ui-tooling-preview = { module = "androidx.compose.ui:ui-tooling-preview", version.ref = "ui" }
+coil-compose = { module = "io.coil-kt:coil-compose", version.ref = "coil-compose" }
 core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "core-ktx" }
 coroutines-extensions = { module = "app.cash.sqldelight:coroutines-extensions", version.ref = "sqldelight" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }

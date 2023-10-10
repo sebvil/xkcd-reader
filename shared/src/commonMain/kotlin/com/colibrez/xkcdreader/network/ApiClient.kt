@@ -3,7 +3,9 @@ package com.colibrez.xkcdreader.network
 import com.colibrez.xkcdreader.extensions.getResult
 import com.colibrez.xkcdreader.model.Comic
 import io.ktor.client.HttpClient
+import io.ktor.client.engine.ProxyBuilder
 import io.ktor.client.engine.cio.CIO
+import io.ktor.client.engine.http
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.client.plugins.defaultRequest
 import io.ktor.client.plugins.resources.Resources
@@ -19,10 +21,12 @@ class ApiClient(private val ioDispatcher: CoroutineDispatcher) {
         HttpClient(CIO) {
             install(Resources)
 
+            engine {
+                proxy = ProxyBuilder.http("http://localhost:8281")
+            }
+
             defaultRequest {
-                // Run the following command to connect to the server from Android device
-                // adb reverse tcp:8080 tcp:8080
-                url("http://localhost:8080")
+                url("http://colibrez:8080")
             }
 
             install(ContentNegotiation) {

@@ -6,13 +6,16 @@ import app.cash.sqldelight.coroutines.mapToOne
 import com.colibrez.xkcdreader.model.Comic
 import com.colibrez.xkcdreader.data.ComicQueries
 import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.IO
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.withContext
 
 class ComicRepository(
-    private val comicQueries: ComicQueries,
+    val comicQueries: ComicQueries,
     private val ioDispatcher: CoroutineDispatcher
 ) {
+
     fun getComic(num: Long): Flow<Comic> {
         return comicQueries.select(num, ::mapComicSelecting).asFlow().mapToOne(ioDispatcher)
     }

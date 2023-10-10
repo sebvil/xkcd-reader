@@ -19,7 +19,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 
-class MainViewModel(comicsRemoteMediator: ComicsRemoteMediator, comicQueries: ComicQueries) :
+class MainViewModel(comicsRemoteMediator: ComicsRemoteMediator, comicRepository: ComicRepository) :
     ViewModel() {
 
 
@@ -29,25 +29,32 @@ class MainViewModel(comicsRemoteMediator: ComicsRemoteMediator, comicQueries: Co
         remoteMediator = comicsRemoteMediator
     ) {
         QueryPagingSource(
-            countQuery = comicQueries.count(),
-            transacter = comicQueries,
+            countQuery = comicRepository.comicQueries.count(),
+            transacter = comicRepository.comicQueries,
             context = Dispatchers.IO,
             queryProvider = { limit, offset ->
-                comicQueries.selectPaged(
+                comicRepository.comicQueries.selectPaged(
                     limit,
                     offset,
                     ComicRepository::mapComicSelecting
                 )
             }
-        )
-    }.flow.cachedIn(viewModelScope)
+        ).also {
+            comicsRemoteMediator.invalidate = {
+                it.invalidate()
+            }
+        }
+    }.flow
 
 
-    class Factory(private val comicsRemoteMediator: ComicsRemoteMediator, private val comicQueries: ComicQueries) : ViewModelProvider.Factory {
+    class Factory(
+        private val comicsRemoteMediator: ComicsRemoteMediator,
+        private val comicRepository: ComicRepository
+    ) : ViewModelProvider.Factory {
 
         @Suppress("UNCHECKED_CAST")
         override fun <T : ViewModel> create(modelClass: Class<T>): T {
-            return MainViewModel(comicsRemoteMediator, comicQueries) as T
+            return MainViewModel(comicsRemoteMediator, comicRepository) as T
         }
     }
 }
