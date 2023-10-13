@@ -1,6 +1,7 @@
 plugins {
     alias(libs.plugins.androidApplication)
     alias(libs.plugins.kotlinAndroid)
+    alias(libs.plugins.com.google.devtools.ksp)
 }
 
 android {
@@ -52,6 +53,9 @@ dependencies {
 
     implementation(libs.androidx.paging3.extensions)
     implementation(libs.coil.compose)
+
+    implementation(libs.compose.destinations.animations.core)
+    ksp(libs.compose.destinations.ksp)
 
 
 }

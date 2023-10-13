@@ -7,6 +7,7 @@ plugins {
     alias(libs.plugins.ktor) apply false
     alias(libs.plugins.serialization) apply false
     alias(libs.plugins.sqldelight) apply false
+    alias(libs.plugins.com.google.devtools.ksp) apply false
 }
 
 tasks.register("clean", Delete::class) {
