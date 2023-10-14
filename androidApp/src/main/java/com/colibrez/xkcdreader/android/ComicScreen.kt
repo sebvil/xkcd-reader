@@ -1,5 +1,10 @@
 package com.colibrez.xkcdreader.android
 
+import android.content.ClipData
+import android.content.Context
+import android.content.Intent
+import android.net.Uri
+import android.util.Log
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectTransformGestures
 import androidx.compose.foundation.layout.Box
@@ -7,6 +12,8 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material.icons.filled.Share
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -27,22 +34,31 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.input.key.Key.Companion.U
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSavedStateRegistryOwner
 import androidx.compose.ui.unit.toSize
+import androidx.core.content.ContextCompat.startActivity
+import androidx.core.content.FileProvider.getUriForFile
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.savedstate.SavedStateRegistryOwner
+import coil.annotation.ExperimentalCoilApi
 import coil.compose.AsyncImage
+import coil.imageLoader
 import com.colibrez.xkcdreader.data.DriverFactory
 import com.colibrez.xkcdreader.data.createDatabase
 import com.colibrez.xkcdreader.repository.ComicRepository
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import kotlinx.coroutines.Dispatchers
+import okio.ByteString.Companion.encodeUtf8
+import java.io.File
+import java.security.AccessController.getContext
 
-@OptIn(ExperimentalMaterial3Api::class)
+
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalCoilApi::class)
 @Destination
 @Composable
 fun ComicScreen(
@@ -66,16 +82,63 @@ fun ComicScreen(
             }
         }
 
-
+        val context = LocalContext.current
+        var imageFile: File? by remember {
+            mutableStateOf(null)
+        }
         Scaffold(
             topBar = {
-                TopAppBar(title = {
-                    Text(text = "${stateNotNull.num}. ${stateNotNull.title}")
-                }, navigationIcon = {
-                    IconButton(onClick = { navigator.navigateUp() }) {
-                        Icon(imageVector = Icons.Default.ArrowBack, contentDescription = "Back")
-                    }
-                })
+                TopAppBar(
+                    title = {
+                        Text(text = "${stateNotNull.num}. ${stateNotNull.title}")
+                    },
+                    navigationIcon = {
+                        IconButton(onClick = { navigator.navigateUp() }) {
+                            Icon(imageVector = Icons.Default.ArrowBack, contentDescription = "Back")
+                        }
+                    },
+                    actions = {
+                        IconButton(onClick = {
+                            val sendIntent: Intent = Intent().apply {
+                                action = Intent.ACTION_SEND
+
+                                // (Optional) Here you're setting the title of the content
+                                putExtra(Intent.EXTRA_TITLE, stateNotNull.title)
+
+                                imageFile?.let {
+//                                    val imagePath = File(context.cacheDir, "image_cache")
+                                    Log.i("FILE", "$it")
+                                    val contentUri: Uri = getUriForFile(
+                                        /* context = */ context,
+                                        /* authority = */ "com.colibrez.xkcdreader",
+                                        /* file = */ it
+                                    )
+                                    clipData = ClipData.newRawUri("", contentUri)
+                                    putExtra(Intent.EXTRA_STREAM, contentUri)
+
+                                    putExtra(
+                                        Intent.EXTRA_TEXT,
+                                        "${stateNotNull.alt}\n\n\n\nPermalink: ${stateNotNull.permalink}"
+                                    )
+                                    // (Optional) Here you're passing a content URI to an image to be displayed
+                                    type = "image/*"
+                                    flags = Intent.FLAG_GRANT_READ_URI_PERMISSION
+                                }
+
+
+                            }
+
+                            val shareIntent = Intent.createChooser(sendIntent, null)
+                            startActivity(context, shareIntent, null)
+                        }) {
+                            Icon(imageVector = Icons.Default.Share, contentDescription = "Share")
+                        }
+                        IconButton(onClick = {}) {
+
+
+                            Icon(imageVector = Icons.Default.MoreVert, contentDescription = "More")
+                        }
+                    })
             }
         ) { paddingValues ->
             var scale by remember { mutableFloatStateOf(1f) }
@@ -183,6 +246,20 @@ fun ComicScreen(
                     contentDescription = stateNotNull.transcript,
                     onSuccess = {
                         imageSize = it.painter.intrinsicSize
+                        context.imageLoader.diskCache?.also { cache ->
+                            it.result.diskCacheKey?.also { key ->
+                                cache.openSnapshot(key).use { snapshot ->
+                                    val imageKey = Uri.parse(key).pathSegments.last()
+                                    imageFile = snapshot?.data?.toFile()
+                                        ?.copyTo(
+                                            File(
+                                                context.cacheDir.resolve("image_cache"),
+                                                imageKey
+                                            ), overwrite = true
+                                        )
+                                }
+                            }
+                        }
                     }
                 )
             }

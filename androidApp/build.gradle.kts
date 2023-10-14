@@ -53,6 +53,7 @@ dependencies {
 
     implementation(libs.androidx.paging3.extensions)
     implementation(libs.coil.compose)
+    implementation(libs.androidx.material.icons.extended)
 
     implementation(libs.compose.destinations.animations.core)
     ksp(libs.compose.destinations.ksp)
