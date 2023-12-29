@@ -8,6 +8,7 @@ import androidx.paging.RemoteMediator
 import com.colibrez.xkcdreader.model.Comic
 import com.colibrez.xkcdreader.network.ApiClient
 import com.colibrez.xkcdreader.repository.ComicRepository
+import kotlinx.coroutines.flow.first
 import okio.IOException
 
 @OptIn(ExperimentalPagingApi::class)
@@ -21,14 +22,13 @@ class ComicsRemoteMediator(
 
     override suspend fun load(loadType: LoadType, state: PagingState<Int, Comic>): MediatorResult {
         return try {
-            Log.i("PAGING", "Load called $loadType")
 
             // The network load method takes an optional after=<user.id>
             // parameter. For every page after the first, pass the last user
             // ID to let it continue from where it left off. For REFRESH,
             // pass null to load the first page.
             val loadKey = when (loadType) {
-                LoadType.REFRESH -> 1
+                LoadType.REFRESH -> 0
                 // In this example, you never need to prepend, since REFRESH
                 // will always load the first page in the list. Immediately
                 // return, reporting end of pagination.
@@ -46,9 +46,10 @@ class ComicsRemoteMediator(
                             endOfPaginationReached = true
                         )
 
-                    lastItem.num + 1
+                    lastItem.num
                 }
             }
+
 
             val response =
                 apiClient.getPaginatedComics(next = loadKey, limit = state.config.pageSize.toLong())
@@ -74,7 +75,12 @@ class ComicsRemoteMediator(
     }
 
     override suspend fun initialize(): InitializeAction {
-        return InitializeAction.SKIP_INITIAL_REFRESH
+        val hasComics = comicRepository.getCount().first() > 0
+        return  if (hasComics) {
+            InitializeAction.SKIP_INITIAL_REFRESH
+        } else {
+            InitializeAction.LAUNCH_INITIAL_REFRESH
+        }
     }
 
 }

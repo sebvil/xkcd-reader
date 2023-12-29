@@ -22,7 +22,7 @@ class ApiClient(private val ioDispatcher: CoroutineDispatcher) {
             install(Resources)
 
             engine {
-                proxy = ProxyBuilder.http("http://localhost:8281")
+                proxy = ProxyBuilder.http("http://localhost:9090")
             }
 
             defaultRequest {
