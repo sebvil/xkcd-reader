@@ -8,21 +8,24 @@ import androidx.paging.ExperimentalPagingApi
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.PagingData
+import androidx.paging.PagingSource
 import androidx.savedstate.SavedStateRegistryOwner
-import app.cash.sqldelight.paging3.QueryPagingSource
 import com.colibrez.xkcdreader.android.data.repository.ComicsRemoteMediator
-import com.colibrez.xkcdreader.model.Comic
 import com.colibrez.xkcdreader.data.repository.ComicRepository
-import kotlinx.coroutines.Dispatchers
+import com.colibrez.xkcdreader.model.Comic
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.launch
 
 
 sealed interface MainUserAction {
-    data class ToggleFavorite(val comicNum: Long, val isFavorite: Boolean): MainUserAction
+    data class ToggleFavorite(val comicNum: Long, val isFavorite: Boolean) : MainUserAction
 }
 
-class MainViewModel(comicsRemoteMediator: ComicsRemoteMediator, private val comicRepository: ComicRepository) :
+class MainViewModel(
+    comicsRemoteMediator: ComicsRemoteMediator,
+    pagingSource: PagingSource<Int, Comic>,
+    private val comicRepository: ComicRepository
+) :
     ViewModel() {
 
 
@@ -31,22 +34,7 @@ class MainViewModel(comicsRemoteMediator: ComicsRemoteMediator, private val comi
         config = PagingConfig(pageSize = 20),
         remoteMediator = comicsRemoteMediator
     ) {
-        QueryPagingSource(
-            countQuery = comicRepository.comicQueries.count(),
-            transacter = comicRepository.comicQueries,
-            context = Dispatchers.IO,
-            queryProvider = { limit, offset ->
-                comicRepository.comicQueries.selectPaged(
-                    limit,
-                    offset,
-                    ComicRepository::mapComicSelecting
-                )
-            }
-        ).also {
-            comicsRemoteMediator.invalidate = {
-                it.invalidate()
-            }
-        }
+        pagingSource
     }.flow
 
 
@@ -63,7 +51,8 @@ class MainViewModel(comicsRemoteMediator: ComicsRemoteMediator, private val comi
     class Factory(
         owner: SavedStateRegistryOwner,
         private val comicsRemoteMediator: ComicsRemoteMediator,
-        private val comicRepository: ComicRepository
+        private val pagingSource: PagingSource<Int, Comic>,
+        private val comicRepository: ComicRepository,
     ) : AbstractSavedStateViewModelFactory(owner, null) {
 
         @Suppress("UNCHECKED_CAST")
@@ -72,7 +61,7 @@ class MainViewModel(comicsRemoteMediator: ComicsRemoteMediator, private val comi
             modelClass: Class<T>,
             handle: SavedStateHandle
         ): T {
-            return MainViewModel(comicsRemoteMediator, comicRepository) as T
+            return MainViewModel(comicsRemoteMediator, pagingSource, comicRepository) as T
         }
     }
 }

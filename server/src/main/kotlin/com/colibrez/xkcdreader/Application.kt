@@ -8,7 +8,7 @@ import com.colibrez.xkcdreader.plugins.configureRouting
 import com.colibrez.xkcdreader.plugins.configureSecurity
 import com.colibrez.xkcdreader.plugins.configureSerialization
 import com.colibrez.xkcdreader.plugins.configureTemplating
-import com.colibrez.xkcdreader.data.repository.ComicRepository
+import com.colibrez.xkcdreader.data.repository.OfflineFirstComicRepository
 import io.ktor.server.application.Application
 import io.ktor.server.engine.embeddedServer
 import io.ktor.server.netty.Netty
@@ -24,10 +24,11 @@ fun main() {
 fun Application.module() {
     val database = createDatabase(DriverFactory())
     val applicationScope = CoroutineScope(Dispatchers.Default + SupervisorJob())
-    val comicRepository = ComicRepository(
+    val comicRepository = OfflineFirstComicRepository(
         database.comicEntityQueries,
         database.readComicEntityQueries,
-        database.userEntityQueries,,
+        database.userEntityQueries,
+        database.favoriteComicEntityQueries,
         Dispatchers.IO
     )
     val xkcdClient = XkcdClient(Dispatchers.IO)

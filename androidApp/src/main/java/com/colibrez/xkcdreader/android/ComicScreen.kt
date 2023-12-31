@@ -49,7 +49,7 @@ import coil.compose.AsyncImage
 import coil.imageLoader
 import com.colibrez.xkcdreader.database.DriverFactory
 import com.colibrez.xkcdreader.database.createDatabase
-import com.colibrez.xkcdreader.data.repository.ComicRepository
+import com.colibrez.xkcdreader.data.repository.OfflineFirstComicRepository
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import kotlinx.coroutines.Dispatchers
@@ -269,7 +269,7 @@ fun comicViewModel(
 ): ComicViewModel {
     val database = createDatabase(DriverFactory(LocalContext.current))
     val comicQueries = database.comicEntityQueries
-    val comicRepository = ComicRepository(
+    val comicRepository = OfflineFirstComicRepository(
         comicQueries = comicQueries,
         readComicQueries = database.readComicEntityQueries,
         userEntityQueries = database.userEntityQueries,

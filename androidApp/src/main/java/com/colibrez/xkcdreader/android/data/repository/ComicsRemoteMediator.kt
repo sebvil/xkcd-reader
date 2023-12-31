@@ -5,9 +5,9 @@ import androidx.paging.LoadType
 import androidx.paging.PagingState
 import androidx.paging.RemoteMediator
 import com.colibrez.xkcdreader.data.model.asEntity
+import com.colibrez.xkcdreader.data.repository.ComicRepository
 import com.colibrez.xkcdreader.model.Comic
 import com.colibrez.xkcdreader.network.ApiClient
-import com.colibrez.xkcdreader.data.repository.ComicRepository
 import kotlinx.coroutines.flow.first
 import okio.IOException
 
