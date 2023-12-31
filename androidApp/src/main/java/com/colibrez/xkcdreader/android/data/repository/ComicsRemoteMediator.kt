@@ -75,7 +75,7 @@ class ComicsRemoteMediator(
     }
 
     override suspend fun initialize(): InitializeAction {
-        val hasComics = comicRepository.getCount().first() > 0
+        val hasComics = comicRepository.getComicCount().first() > 0
         return if (hasComics) {
             InitializeAction.SKIP_INITIAL_REFRESH
         } else {

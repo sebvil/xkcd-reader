@@ -50,6 +50,7 @@ import coil.imageLoader
 import com.colibrez.xkcdreader.database.DriverFactory
 import com.colibrez.xkcdreader.database.createDatabase
 import com.colibrez.xkcdreader.data.repository.OfflineFirstComicRepository
+import com.colibrez.xkcdreader.database.SqlDelightLocalComicDataSource
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import kotlinx.coroutines.Dispatchers
@@ -268,14 +269,7 @@ fun comicViewModel(
     num: Long
 ): ComicViewModel {
     val database = createDatabase(DriverFactory(LocalContext.current))
-    val comicQueries = database.comicEntityQueries
-    val comicRepository = OfflineFirstComicRepository(
-        comicQueries = comicQueries,
-        readComicQueries = database.readComicEntityQueries,
-        userEntityQueries = database.userEntityQueries,
-        favoriteComicQueries = database.favoriteComicEntityQueries,
-        ioDispatcher = Dispatchers.IO
-    )
+    val comicRepository = OfflineFirstComicRepository(SqlDelightLocalComicDataSource(Dispatchers.IO, database))
     val factory = ComicViewModel.Factory(
         owner = savedStateRegistryOwner,
         comicRepository,

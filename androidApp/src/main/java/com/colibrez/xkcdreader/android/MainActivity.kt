@@ -49,6 +49,7 @@ import com.colibrez.xkcdreader.database.createDatabase
 import com.colibrez.xkcdreader.model.Comic
 import com.colibrez.xkcdreader.network.ApiClient
 import com.colibrez.xkcdreader.data.repository.OfflineFirstComicRepository
+import com.colibrez.xkcdreader.database.SqlDelightLocalComicDataSource
 import com.ramcosta.composedestinations.DestinationsNavHost
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
@@ -87,14 +88,12 @@ class MainActivity : ComponentActivity() {
 fun mainViewModel(savedStateRegistryOwner: SavedStateRegistryOwner = LocalSavedStateRegistryOwner.current): MainViewModel {
     val driverFactory = DriverFactory(LocalContext.current)
     val database = createDatabase(driverFactory)
-    val comicQueries = database.comicEntityQueries
     val apiClient = ApiClient(Dispatchers.IO)
     val comicRepository = OfflineFirstComicRepository(
-        comicQueries = comicQueries,
-        readComicQueries = database.readComicEntityQueries,
-        userEntityQueries = database.userEntityQueries,
-        favoriteComicQueries = database.favoriteComicEntityQueries,
-        ioDispatcher = Dispatchers.IO
+        SqlDelightLocalComicDataSource(
+            ioDispatcher = Dispatchers.IO,
+            database = database
+        )
     )
     val mediator = ComicsRemoteMediator(
         comicRepository = comicRepository,
@@ -103,20 +102,22 @@ fun mainViewModel(savedStateRegistryOwner: SavedStateRegistryOwner = LocalSavedS
     val factory = MainViewModel.Factory(
         savedStateRegistryOwner,
         comicsRemoteMediator = mediator,
-        pagingSource = QueryPagingSource(
-            countQuery = database.comicEntityQueries.count(),
-            transacter = comicRepository.comicQueries,
-            context = Dispatchers.IO,
-            queryProvider = { limit, offset ->
-                comicRepository.comicQueries.selectPaged(
-                    limit,
-                    offset,
-                    OfflineFirstComicRepository::mapComicSelecting
-                )
-            }
-        ).also {
-            mediator.invalidate = {
-                it.invalidate()
+        pagingSourceFactory = {
+            QueryPagingSource(
+                countQuery = database.comicEntityQueries.count(),
+                transacter = database.comicEntityQueries,
+                context = Dispatchers.IO,
+                queryProvider = { limit, offset ->
+                    database.comicEntityQueries.selectPaged(
+                        limit,
+                        offset,
+                        OfflineFirstComicRepository::mapComicSelecting
+                    )
+                }
+            ).also {
+                mediator.invalidate = {
+                    it.invalidate()
+                }
             }
         },
         comicRepository = comicRepository

@@ -23,7 +23,7 @@ sealed interface MainUserAction {
 
 class MainViewModel(
     comicsRemoteMediator: ComicsRemoteMediator,
-    pagingSource: PagingSource<Int, Comic>,
+    pagingSourceFactory: () -> PagingSource<Int, Comic>,
     private val comicRepository: ComicRepository
 ) :
     ViewModel() {
@@ -32,10 +32,9 @@ class MainViewModel(
     @OptIn(ExperimentalPagingApi::class)
     val pagedComics: Flow<PagingData<Comic>> = Pager(
         config = PagingConfig(pageSize = 20),
-        remoteMediator = comicsRemoteMediator
-    ) {
-        pagingSource
-    }.flow
+        remoteMediator = comicsRemoteMediator,
+        pagingSourceFactory = pagingSourceFactory
+    ).flow
 
 
     fun handle(action: MainUserAction) {
@@ -51,7 +50,7 @@ class MainViewModel(
     class Factory(
         owner: SavedStateRegistryOwner,
         private val comicsRemoteMediator: ComicsRemoteMediator,
-        private val pagingSource: PagingSource<Int, Comic>,
+        private val pagingSourceFactory: () -> PagingSource<Int, Comic>,
         private val comicRepository: ComicRepository,
     ) : AbstractSavedStateViewModelFactory(owner, null) {
 
@@ -61,7 +60,7 @@ class MainViewModel(
             modelClass: Class<T>,
             handle: SavedStateHandle
         ): T {
-            return MainViewModel(comicsRemoteMediator, pagingSource, comicRepository) as T
+            return MainViewModel(comicsRemoteMediator, pagingSourceFactory, comicRepository) as T
         }
     }
 }

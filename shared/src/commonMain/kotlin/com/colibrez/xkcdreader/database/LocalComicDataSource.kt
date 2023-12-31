@@ -1,14 +1,14 @@
-package com.colibrez.xkcdreader.data.repository
+package com.colibrez.xkcdreader.database
 
 import com.colibrez.xkcdreader.database.model.ComicEntity
 import com.colibrez.xkcdreader.model.Comic
 import kotlinx.coroutines.flow.Flow
 
-interface ComicRepository {
+interface LocalComicDataSource {
     fun getComic(num: Long): Flow<Comic>
     fun getLatest(): Flow<Comic>
-    fun getComicCount(): Flow<Long>
     fun getAllComics(): Flow<List<Comic>>
+    fun getComicCount(): Flow<Long>
     fun getComicsPaged(next: Long, limit: Long): Flow<List<Comic>>
 
     suspend fun insertComics(comics: List<ComicEntity>)
