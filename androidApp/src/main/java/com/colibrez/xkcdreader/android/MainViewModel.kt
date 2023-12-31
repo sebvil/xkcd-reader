@@ -3,6 +3,7 @@ package com.colibrez.xkcdreader.android
 import androidx.lifecycle.AbstractSavedStateViewModelFactory
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import androidx.paging.ExperimentalPagingApi
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
@@ -14,8 +15,14 @@ import com.colibrez.xkcdreader.model.Comic
 import com.colibrez.xkcdreader.data.repository.ComicRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.launch
 
-class MainViewModel(comicsRemoteMediator: ComicsRemoteMediator, comicRepository: ComicRepository) :
+
+sealed interface MainUserAction {
+    data class ToggleFavorite(val comicNum: Long, val isFavorite: Boolean): MainUserAction
+}
+
+class MainViewModel(comicsRemoteMediator: ComicsRemoteMediator, private val comicRepository: ComicRepository) :
     ViewModel() {
 
 
@@ -42,6 +49,16 @@ class MainViewModel(comicsRemoteMediator: ComicsRemoteMediator, comicRepository:
         }
     }.flow
 
+
+    fun handle(action: MainUserAction) {
+        when (action) {
+            is MainUserAction.ToggleFavorite -> {
+                viewModelScope.launch {
+                    comicRepository.toggleFavorite(action.comicNum, action.isFavorite)
+                }
+            }
+        }
+    }
 
     class Factory(
         owner: SavedStateRegistryOwner,

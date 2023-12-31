@@ -11,7 +11,7 @@ CREATE TABLE IF NOT EXISTS ComicEntity (
 );
 
 select:
-SELECT * FROM ComicInfo WHERE ComicInfo.num = ?;
+SELECT * FROM ComicInfo WHERE ComicInfo.num = :comicNumber;
 
 count:
 SELECT COUNT(*) FROM ComicEntity;

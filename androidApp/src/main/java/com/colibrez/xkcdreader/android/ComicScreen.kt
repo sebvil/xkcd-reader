@@ -11,10 +11,13 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Share
+import androidx.compose.material.icons.filled.Star
+import androidx.compose.material.icons.outlined.Star
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
@@ -29,6 +32,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
@@ -92,6 +96,13 @@ fun ComicScreen(
                         }
                     },
                     actions = {
+                        IconButton(onClick = { viewModel.handle(ComicUserAction.ToggleFavorite(stateNotNull.num, stateNotNull.isFavorite)) }) {
+                            Icon(
+                                imageVector = if (stateNotNull.isFavorite) Icons.Filled.Star else Icons.Outlined.Star,
+                                contentDescription = "Mark as favorite",
+                                tint = if (stateNotNull.isFavorite) Color.Yellow else LocalContentColor.current
+                            )
+                        }
                         IconButton(onClick = {
                             val sendIntent: Intent = Intent().apply {
                                 action = Intent.ACTION_SEND
@@ -260,8 +271,9 @@ fun comicViewModel(
     val comicQueries = database.comicEntityQueries
     val comicRepository = ComicRepository(
         comicQueries = comicQueries,
-        readComicsQueries = database.readComicEntityQueries,
+        readComicQueries = database.readComicEntityQueries,
         userEntityQueries = database.userEntityQueries,
+        favoriteComicQueries = database.favoriteComicEntityQueries,
         ioDispatcher = Dispatchers.IO
     )
     val factory = ComicViewModel.Factory(

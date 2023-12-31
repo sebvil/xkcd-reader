@@ -1,12 +1,11 @@
 package com.colibrez.xkcdreader.data.repository
 
-import com.colibrez.xkcdreader.data.model.asEntity
 import com.colibrez.xkcdreader.model.Comic
 import com.colibrez.xkcdreader.data.model.asExternalModel
 import com.colibrez.xkcdreader.database.model.ComicEntity
 import com.colibrez.xkcdreader.database.model.ComicEntityQueries
 import com.colibrez.xkcdreader.database.model.ComicInfo
-import com.colibrez.xkcdreader.database.model.ReadComicEntity
+import com.colibrez.xkcdreader.database.model.FavoriteComicEntityQueries
 import com.colibrez.xkcdreader.database.model.ReadComicEntityQueries
 import com.colibrez.xkcdreader.database.model.UserEntity
 import com.colibrez.xkcdreader.database.model.UserEntityQueries
@@ -18,8 +17,9 @@ import kotlinx.coroutines.withContext
 
 class ComicRepository(
     val comicQueries: ComicEntityQueries,
-    val readComicsQueries: ReadComicEntityQueries,
+    val readComicQueries: ReadComicEntityQueries,
     val userEntityQueries: UserEntityQueries,
+    val favoriteComicQueries: FavoriteComicEntityQueries,
     private val ioDispatcher: CoroutineDispatcher
 ) {
 
@@ -56,7 +56,18 @@ class ComicRepository(
     suspend fun markAsSeen(comicNum: Long, userId: Long = 0L) {
         withContext(ioDispatcher) {
             userEntityQueries.createUser(id = UserEntity.Id(userId))
-            readComicsQueries.markComicAsRead(comicNum, userId = UserEntity.Id(userId))
+            readComicQueries.markComicAsRead(comicNum, userId = UserEntity.Id(userId))
+        }
+    }
+
+    suspend fun toggleFavorite(comicNum: Long, isFavorite: Boolean, userId: Long = 0L) {
+        withContext(ioDispatcher) {
+            userEntityQueries.createUser(id = UserEntity.Id(userId))
+            if (isFavorite) {
+                favoriteComicQueries.removeComicFromFavorites(comicNumber = comicNum, userId = UserEntity.Id(userId))
+            } else {
+                favoriteComicQueries.markComicAsFavorite(comicNum, userId = UserEntity.Id(userId))
+            }
         }
     }
 
