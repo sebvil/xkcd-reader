@@ -6,6 +6,10 @@ import com.colibrez.xkcdreader.data.model.asExternalModel
 import com.colibrez.xkcdreader.database.model.ComicEntity
 import com.colibrez.xkcdreader.database.model.ComicEntityQueries
 import com.colibrez.xkcdreader.database.model.ComicInfo
+import com.colibrez.xkcdreader.database.model.ReadComicEntity
+import com.colibrez.xkcdreader.database.model.ReadComicEntityQueries
+import com.colibrez.xkcdreader.database.model.UserEntity
+import com.colibrez.xkcdreader.database.model.UserEntityQueries
 import com.colibrez.xkcdreader.extensions.getList
 import com.colibrez.xkcdreader.extensions.getOne
 import kotlinx.coroutines.CoroutineDispatcher
@@ -14,6 +18,8 @@ import kotlinx.coroutines.withContext
 
 class ComicRepository(
     val comicQueries: ComicEntityQueries,
+    val readComicsQueries: ReadComicEntityQueries,
+    val userEntityQueries: UserEntityQueries,
     private val ioDispatcher: CoroutineDispatcher
 ) {
 
@@ -44,6 +50,13 @@ class ComicRepository(
                     comicQueries.insert(comic)
                 }
             }
+        }
+    }
+
+    suspend fun markAsSeen(comicNum: Long, userId: Long = 0L) {
+        withContext(ioDispatcher) {
+            userEntityQueries.createUser(id = UserEntity.Id(userId))
+            readComicsQueries.markComicAsRead(comicNum, userId = UserEntity.Id(userId))
         }
     }
 

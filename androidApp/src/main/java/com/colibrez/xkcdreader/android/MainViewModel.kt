@@ -9,7 +9,7 @@ import androidx.paging.PagingConfig
 import androidx.paging.PagingData
 import androidx.savedstate.SavedStateRegistryOwner
 import app.cash.sqldelight.paging3.QueryPagingSource
-import com.colibrez.xkcdreader.android.repository.ComicsRemoteMediator
+import com.colibrez.xkcdreader.android.data.repository.ComicsRemoteMediator
 import com.colibrez.xkcdreader.model.Comic
 import com.colibrez.xkcdreader.data.repository.ComicRepository
 import kotlinx.coroutines.Dispatchers

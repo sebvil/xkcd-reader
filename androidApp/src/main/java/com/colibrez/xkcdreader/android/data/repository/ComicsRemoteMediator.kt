@@ -1,4 +1,4 @@
-package com.colibrez.xkcdreader.android.repository
+package com.colibrez.xkcdreader.android.data.repository
 
 import androidx.paging.ExperimentalPagingApi
 import androidx.paging.LoadType

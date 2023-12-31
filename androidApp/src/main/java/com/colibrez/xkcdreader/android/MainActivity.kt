@@ -23,6 +23,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSavedStateRegistryOwner
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.paging.compose.collectAsLazyPagingItems
@@ -34,7 +35,7 @@ import coil.compose.AsyncImage
 import coil.disk.DiskCache
 import coil.memory.MemoryCache
 import com.colibrez.xkcdreader.android.destinations.ComicScreenDestination
-import com.colibrez.xkcdreader.android.repository.ComicsRemoteMediator
+import com.colibrez.xkcdreader.android.data.repository.ComicsRemoteMediator
 import com.colibrez.xkcdreader.database.DriverFactory
 import com.colibrez.xkcdreader.database.createDatabase
 import com.colibrez.xkcdreader.model.Comic
@@ -44,6 +45,7 @@ import com.ramcosta.composedestinations.DestinationsNavHost
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import kotlinx.coroutines.Dispatchers
+import java.time.format.TextStyle
 
 class MainActivity : ComponentActivity() {
 
@@ -79,16 +81,21 @@ fun mainViewModel(
     savedStateRegistryOwner: SavedStateRegistryOwner = LocalSavedStateRegistryOwner.current,
 
     ): MainViewModel {
-    val comicQueries = createDatabase(DriverFactory(LocalContext.current)).comicEntityQueries
+    val driverFactory = DriverFactory(LocalContext.current)
+    val database = createDatabase(driverFactory)
+    val driver = driverFactory.driver
+    val comicQueries = database.comicEntityQueries
     val apiClient = ApiClient(Dispatchers.IO)
-    val comicRepository = ComicRepository(comicQueries, Dispatchers.IO)
+    val comicRepository = ComicRepository(
+        comicQueries = comicQueries,
+        readComicsQueries = database.readComicEntityQueries,
+        userEntityQueries = database.userEntityQueries,
+        ioDispatcher = Dispatchers.IO
+    )
     val factory = MainViewModel.Factory(
         savedStateRegistryOwner,
         comicsRemoteMediator = ComicsRemoteMediator(
-            comicRepository = ComicRepository(
-                comicQueries = comicQueries,
-                ioDispatcher = Dispatchers.IO
-            ),
+            comicRepository = comicRepository,
             apiClient = apiClient
         ),
         comicRepository = comicRepository
@@ -134,7 +141,7 @@ fun MainScreen(viewModel: MainViewModel = mainViewModel(), navigator: Destinatio
             val item = lazyPagingItems[index] ?: return@items
             ListItem(
                 headlineContent = {
-                    Text(text = "${item.num}. ${item.title}")
+                    Text(text = "${item.num}. ${item.title}", fontWeight = if (item.isRead) null else FontWeight.ExtraBold)
                 },
                 modifier = Modifier
                     .padding(vertical = 8.dp)
