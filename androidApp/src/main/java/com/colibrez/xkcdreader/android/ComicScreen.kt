@@ -102,7 +102,8 @@ fun ComicScreen(
                                         /* authority = */ "com.colibrez.xkcdreader",
                                         /* file = */ it
                                     )
-                                    clipData = ClipData.newUri(context.contentResolver,"", contentUri)
+                                    clipData =
+                                        ClipData.newUri(context.contentResolver, "", contentUri)
                                     putExtra(Intent.EXTRA_STREAM, contentUri)
 
                                     putExtra(
@@ -255,8 +256,14 @@ fun comicViewModel(
     savedStateRegistryOwner: SavedStateRegistryOwner = LocalSavedStateRegistryOwner.current,
     num: Long
 ): ComicViewModel {
-    val comicQueries = createDatabase(DriverFactory(LocalContext.current)).comicEntityQueries
-    val comicRepository = ComicRepository(comicQueries, Dispatchers.IO)
+    val database = createDatabase(DriverFactory(LocalContext.current))
+    val comicQueries = database.comicEntityQueries
+    val comicRepository = ComicRepository(
+        comicQueries = comicQueries,
+        readComicsQueries = database.readComicEntityQueries,
+        userEntityQueries = database.userEntityQueries,
+        ioDispatcher = Dispatchers.IO
+    )
     val factory = ComicViewModel.Factory(
         owner = savedStateRegistryOwner,
         comicRepository,

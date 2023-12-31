@@ -10,6 +10,7 @@ import com.colibrez.xkcdreader.data.repository.ComicRepository
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.launch
 
 class ComicViewModel(comicRepository: ComicRepository, comicNum: Long) : ViewModel() {
 
@@ -18,6 +19,12 @@ class ComicViewModel(comicRepository: ComicRepository, comicNum: Long) : ViewMod
         started = SharingStarted.WhileSubscribed(5_000),
         initialValue = null
     )
+
+    init {
+        viewModelScope.launch {
+            comicRepository.markAsSeen(comicNum)
+        }
+    }
 
     class Factory(
         owner: SavedStateRegistryOwner,

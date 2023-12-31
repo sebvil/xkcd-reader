@@ -1,5 +1,14 @@
 CREATE TABLE IF NOT EXISTS ReadComicEntity(
-    comic_num INTEGER NOT NULL,
-    user_id INTEGER NOT NULL,
-    PRIMARY KEY (comic_num, user_id)
+    comicNum INTEGER NOT NULL,
+    userId INTEGER NOT NULL,
+    FOREIGN KEY  (comicNum)
+    REFERENCES ComicEntity (num)
+    ON DELETE CASCADE,
+    FOREIGN KEY  (userId)
+    REFERENCES UserEntity (id)
+    ON DELETE CASCADE,
+    PRIMARY KEY (comicNum, userId)
 );
+
+markComicAsRead:
+INSERT OR REPLACE INTO ReadComicEntity (comicNum, userId) VALUES (?, ?);
