@@ -24,7 +24,12 @@ fun main() {
 fun Application.module() {
     val database = createDatabase(DriverFactory())
     val applicationScope = CoroutineScope(Dispatchers.Default + SupervisorJob())
-    val comicRepository = ComicRepository(database.comicEntityQueries, database.readComicEntityQueries, database.userEntityQueries, Dispatchers.IO)
+    val comicRepository = ComicRepository(
+        database.comicEntityQueries,
+        database.readComicEntityQueries,
+        database.userEntityQueries,,
+        Dispatchers.IO
+    )
     val xkcdClient = XkcdClient(Dispatchers.IO)
     init(comicRepository, xkcdClient, applicationScope)
     configureTemplating()

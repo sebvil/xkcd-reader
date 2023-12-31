@@ -11,7 +11,13 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.sizeIn
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Star
+import androidx.compose.material.icons.outlined.Star
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.ListItem
+import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -21,6 +27,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSavedStateRegistryOwner
 import androidx.compose.ui.text.font.FontWeight
@@ -45,7 +52,6 @@ import com.ramcosta.composedestinations.DestinationsNavHost
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import kotlinx.coroutines.Dispatchers
-import java.time.format.TextStyle
 
 class MainActivity : ComponentActivity() {
 
@@ -87,8 +93,9 @@ fun mainViewModel(
     val apiClient = ApiClient(Dispatchers.IO)
     val comicRepository = ComicRepository(
         comicQueries = comicQueries,
-        readComicsQueries = database.readComicEntityQueries,
+        readComicQueries = database.readComicEntityQueries,
         userEntityQueries = database.userEntityQueries,
+        favoriteComicQueries = database.favoriteComicEntityQueries,
         ioDispatcher = Dispatchers.IO
     )
     val factory = MainViewModel.Factory(
@@ -149,6 +156,14 @@ fun MainScreen(viewModel: MainViewModel = mainViewModel(), navigator: Destinatio
                     },
                 leadingContent = {
                     image(item)
+                }, trailingContent = {
+                    IconButton(onClick = { viewModel.handle(MainUserAction.ToggleFavorite(item.num, item.isFavorite)) }) {
+                        Icon(
+                            imageVector = if (item.isFavorite) Icons.Filled.Star else Icons.Outlined.Star,
+                            contentDescription = "Mark as favorite",
+                            tint = if (item.isFavorite) Color.Yellow else LocalContentColor.current
+                        )
+                    }
                 }
             )
         }

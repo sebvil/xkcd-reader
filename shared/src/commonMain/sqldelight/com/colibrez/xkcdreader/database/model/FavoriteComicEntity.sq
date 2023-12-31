@@ -9,3 +9,10 @@ CREATE TABLE IF NOT EXISTS FavoriteComicEntity (
     ON DELETE CASCADE,
     PRIMARY KEY (comicNum, userId)
 );
+
+
+markComicAsFavorite:
+INSERT OR REPLACE INTO FavoriteComicEntity (comicNum, userId) VALUES (?, ?);
+
+removeComicFromFavorites:
+DELETE FROM FavoriteComicEntity WHERE comicNum = :comicNumber AND userId = :userId;

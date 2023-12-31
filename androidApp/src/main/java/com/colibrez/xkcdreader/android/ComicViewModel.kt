@@ -12,7 +12,11 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
-class ComicViewModel(comicRepository: ComicRepository, comicNum: Long) : ViewModel() {
+sealed interface ComicUserAction {
+    data class ToggleFavorite(val comicNum: Long, val isFavorite: Boolean) : ComicUserAction
+}
+
+class ComicViewModel(private val comicRepository: ComicRepository, comicNum: Long) : ViewModel() {
 
     val state: StateFlow<Comic?> = comicRepository.getComic(comicNum).stateIn(
         scope = viewModelScope,
@@ -23,6 +27,16 @@ class ComicViewModel(comicRepository: ComicRepository, comicNum: Long) : ViewMod
     init {
         viewModelScope.launch {
             comicRepository.markAsSeen(comicNum)
+        }
+    }
+
+    fun handle(action: ComicUserAction) {
+        when (action) {
+            is ComicUserAction.ToggleFavorite -> {
+                viewModelScope.launch {
+                    comicRepository.toggleFavorite(action.comicNum, action.isFavorite)
+                }
+            }
         }
     }
 
