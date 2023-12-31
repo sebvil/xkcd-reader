@@ -1,6 +1,7 @@
-package com.colibrez.xkcdreader.data
+package com.colibrez.xkcdreader.database
 
 import app.cash.sqldelight.db.SqlDriver
+import com.colibrez.xkcdreader.data.Database
 
 expect class DriverFactory {
     fun createDriver(): SqlDriver

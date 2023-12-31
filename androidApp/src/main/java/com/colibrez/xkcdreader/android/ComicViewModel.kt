@@ -6,7 +6,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.savedstate.SavedStateRegistryOwner
 import com.colibrez.xkcdreader.model.Comic
-import com.colibrez.xkcdreader.repository.ComicRepository
+import com.colibrez.xkcdreader.data.repository.ComicRepository
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.stateIn

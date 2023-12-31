@@ -35,11 +35,11 @@ import coil.disk.DiskCache
 import coil.memory.MemoryCache
 import com.colibrez.xkcdreader.android.destinations.ComicScreenDestination
 import com.colibrez.xkcdreader.android.repository.ComicsRemoteMediator
-import com.colibrez.xkcdreader.data.DriverFactory
-import com.colibrez.xkcdreader.data.createDatabase
+import com.colibrez.xkcdreader.database.DriverFactory
+import com.colibrez.xkcdreader.database.createDatabase
 import com.colibrez.xkcdreader.model.Comic
 import com.colibrez.xkcdreader.network.ApiClient
-import com.colibrez.xkcdreader.repository.ComicRepository
+import com.colibrez.xkcdreader.data.repository.ComicRepository
 import com.ramcosta.composedestinations.DestinationsNavHost
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
@@ -79,7 +79,7 @@ fun mainViewModel(
     savedStateRegistryOwner: SavedStateRegistryOwner = LocalSavedStateRegistryOwner.current,
 
     ): MainViewModel {
-    val comicQueries = createDatabase(DriverFactory(LocalContext.current)).comicQueries
+    val comicQueries = createDatabase(DriverFactory(LocalContext.current)).comicEntityQueries
     val apiClient = ApiClient(Dispatchers.IO)
     val comicRepository = ComicRepository(comicQueries, Dispatchers.IO)
     val factory = MainViewModel.Factory(

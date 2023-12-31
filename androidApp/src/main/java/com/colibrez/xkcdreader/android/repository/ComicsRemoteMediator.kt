@@ -1,13 +1,13 @@
 package com.colibrez.xkcdreader.android.repository
 
-import android.util.Log
 import androidx.paging.ExperimentalPagingApi
 import androidx.paging.LoadType
 import androidx.paging.PagingState
 import androidx.paging.RemoteMediator
+import com.colibrez.xkcdreader.data.model.asEntity
 import com.colibrez.xkcdreader.model.Comic
 import com.colibrez.xkcdreader.network.ApiClient
-import com.colibrez.xkcdreader.repository.ComicRepository
+import com.colibrez.xkcdreader.data.repository.ComicRepository
 import kotlinx.coroutines.flow.first
 import okio.IOException
 
@@ -63,7 +63,7 @@ class ComicsRemoteMediator(
                     return MediatorResult.Error(it)
                 }
             )
-            comicRepository.insertComics(comics)
+            comicRepository.insertComics(comics.map { it.asEntity() })
 
             return MediatorResult.Success(
                 endOfPaginationReached = comics.isEmpty()
@@ -76,7 +76,7 @@ class ComicsRemoteMediator(
 
     override suspend fun initialize(): InitializeAction {
         val hasComics = comicRepository.getCount().first() > 0
-        return  if (hasComics) {
+        return if (hasComics) {
             InitializeAction.SKIP_INITIAL_REFRESH
         } else {
             InitializeAction.LAUNCH_INITIAL_REFRESH

@@ -2,6 +2,7 @@ package com.colibrez.xkcdreader.network
 
 import com.colibrez.xkcdreader.extensions.getResult
 import com.colibrez.xkcdreader.model.Comic
+import com.colibrez.xkcdreader.network.model.NetworkComic
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.ProxyBuilder
 import io.ktor.client.engine.cio.CIO
@@ -9,7 +10,6 @@ import io.ktor.client.engine.http
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.client.plugins.defaultRequest
 import io.ktor.client.plugins.resources.Resources
-import io.ktor.http.ContentType.Application.Json
 import io.ktor.serialization.kotlinx.json.json
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.withContext
@@ -37,15 +37,9 @@ class ApiClient(private val ioDispatcher: CoroutineDispatcher) {
         }
     }
 
-    suspend fun getPaginatedComics(next: Long = 1, limit: Long = 10): Result<List<Comic>> {
+    suspend fun getPaginatedComics(next: Long = 1, limit: Long = 10): Result<List<NetworkComic>> {
         return withContext(ioDispatcher) {
             client.getResult(Comics(limit = limit, next = next))
-        }
-    }
-
-    suspend fun getComic(num: Long): Result<Comic> {
-        return withContext(ioDispatcher) {
-            client.getResult(Comics.Num(num = num))
         }
     }
 

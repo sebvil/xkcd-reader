@@ -1,14 +1,14 @@
 package com.colibrez.xkcdreader.network
 
-import com.colibrez.xkcdreader.model.Comic
+import com.colibrez.xkcdreader.network.model.NetworkComic
 import io.ktor.resources.Resource
 
 
-interface Route<T>
+interface ApiRoute<Response>
 
 @Resource("/comics")
-data class Comics(val limit: Long = 10, val next: Long = 1): Route<List<Comic>> {
+data class Comics(val limit: Long = 10, val next: Long = 1): ApiRoute<List<NetworkComic>> {
 
     @Resource("{num}")
-    data class Num(val num: Long, val parent: Comics = Comics()) : Route<Comic>
+    data class Num(val num: Long, val parent: Comics = Comics()) : ApiRoute<NetworkComic>
 }

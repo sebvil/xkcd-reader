@@ -1,10 +1,15 @@
 package com.colibrez.xkcdreader
 
+import com.colibrez.xkcdreader.data.model.asEntity
 import com.colibrez.xkcdreader.model.Comic
 import com.colibrez.xkcdreader.network.XkcdClient
-import com.colibrez.xkcdreader.repository.ComicRepository
+import com.colibrez.xkcdreader.data.repository.ComicRepository
+import com.colibrez.xkcdreader.network.model.XkcdNetworkComic
 import io.ktor.server.application.Application
+import io.ktor.server.application.log
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.joinAll
@@ -20,24 +25,16 @@ fun Application.init(
     applicationScope.launch {
         val latestComic = xkcdClient.getLatest().getOrElse { return@launch }
         val comicNum = latestComic.num
-        val savedComics = comicRepository.getAllComics().map { it.map { comic -> comic.num }.toSet()  }.first()
-        val comics = mutableListOf<Comic>()
-        val mutex = Mutex()
-        val jobs = (1..comicNum).mapNotNull {
-            if (it !in savedComics) {
-                launch {
-                    xkcdClient.getComic(it).onSuccess { comic ->
-                        mutex.withLock {
-                            comics.add(comic)
-                        }
-                    }
+        val savedComics =
+            comicRepository.getAllComics().map { it.map { comic -> comic.num }.toSet() }.first()
+        val comics = (1..comicNum).filter { it !in savedComics && it != 404L }.chunked(XkcdClient.MAX_CONNECTIONS_PER_ROUTE).flatMap {chunk ->
+            chunk.map { comicNum ->
+                async {
+                    xkcdClient.getComic(comicNum).getOrElse { null }
                 }
-            } else {
-                null
-            }
+            }.awaitAll().filterNotNull()
         }
-        jobs.joinAll()
-        comicRepository.insertComics(comics)
+        comicRepository.insertComics(comics.map { it.asEntity() })
     }
 
 }

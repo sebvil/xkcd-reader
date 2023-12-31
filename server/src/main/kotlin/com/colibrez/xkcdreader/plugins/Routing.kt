@@ -1,33 +1,41 @@
 package com.colibrez.xkcdreader.plugins
 
+import com.colibrez.xkcdreader.data.model.asNetworkComic
+import com.colibrez.xkcdreader.network.ApiRoute
 import com.colibrez.xkcdreader.network.Comics
-import com.colibrez.xkcdreader.network.XkcdClient
-import com.colibrez.xkcdreader.repository.ComicRepository
-import io.ktor.resources.Resource
+import com.colibrez.xkcdreader.network.model.NetworkComic
+import com.colibrez.xkcdreader.data.repository.ComicRepository
 import io.ktor.server.application.Application
+import io.ktor.server.application.ApplicationCall
 import io.ktor.server.application.call
 import io.ktor.server.application.install
 import io.ktor.server.resources.Resources
 import io.ktor.server.resources.get
 import io.ktor.server.response.respond
-import io.ktor.server.routing.get
+import io.ktor.server.routing.Route
 import io.ktor.server.routing.routing
+import io.ktor.util.pipeline.PipelineContext
 import kotlinx.coroutines.flow.first
 
 fun Application.configureRouting(comicRepository: ComicRepository) {
     install(Resources)
     routing {
-        get<Comics> { params ->
-            val comics = comicRepository.getComicsPaged(params.next, params.limit).first()
-            call.respond(comics)
+        get<List<NetworkComic>, Comics> { params ->
+            comicRepository.getComicsPaged(params.next, params.limit).first()
+                .map { it.asNetworkComic() }
         }
 
-
-        get<Comics.Num> { comic ->
-            call.respond(comicRepository.getComic(comic.num).first())
+        get<NetworkComic, Comics.Num> { comic ->
+            comicRepository.getComic(comic.num).first().asNetworkComic()
         }
     }
 }
 
-
-
+inline fun <reified Response : Any, reified T : ApiRoute<Response>> Route.get(
+    noinline body: suspend PipelineContext<Unit, ApplicationCall>.(T) -> Response
+): Route {
+    return get<T> { params ->
+        val result = body(params)
+        call.respond(result)
+    }
+}

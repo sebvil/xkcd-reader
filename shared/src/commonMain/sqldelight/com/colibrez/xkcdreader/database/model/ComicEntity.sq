@@ -1,0 +1,29 @@
+CREATE TABLE IF NOT EXISTS ComicEntity (
+    num INTEGER PRIMARY KEY NOT NULL,
+    title TEXT NOT NULL,
+    transcript TEXT NOT NULL,
+    img TEXT NOT NULL,
+    alt TEXT NOT NULL,
+    link TEXT NOT NULL,
+    year INTEGER NOT NULL,
+    month INTEGER NOT NULL,
+    day INTEGER NOT NULL
+);
+
+select:
+SELECT * FROM ComicInfo WHERE ComicInfo.num = ?;
+
+count:
+SELECT COUNT(*) FROM ComicEntity;
+
+selectAll:
+SELECT * FROM ComicInfo ORDER BY ComicInfo.num;
+
+selectLatest:
+SELECT * FROM ComicInfo ORDER BY ComicInfo.num LIMIT 1;
+
+selectPaged:
+SELECT * FROM ComicInfo ORDER BY ComicInfo.num LIMIT :limit OFFSET :offset;
+
+insert:
+INSERT OR REPLACE INTO ComicEntity (num, title, transcript, img, alt, link, year, month, day) VALUES ?;

@@ -11,7 +11,7 @@ import androidx.savedstate.SavedStateRegistryOwner
 import app.cash.sqldelight.paging3.QueryPagingSource
 import com.colibrez.xkcdreader.android.repository.ComicsRemoteMediator
 import com.colibrez.xkcdreader.model.Comic
-import com.colibrez.xkcdreader.repository.ComicRepository
+import com.colibrez.xkcdreader.data.repository.ComicRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 

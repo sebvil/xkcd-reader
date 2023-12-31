@@ -43,9 +43,9 @@ import androidx.savedstate.SavedStateRegistryOwner
 import coil.annotation.ExperimentalCoilApi
 import coil.compose.AsyncImage
 import coil.imageLoader
-import com.colibrez.xkcdreader.data.DriverFactory
-import com.colibrez.xkcdreader.data.createDatabase
-import com.colibrez.xkcdreader.repository.ComicRepository
+import com.colibrez.xkcdreader.database.DriverFactory
+import com.colibrez.xkcdreader.database.createDatabase
+import com.colibrez.xkcdreader.data.repository.ComicRepository
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import kotlinx.coroutines.Dispatchers
@@ -255,7 +255,7 @@ fun comicViewModel(
     savedStateRegistryOwner: SavedStateRegistryOwner = LocalSavedStateRegistryOwner.current,
     num: Long
 ): ComicViewModel {
-    val comicQueries = createDatabase(DriverFactory(LocalContext.current)).comicQueries
+    val comicQueries = createDatabase(DriverFactory(LocalContext.current)).comicEntityQueries
     val comicRepository = ComicRepository(comicQueries, Dispatchers.IO)
     val factory = ComicViewModel.Factory(
         owner = savedStateRegistryOwner,
