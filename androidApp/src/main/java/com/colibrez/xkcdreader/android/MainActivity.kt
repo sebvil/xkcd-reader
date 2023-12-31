@@ -83,7 +83,6 @@ fun mainViewModel(
     ): MainViewModel {
     val driverFactory = DriverFactory(LocalContext.current)
     val database = createDatabase(driverFactory)
-    val driver = driverFactory.driver
     val comicQueries = database.comicEntityQueries
     val apiClient = ApiClient(Dispatchers.IO)
     val comicRepository = ComicRepository(
