@@ -9,8 +9,8 @@ import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.PagingData
 import androidx.paging.PagingSource
+import androidx.paging.RemoteMediator
 import androidx.savedstate.SavedStateRegistryOwner
-import com.colibrez.xkcdreader.android.data.repository.ComicsRemoteMediator
 import com.colibrez.xkcdreader.data.repository.ComicRepository
 import com.colibrez.xkcdreader.model.Comic
 import kotlinx.coroutines.flow.Flow
@@ -21,12 +21,12 @@ sealed interface MainUserAction {
     data class ToggleFavorite(val comicNum: Long, val isFavorite: Boolean) : MainUserAction
 }
 
+@OptIn(ExperimentalPagingApi::class)
 class MainViewModel(
-    comicsRemoteMediator: ComicsRemoteMediator,
+    comicsRemoteMediator: RemoteMediator<Int, Comic>,
     pagingSourceFactory: () -> PagingSource<Int, Comic>,
     private val comicRepository: ComicRepository
-) :
-    ViewModel() {
+) : ViewModel() {
 
 
     @OptIn(ExperimentalPagingApi::class)
@@ -47,9 +47,10 @@ class MainViewModel(
         }
     }
 
+
     class Factory(
         owner: SavedStateRegistryOwner,
-        private val comicsRemoteMediator: ComicsRemoteMediator,
+        private val comicsRemoteMediator: RemoteMediator<Int, Comic>,
         private val pagingSourceFactory: () -> PagingSource<Int, Comic>,
         private val comicRepository: ComicRepository,
     ) : AbstractSavedStateViewModelFactory(owner, null) {
