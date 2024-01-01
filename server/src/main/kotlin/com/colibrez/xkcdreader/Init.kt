@@ -1,21 +1,15 @@
 package com.colibrez.xkcdreader
 
 import com.colibrez.xkcdreader.data.model.asEntity
-import com.colibrez.xkcdreader.model.Comic
-import com.colibrez.xkcdreader.network.XkcdClient
 import com.colibrez.xkcdreader.data.repository.ComicRepository
-import com.colibrez.xkcdreader.network.model.XkcdNetworkComic
+import com.colibrez.xkcdreader.network.XkcdClient
 import io.ktor.server.application.Application
-import io.ktor.server.application.log
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.joinAll
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.sync.Mutex
-import kotlinx.coroutines.sync.withLock
 
 fun Application.init(
     comicRepository: ComicRepository,

@@ -1,10 +1,10 @@
 package com.colibrez.xkcdreader.plugins
 
 import com.colibrez.xkcdreader.data.model.asNetworkComic
+import com.colibrez.xkcdreader.data.repository.ComicRepository
 import com.colibrez.xkcdreader.network.ApiRoute
 import com.colibrez.xkcdreader.network.Comics
 import com.colibrez.xkcdreader.network.model.NetworkComic
-import com.colibrez.xkcdreader.data.repository.ComicRepository
 import io.ktor.server.application.Application
 import io.ktor.server.application.ApplicationCall
 import io.ktor.server.application.call

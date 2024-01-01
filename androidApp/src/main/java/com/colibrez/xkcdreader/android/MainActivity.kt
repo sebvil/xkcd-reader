@@ -36,6 +36,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.paging.compose.collectAsLazyPagingItems
 import androidx.paging.compose.itemKey
 import androidx.savedstate.SavedStateRegistryOwner
+import app.cash.sqldelight.paging3.QueryPagingSource
 import coil.Coil
 import coil.ImageLoader
 import coil.compose.AsyncImage
@@ -47,7 +48,8 @@ import com.colibrez.xkcdreader.database.DriverFactory
 import com.colibrez.xkcdreader.database.createDatabase
 import com.colibrez.xkcdreader.model.Comic
 import com.colibrez.xkcdreader.network.ApiClient
-import com.colibrez.xkcdreader.data.repository.ComicRepository
+import com.colibrez.xkcdreader.data.repository.OfflineFirstComicRepository
+import com.colibrez.xkcdreader.database.SqlDelightLocalComicDataSource
 import com.ramcosta.composedestinations.DestinationsNavHost
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
@@ -83,27 +85,41 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-fun mainViewModel(
-    savedStateRegistryOwner: SavedStateRegistryOwner = LocalSavedStateRegistryOwner.current,
-
-    ): MainViewModel {
+fun mainViewModel(savedStateRegistryOwner: SavedStateRegistryOwner = LocalSavedStateRegistryOwner.current): MainViewModel {
     val driverFactory = DriverFactory(LocalContext.current)
     val database = createDatabase(driverFactory)
-    val comicQueries = database.comicEntityQueries
     val apiClient = ApiClient(Dispatchers.IO)
-    val comicRepository = ComicRepository(
-        comicQueries = comicQueries,
-        readComicQueries = database.readComicEntityQueries,
-        userEntityQueries = database.userEntityQueries,
-        favoriteComicQueries = database.favoriteComicEntityQueries,
-        ioDispatcher = Dispatchers.IO
+    val comicRepository = OfflineFirstComicRepository(
+        SqlDelightLocalComicDataSource(
+            ioDispatcher = Dispatchers.IO,
+            database = database
+        )
+    )
+    val mediator = ComicsRemoteMediator(
+        comicRepository = comicRepository,
+        apiClient = apiClient
     )
     val factory = MainViewModel.Factory(
         savedStateRegistryOwner,
-        comicsRemoteMediator = ComicsRemoteMediator(
-            comicRepository = comicRepository,
-            apiClient = apiClient
-        ),
+        comicsRemoteMediator = mediator,
+        pagingSourceFactory = {
+            QueryPagingSource(
+                countQuery = database.comicEntityQueries.count(),
+                transacter = database.comicEntityQueries,
+                context = Dispatchers.IO,
+                queryProvider = { limit, offset ->
+                    database.comicEntityQueries.selectPaged(
+                        limit,
+                        offset,
+                        OfflineFirstComicRepository::mapComicSelecting
+                    )
+                }
+            ).also {
+                mediator.invalidate = {
+                    it.invalidate()
+                }
+            }
+        },
         comicRepository = comicRepository
     )
     return viewModel(factory = factory)
@@ -147,7 +163,10 @@ fun MainScreen(viewModel: MainViewModel = mainViewModel(), navigator: Destinatio
             val item = lazyPagingItems[index] ?: return@items
             ListItem(
                 headlineContent = {
-                    Text(text = "${item.num}. ${item.title}", fontWeight = if (item.isRead) null else FontWeight.ExtraBold)
+                    Text(
+                        text = "${item.num}. ${item.title}",
+                        fontWeight = if (item.isRead) null else FontWeight.ExtraBold
+                    )
                 },
                 modifier = Modifier
                     .padding(vertical = 8.dp)
@@ -157,7 +176,14 @@ fun MainScreen(viewModel: MainViewModel = mainViewModel(), navigator: Destinatio
                 leadingContent = {
                     image(item)
                 }, trailingContent = {
-                    IconButton(onClick = { viewModel.handle(MainUserAction.ToggleFavorite(item.num, item.isFavorite)) }) {
+                    IconButton(onClick = {
+                        viewModel.handle(
+                            MainUserAction.ToggleFavorite(
+                                item.num,
+                                item.isFavorite
+                            )
+                        )
+                    }) {
                         Icon(
                             imageVector = if (item.isFavorite) Icons.Filled.Star else Icons.Outlined.Star,
                             contentDescription = "Mark as favorite",
