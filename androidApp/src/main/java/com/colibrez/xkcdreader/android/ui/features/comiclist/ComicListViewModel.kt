@@ -10,36 +10,67 @@ import androidx.paging.PagingConfig
 import androidx.paging.PagingData
 import androidx.paging.PagingSource
 import androidx.paging.RemoteMediator
+import androidx.paging.cachedIn
+import androidx.paging.map
 import androidx.savedstate.SavedStateRegistryOwner
+import com.colibrez.xkcdreader.android.ui.core.mvvm.BaseViewModel
+import com.colibrez.xkcdreader.android.ui.core.mvvm.UiState
+import com.colibrez.xkcdreader.android.ui.core.mvvm.UserAction
 import com.colibrez.xkcdreader.data.repository.ComicRepository
 import com.colibrez.xkcdreader.model.Comic
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 
 
-sealed interface MainUserAction {
-    data class ToggleFavorite(val comicNum: Long, val isFavorite: Boolean) : MainUserAction
+sealed interface ComicListUserAction : UserAction {
+    data class ToggleFavorite(val comicNum: Long, val isFavorite: Boolean) : ComicListUserAction
 }
 
+data class ListComic(
+    val comicNumber: Long,
+    val title: String,
+    val imageUrl: String,
+    val isFavorite: Boolean,
+    val isRead: Boolean
+)
+
+data class ComicListState(val comics: Flow<PagingData<ListComic>>) : UiState
+
 @OptIn(ExperimentalPagingApi::class)
-class MainViewModel(
+class ComicListViewModel(
     comicsRemoteMediator: RemoteMediator<Int, Comic>,
     pagingSourceFactory: () -> PagingSource<Int, Comic>,
     private val comicRepository: ComicRepository
-) : ViewModel() {
+) : BaseViewModel<ComicListState, ComicListUserAction>(initialState = ComicListState(comics = flowOf())) {
+
+    init {
+        setState { state ->
+            state.copy(
+                comics = Pager(
+                    config = PagingConfig(pageSize = 20),
+                    remoteMediator = comicsRemoteMediator,
+                    pagingSourceFactory = pagingSourceFactory
+                ).flow.map { data ->
+                    data.map {
+                        ListComic(
+                            comicNumber = it.num,
+                            title = it.title,
+                            imageUrl = it.img,
+                            isFavorite = it.isFavorite,
+                            isRead = it.isRead
+                        )
+                    }
+                }.cachedIn(viewModelScope)
+            )
+        }
+    }
 
 
-    @OptIn(ExperimentalPagingApi::class)
-    val pagedComics: Flow<PagingData<Comic>> = Pager(
-        config = PagingConfig(pageSize = 20),
-        remoteMediator = comicsRemoteMediator,
-        pagingSourceFactory = pagingSourceFactory
-    ).flow
-
-
-    fun handle(action: MainUserAction) {
+    override fun handle(action: ComicListUserAction) {
         when (action) {
-            is MainUserAction.ToggleFavorite -> {
+            is ComicListUserAction.ToggleFavorite -> {
                 viewModelScope.launch {
                     comicRepository.toggleFavorite(action.comicNum, action.isFavorite)
                 }
@@ -61,7 +92,11 @@ class MainViewModel(
             modelClass: Class<T>,
             handle: SavedStateHandle
         ): T {
-            return MainViewModel(comicsRemoteMediator, pagingSourceFactory, comicRepository) as T
+            return ComicListViewModel(
+                comicsRemoteMediator,
+                pagingSourceFactory,
+                comicRepository
+            ) as T
         }
     }
 }

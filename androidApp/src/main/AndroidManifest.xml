@@ -12,7 +12,7 @@
         android:theme="@style/AppTheme"
         tools:targetApi="tiramisu">
         <activity
-            android:name=".MainActivity"
+            android:name=".ui.MainActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -21,7 +21,7 @@
         </activity>
 
         <provider
-            android:name="com.colibrez.xkcdreader.android.util.ComicImageProvider"
+            android:name="com.colibrez.xkcdreader.android.ui.util.ComicImageProvider"
             android:authorities="com.colibrez.xkcdreader"
             android:exported="false"
             android:grantUriPermissions="true">
