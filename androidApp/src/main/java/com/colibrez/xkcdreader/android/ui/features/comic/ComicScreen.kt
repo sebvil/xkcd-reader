@@ -1,4 +1,4 @@
-package com.colibrez.xkcdreader.android
+package com.colibrez.xkcdreader.android.ui
 
 import android.content.ClipData
 import android.content.Intent
@@ -97,7 +97,12 @@ fun ComicScreen(
                         }
                     },
                     actions = {
-                        IconButton(onClick = { viewModel.handle(ComicUserAction.ToggleFavorite(stateNotNull.num, stateNotNull.isFavorite)) }) {
+                        IconButton(onClick = { viewModel.handle(
+                            ComicUserAction.ToggleFavorite(
+                                stateNotNull.num,
+                                stateNotNull.isFavorite
+                            )
+                        ) }) {
                             Icon(
                                 imageVector = if (stateNotNull.isFavorite) Icons.Filled.Star else Icons.Outlined.Star,
                                 contentDescription = "Mark as favorite",
