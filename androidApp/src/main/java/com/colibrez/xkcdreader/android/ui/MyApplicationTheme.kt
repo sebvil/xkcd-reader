@@ -1,4 +1,4 @@
-package com.colibrez.xkcdreader.android
+package com.colibrez.xkcdreader.android.ui
 
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.shape.RoundedCornerShape

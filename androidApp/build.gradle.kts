@@ -2,6 +2,7 @@ plugins {
     alias(libs.plugins.androidApplication)
     alias(libs.plugins.kotlinAndroid)
     alias(libs.plugins.com.google.devtools.ksp)
+    alias(libs.plugins.serialization)
 }
 
 android {
@@ -57,6 +58,8 @@ dependencies {
 
     implementation(libs.compose.destinations.animations.core)
     ksp(libs.compose.destinations.ksp)
+
+    implementation(libs.kotlinx.serialization)
 
 
 }
