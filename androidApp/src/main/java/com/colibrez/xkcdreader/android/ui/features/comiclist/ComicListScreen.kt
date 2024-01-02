@@ -17,6 +17,7 @@ import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -36,7 +37,6 @@ import androidx.savedstate.SavedStateRegistryOwner
 import app.cash.sqldelight.paging3.QueryPagingSource
 import coil.compose.AsyncImage
 import com.colibrez.xkcdreader.android.data.repository.ComicsRemoteMediator
-import com.colibrez.xkcdreader.android.ui.features.destinations.ComicScreenDestination
 import com.colibrez.xkcdreader.database.DriverFactory
 import com.colibrez.xkcdreader.database.createDatabase
 import com.colibrez.xkcdreader.network.ApiClient
@@ -55,6 +55,16 @@ fun ComicListScreen(
     viewModel: ComicListViewModel = comicListViewModel(),
     navigator: DestinationsNavigator
 ) {
+
+    val navigationState by viewModel.navigationState.collectAsState()
+
+    LaunchedEffect(key1 = navigationState) {
+        navigationState?.let {
+            navigator.navigate(it.direction, onlyIfResumed = true)
+            viewModel.resetNavigationState()
+        }
+    }
+
     val state by viewModel.state.collectAsState()
     val lazyPagingItems = state.comics.collectAsLazyPagingItems()
 
@@ -98,7 +108,12 @@ fun ComicListScreen(
                 modifier = Modifier
                     .padding(vertical = 8.dp)
                     .clickable {
-                        navigator.navigate(ComicScreenDestination(item.comicNumber, item.title))
+                        viewModel.handle(
+                            ComicListUserAction.ComicClicked(
+                                comicNum = item.comicNumber,
+                                comicTitle = item.title
+                            )
+                        )
                     },
                 leadingContent = {
                     image(item.imageUrl)
@@ -160,7 +175,7 @@ fun comicListViewModel(savedStateRegistryOwner: SavedStateRegistryOwner = LocalS
                 }
             }
         },
-        comicRepository = comicRepository
+        comicRepository = comicRepository,
     )
     return viewModel(factory = factory)
 }

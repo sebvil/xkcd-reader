@@ -61,13 +61,11 @@ import java.io.File
 
 
 @OptIn(ExperimentalMaterial3Api::class)
-@Destination
+@Destination(navArgsDelegate = ComicScreenArguments::class)
 @Composable
 fun ComicScreen(
-    comicNumber: Long,
-    comicTitle: String,
     navigator: DestinationsNavigator,
-    viewModel: ComicViewModel = comicViewModel(comicNumber = comicNumber, comicTitle = comicTitle)
+    viewModel: ComicViewModel = comicViewModel()
 ) {
     val state by viewModel.state.collectAsState()
 
@@ -319,8 +317,6 @@ private fun RowScope.ComicTopBarActions(
 @Composable
 fun comicViewModel(
     savedStateRegistryOwner: SavedStateRegistryOwner = LocalSavedStateRegistryOwner.current,
-    comicNumber: Long,
-    comicTitle: String
 ): ComicViewModel {
     val database = createDatabase(DriverFactory(LocalContext.current))
     val comicRepository =
@@ -328,8 +324,6 @@ fun comicViewModel(
     val factory = ComicViewModel.Factory(
         owner = savedStateRegistryOwner,
         comicRepository = comicRepository,
-        comicNumber = comicNumber,
-        comicTitle = comicTitle
     )
     return viewModel(factory = factory)
 }

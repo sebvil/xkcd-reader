@@ -1,9 +1,11 @@
 package com.colibrez.xkcdreader.android.ui.features.comiclist
 
+import android.os.Bundle
 import androidx.lifecycle.AbstractSavedStateViewModelFactory
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.navigation.NavBackStackEntry
 import androidx.paging.ExperimentalPagingApi
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
@@ -14,8 +16,11 @@ import androidx.paging.cachedIn
 import androidx.paging.map
 import androidx.savedstate.SavedStateRegistryOwner
 import com.colibrez.xkcdreader.android.ui.core.mvvm.BaseViewModel
+import com.colibrez.xkcdreader.android.ui.core.mvvm.BaseViewModelFactory
 import com.colibrez.xkcdreader.android.ui.core.mvvm.UiState
 import com.colibrez.xkcdreader.android.ui.core.mvvm.UserAction
+import com.colibrez.xkcdreader.android.ui.features.comic.ComicScreenArguments
+import com.colibrez.xkcdreader.android.ui.features.comic.ComicViewModel
 import com.colibrez.xkcdreader.data.repository.ComicRepository
 import com.colibrez.xkcdreader.model.Comic
 import kotlinx.coroutines.flow.Flow
@@ -28,6 +33,7 @@ import kotlinx.coroutines.launch
 
 sealed interface ComicListUserAction : UserAction {
     data class ToggleFavorite(val comicNum: Long, val isFavorite: Boolean) : ComicListUserAction
+    data class ComicClicked(val comicNum: Long, val comicTitle: String) : ComicListUserAction
 }
 
 data class ListComic(
@@ -38,7 +44,9 @@ data class ListComic(
     val isRead: Boolean
 )
 
-data class ComicListState(val comics: Flow<PagingData<ListComic>>) : UiState
+data class ComicListState(
+    val comics: Flow<PagingData<ListComic>>
+) : UiState
 
 @OptIn(ExperimentalPagingApi::class)
 class ComicListViewModel(
@@ -63,7 +71,7 @@ class ComicListViewModel(
                         isRead = it.isRead
                     )
                 }
-            }.cachedIn(viewModelScope)
+            }
         )
     ).asStateFlow()
 
@@ -75,6 +83,15 @@ class ComicListViewModel(
                     comicRepository.toggleFavorite(action.comicNum, action.isFavorite)
                 }
             }
+
+            is ComicListUserAction.ComicClicked -> {
+                navigateTo(
+                    ComicScreenArguments(
+                        comicNumber = action.comicNum,
+                        comicTitle = action.comicTitle
+                    )
+                )
+            }
         }
     }
 
@@ -84,19 +101,17 @@ class ComicListViewModel(
         private val comicsRemoteMediator: RemoteMediator<Int, Comic>,
         private val pagingSourceFactory: () -> PagingSource<Int, Comic>,
         private val comicRepository: ComicRepository,
-    ) : AbstractSavedStateViewModelFactory(owner, null) {
+    ) : BaseViewModelFactory<ComicListViewModel>(owner) {
 
-        @Suppress("UNCHECKED_CAST")
-        override fun <T : ViewModel> create(
+        override fun create(
             key: String,
-            modelClass: Class<T>,
             handle: SavedStateHandle
-        ): T {
+        ): ComicListViewModel {
             return ComicListViewModel(
                 comicsRemoteMediator,
                 pagingSourceFactory,
                 comicRepository
-            ) as T
+            )
         }
     }
 }

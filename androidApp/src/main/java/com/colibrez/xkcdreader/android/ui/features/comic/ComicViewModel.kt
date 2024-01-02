@@ -1,21 +1,24 @@
 package com.colibrez.xkcdreader.android.ui.features.comic
 
-import androidx.lifecycle.AbstractSavedStateViewModelFactory
 import androidx.lifecycle.SavedStateHandle
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.savedstate.SavedStateRegistryOwner
 import com.colibrez.xkcdreader.android.ui.core.mvvm.BaseViewModel
-import com.colibrez.xkcdreader.android.ui.core.mvvm.StateHolder
+import com.colibrez.xkcdreader.android.ui.core.mvvm.BaseViewModelFactory
 import com.colibrez.xkcdreader.android.ui.core.mvvm.UiState
 import com.colibrez.xkcdreader.android.ui.core.mvvm.UserAction
+import com.colibrez.xkcdreader.android.ui.core.navigation.ScreenArguments
+import com.colibrez.xkcdreader.android.ui.features.destinations.ComicScreenDestination
+import com.colibrez.xkcdreader.android.ui.features.navArgs
 import com.colibrez.xkcdreader.data.repository.ComicRepository
+import com.ramcosta.composedestinations.spec.Direction
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.serialization.Serializable
 
 sealed interface ComicUserAction : UserAction {
     data class ToggleFavorite(val comicNum: Long, val isFavorite: Boolean) : ComicUserAction
@@ -41,16 +44,21 @@ sealed interface ComicState : UiState {
     data class Loading(override val comicNumber: Long, override val comicTitle: String) : ComicState
 }
 
+@Serializable
+data class ComicScreenArguments(val comicNumber: Long, val comicTitle: String) :
+    ScreenArguments<ComicScreenArguments> {
+    override val direction: Direction
+        get() = ComicScreenDestination(this)
+}
 
 class ComicViewModel(
     private val comicRepository: ComicRepository,
-    comicNum: Long,
-    comicTitle: String
+    arguments: ComicScreenArguments,
 ) : BaseViewModel<ComicState, ComicUserAction>() {
 
     private val showDialog: MutableStateFlow<Boolean> = MutableStateFlow(false)
     override val state =
-        combine(comicRepository.getComic(comicNum), showDialog) { comic, showDialog ->
+        combine(comicRepository.getComic(arguments.comicNumber), showDialog) { comic, showDialog ->
             ComicState.Data(
                 comicNumber = comic.num,
                 comicTitle = comic.title,
@@ -64,13 +72,16 @@ class ComicViewModel(
         }.stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(),
-            initialValue = ComicState.Loading(comicNum, comicTitle)
+            initialValue = ComicState.Loading(
+                comicNumber = arguments.comicNumber,
+                comicTitle = arguments.comicTitle
+            )
         )
 
 
     init {
         viewModelScope.launch {
-            comicRepository.markAsSeen(comicNum)
+            comicRepository.markAsSeen(arguments.comicNumber)
         }
     }
 
@@ -95,21 +106,16 @@ class ComicViewModel(
     class Factory(
         owner: SavedStateRegistryOwner,
         private val comicRepository: ComicRepository,
-        private val comicNumber: Long,
-        private val comicTitle: String
-    ) : AbstractSavedStateViewModelFactory(owner, null) {
+    ) : BaseViewModelFactory<ComicViewModel>(owner) {
 
-        @Suppress("UNCHECKED_CAST")
-        override fun <T : ViewModel> create(
+        override fun create(
             key: String,
-            modelClass: Class<T>,
             handle: SavedStateHandle
-        ): T {
+        ): ComicViewModel {
             return ComicViewModel(
                 comicRepository = comicRepository,
-                comicNum = comicNumber,
-                comicTitle = comicTitle
-            ) as T
+                arguments = handle.navArgs()
+            )
         }
     }
 }
