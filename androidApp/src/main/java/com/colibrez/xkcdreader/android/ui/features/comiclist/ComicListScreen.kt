@@ -169,11 +169,7 @@ fun comicListViewModel(savedStateRegistryOwner: SavedStateRegistryOwner = LocalS
                         OfflineFirstComicRepository::mapComicSelecting
                     )
                 }
-            ).also {
-                mediator.invalidate = {
-                    it.invalidate()
-                }
-            }
+            )
         },
         comicRepository = comicRepository,
     )
