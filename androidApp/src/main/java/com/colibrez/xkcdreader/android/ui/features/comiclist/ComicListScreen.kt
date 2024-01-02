@@ -32,20 +32,14 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.paging.ExperimentalPagingApi
 import androidx.paging.compose.collectAsLazyPagingItems
+import androidx.paging.compose.itemContentType
 import androidx.paging.compose.itemKey
 import androidx.savedstate.SavedStateRegistryOwner
-import app.cash.sqldelight.paging3.QueryPagingSource
 import coil.compose.AsyncImage
-import com.colibrez.xkcdreader.android.data.repository.ComicsRemoteMediator
-import com.colibrez.xkcdreader.database.DriverFactory
-import com.colibrez.xkcdreader.database.createDatabase
-import com.colibrez.xkcdreader.network.ApiClient
-import com.colibrez.xkcdreader.data.repository.OfflineFirstComicRepository
-import com.colibrez.xkcdreader.database.SqlDelightLocalComicDataSource
+import com.colibrez.xkcdreader.android.XkcdReaderApplication
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootNavGraph
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
-import kotlinx.coroutines.Dispatchers
 
 
 @Destination
@@ -66,6 +60,7 @@ fun ComicListScreen(
     }
 
     val state by viewModel.state.collectAsState()
+
     val lazyPagingItems = state.comics.collectAsLazyPagingItems()
 
     val image: @Composable (imageUrl: String) -> Unit = { imageUrl ->
@@ -95,7 +90,8 @@ fun ComicListScreen(
     LazyColumn {
         items(
             lazyPagingItems.itemCount,
-            key = lazyPagingItems.itemKey { it.comicNumber }
+            key = lazyPagingItems.itemKey { it.comicNumber },
+            contentType = lazyPagingItems.itemContentType { ListComic::class.hashCode() }
         ) { index ->
             val item = lazyPagingItems[index] ?: return@items
             ListItem(
@@ -121,8 +117,8 @@ fun ComicListScreen(
                     IconButton(onClick = {
                         viewModel.handle(
                             ComicListUserAction.ToggleFavorite(
-                                item.comicNumber,
-                                item.isFavorite
+                                comicNum = item.comicNumber,
+                                isFavorite = item.isFavorite
                             )
                         )
                     }) {
@@ -141,41 +137,14 @@ fun ComicListScreen(
 @OptIn(ExperimentalPagingApi::class)
 @Composable
 fun comicListViewModel(savedStateRegistryOwner: SavedStateRegistryOwner = LocalSavedStateRegistryOwner.current): ComicListViewModel {
-    val driverFactory = DriverFactory(LocalContext.current)
-    val database = createDatabase(driverFactory)
-    val apiClient = ApiClient(Dispatchers.IO)
-    val comicRepository = OfflineFirstComicRepository(
-        SqlDelightLocalComicDataSource(
-            ioDispatcher = Dispatchers.IO,
-            database = database
-        )
-    )
-    val mediator = ComicsRemoteMediator(
-        comicRepository = comicRepository,
-        apiClient = apiClient
-    )
+    val dependencyContainer =
+        (LocalContext.current.applicationContext as XkcdReaderApplication).dependencyContainer
+
     val factory = ComicListViewModel.Factory(
-        savedStateRegistryOwner,
-        comicsRemoteMediator = mediator,
-        pagingSourceFactory = {
-            QueryPagingSource(
-                countQuery = database.comicEntityQueries.count(),
-                transacter = database.comicEntityQueries,
-                context = Dispatchers.IO,
-                queryProvider = { limit, offset ->
-                    database.comicEntityQueries.selectPaged(
-                        limit,
-                        offset,
-                        OfflineFirstComicRepository::mapComicSelecting
-                    )
-                }
-            ).also {
-                mediator.invalidate = {
-                    it.invalidate()
-                }
-            }
-        },
-        comicRepository = comicRepository,
+        owner = savedStateRegistryOwner,
+        comicsRemoteMediator = dependencyContainer.comicsRemoteMediator,
+        pagingSourceFactory = dependencyContainer.comicPagingSourceFactory,
+        comicRepository = dependencyContainer.comicRepository,
     )
     return viewModel(factory = factory)
 }

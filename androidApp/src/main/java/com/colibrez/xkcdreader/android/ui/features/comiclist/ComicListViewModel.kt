@@ -1,6 +1,7 @@
 package com.colibrez.xkcdreader.android.ui.features.comiclist
 
 import android.os.Bundle
+import androidx.compose.runtime.Stable
 import androidx.lifecycle.AbstractSavedStateViewModelFactory
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
@@ -44,11 +45,13 @@ data class ListComic(
     val isRead: Boolean
 )
 
+@Stable
 data class ComicListState(
     val comics: Flow<PagingData<ListComic>>
 ) : UiState
 
 @OptIn(ExperimentalPagingApi::class)
+@Stable
 class ComicListViewModel(
     comicsRemoteMediator: RemoteMediator<Int, Comic>,
     pagingSourceFactory: () -> PagingSource<Int, Comic>,
@@ -71,7 +74,7 @@ class ComicListViewModel(
                         isRead = it.isRead
                     )
                 }
-            }
+            }.cachedIn(viewModelScope)
         )
     ).asStateFlow()
 

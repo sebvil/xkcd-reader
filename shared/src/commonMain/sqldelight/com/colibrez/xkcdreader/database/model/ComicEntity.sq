@@ -20,7 +20,7 @@ selectAll:
 SELECT * FROM ComicInfo ORDER BY ComicInfo.num;
 
 selectLatest:
-SELECT * FROM ComicInfo ORDER BY ComicInfo.num LIMIT 1;
+SELECT * FROM ComicInfo ORDER BY ComicInfo.num DESC LIMIT 1;
 
 selectPaged:
 SELECT * FROM ComicInfo ORDER BY ComicInfo.num LIMIT :limit OFFSET :offset;

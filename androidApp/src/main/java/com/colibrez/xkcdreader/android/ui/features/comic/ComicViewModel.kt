@@ -71,7 +71,7 @@ class ComicViewModel(
             )
         }.stateIn(
             scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(),
+            started = SharingStarted.WhileSubscribed(stopTimeoutMillis = 5_000),
             initialValue = ComicState.Loading(
                 comicNumber = arguments.comicNumber,
                 comicTitle = arguments.comicTitle

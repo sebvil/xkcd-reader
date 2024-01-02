@@ -1,9 +1,11 @@
 package com.colibrez.xkcdreader.android.data.repository
 
+import android.util.Log
 import androidx.paging.ExperimentalPagingApi
 import androidx.paging.LoadType
 import androidx.paging.PagingState
 import androidx.paging.RemoteMediator
+import androidx.paging.log
 import com.colibrez.xkcdreader.data.model.asEntity
 import com.colibrez.xkcdreader.data.repository.ComicRepository
 import com.colibrez.xkcdreader.model.Comic
@@ -18,11 +20,8 @@ class ComicsRemoteMediator(
 ) : RemoteMediator<Int, Comic>() {
 
 
-    var invalidate: (() -> Unit)? = null
-
     override suspend fun load(loadType: LoadType, state: PagingState<Int, Comic>): MediatorResult {
         return try {
-
             // The network load method takes an optional after=<user.id>
             // parameter. For every page after the first, pass the last user
             // ID to let it continue from where it left off. For REFRESH,
@@ -41,11 +40,7 @@ class ComicsRemoteMediator(
                     // valid for initial load. If lastItem is null it means no
                     // items were loaded after the initial REFRESH and there are
                     // no more items to load.
-                    val lastItem = state.lastItemOrNull()
-                        ?: return MediatorResult.Success(
-                            endOfPaginationReached = true
-                        )
-
+                    val lastItem = comicRepository.getLatest().first()
                     lastItem.num
                 }
             }
@@ -53,7 +48,6 @@ class ComicsRemoteMediator(
 
             val response =
                 apiClient.getPaginatedComics(next = loadKey, limit = state.config.pageSize.toLong())
-            invalidate?.invoke()
 
             val comics = response.fold(
                 onSuccess = {
