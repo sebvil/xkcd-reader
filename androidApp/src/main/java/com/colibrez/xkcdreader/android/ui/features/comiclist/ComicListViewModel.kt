@@ -19,7 +19,9 @@ import com.colibrez.xkcdreader.android.ui.core.mvvm.UserAction
 import com.colibrez.xkcdreader.data.repository.ComicRepository
 import com.colibrez.xkcdreader.model.Comic
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 
@@ -43,29 +45,27 @@ class ComicListViewModel(
     comicsRemoteMediator: RemoteMediator<Int, Comic>,
     pagingSourceFactory: () -> PagingSource<Int, Comic>,
     private val comicRepository: ComicRepository
-) : BaseViewModel<ComicListState, ComicListUserAction>(initialState = ComicListState(comics = flowOf())) {
+) : BaseViewModel<ComicListState, ComicListUserAction>() {
 
-    init {
-        setState { state ->
-            state.copy(
-                comics = Pager(
-                    config = PagingConfig(pageSize = 20),
-                    remoteMediator = comicsRemoteMediator,
-                    pagingSourceFactory = pagingSourceFactory
-                ).flow.map { data ->
-                    data.map {
-                        ListComic(
-                            comicNumber = it.num,
-                            title = it.title,
-                            imageUrl = it.img,
-                            isFavorite = it.isFavorite,
-                            isRead = it.isRead
-                        )
-                    }
-                }.cachedIn(viewModelScope)
-            )
-        }
-    }
+    override val state: StateFlow<ComicListState> = MutableStateFlow(
+        ComicListState(
+            comics = Pager(
+                config = PagingConfig(pageSize = 20),
+                remoteMediator = comicsRemoteMediator,
+                pagingSourceFactory = pagingSourceFactory
+            ).flow.map { data ->
+                data.map {
+                    ListComic(
+                        comicNumber = it.num,
+                        title = it.title,
+                        imageUrl = it.img,
+                        isFavorite = it.isFavorite,
+                        isRead = it.isRead
+                    )
+                }
+            }.cachedIn(viewModelScope)
+        )
+    ).asStateFlow()
 
 
     override fun handle(action: ComicListUserAction) {

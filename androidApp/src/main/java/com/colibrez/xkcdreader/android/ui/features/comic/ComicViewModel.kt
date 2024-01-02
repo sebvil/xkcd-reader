@@ -6,11 +6,15 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.savedstate.SavedStateRegistryOwner
 import com.colibrez.xkcdreader.android.ui.core.mvvm.BaseViewModel
+import com.colibrez.xkcdreader.android.ui.core.mvvm.StateHolder
 import com.colibrez.xkcdreader.android.ui.core.mvvm.UiState
 import com.colibrez.xkcdreader.android.ui.core.mvvm.UserAction
 import com.colibrez.xkcdreader.data.repository.ComicRepository
-import kotlinx.coroutines.flow.launchIn
-import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 sealed interface ComicUserAction : UserAction {
@@ -42,45 +46,29 @@ class ComicViewModel(
     private val comicRepository: ComicRepository,
     comicNum: Long,
     comicTitle: String
-) :
-    BaseViewModel<ComicState, ComicUserAction>(
-        initialState = ComicState.Loading(
-            comicNumber = comicNum,
-            comicTitle = comicTitle
+) : BaseViewModel<ComicState, ComicUserAction>() {
+
+    private val showDialog: MutableStateFlow<Boolean> = MutableStateFlow(false)
+    override val state =
+        combine(comicRepository.getComic(comicNum), showDialog) { comic, showDialog ->
+            ComicState.Data(
+                comicNumber = comic.num,
+                comicTitle = comic.title,
+                imageUrl = comic.img,
+                altText = comic.alt,
+                imageDescription = comic.transcript,
+                permalink = comic.permalink,
+                isFavorite = comic.isFavorite,
+                showDialog = showDialog
+            )
+        }.stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(),
+            initialValue = ComicState.Loading(comicNum, comicTitle)
         )
-    ) {
+
 
     init {
-        comicRepository.getComic(comicNum).onEach { comic ->
-            setState { comicState ->
-                when (comicState) {
-                    is ComicState.Data -> {
-                        comicState.copy(
-                            comicNumber = comic.num,
-                            comicTitle = comic.title,
-                            imageUrl = comic.img,
-                            altText = comic.alt,
-                            imageDescription = comic.transcript,
-                            permalink = comic.permalink,
-                            isFavorite = comic.isFavorite
-                        )
-                    }
-
-                    is ComicState.Loading -> {
-                        ComicState.Data(
-                            comicNumber = comic.num,
-                            comicTitle = comic.title,
-                            imageUrl = comic.img,
-                            altText = comic.alt,
-                            imageDescription = comic.transcript,
-                            permalink = comic.permalink,
-                            isFavorite = comic.isFavorite,
-                            showDialog = false
-                        )
-                    }
-                }
-            }
-        }.launchIn(viewModelScope)
         viewModelScope.launch {
             comicRepository.markAsSeen(comicNum)
         }
@@ -95,21 +83,11 @@ class ComicViewModel(
             }
 
             is ComicUserAction.ShowDialog -> {
-                setState {
-                    when (it) {
-                        is ComicState.Data -> it.copy(showDialog = true)
-                        is ComicState.Loading -> it
-                    }
-                }
+                showDialog.update { true }
             }
 
             is ComicUserAction.HideDialog -> {
-                setState {
-                    when (it) {
-                        is ComicState.Data -> it.copy(showDialog = false)
-                        is ComicState.Loading -> it
-                    }
-                }
+                showDialog.update { false }
             }
         }
     }
