@@ -50,13 +50,9 @@ import androidx.savedstate.SavedStateRegistryOwner
 import coil.annotation.ExperimentalCoilApi
 import coil.compose.AsyncImage
 import coil.imageLoader
-import com.colibrez.xkcdreader.database.DriverFactory
-import com.colibrez.xkcdreader.database.createDatabase
-import com.colibrez.xkcdreader.data.repository.OfflineFirstComicRepository
-import com.colibrez.xkcdreader.database.SqlDelightLocalComicDataSource
+import com.colibrez.xkcdreader.android.XkcdReaderApplication
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
-import kotlinx.coroutines.Dispatchers
 import java.io.File
 
 
@@ -318,12 +314,10 @@ private fun RowScope.ComicTopBarActions(
 fun comicViewModel(
     savedStateRegistryOwner: SavedStateRegistryOwner = LocalSavedStateRegistryOwner.current,
 ): ComicViewModel {
-    val database = createDatabase(DriverFactory(LocalContext.current))
-    val comicRepository =
-        OfflineFirstComicRepository(SqlDelightLocalComicDataSource(Dispatchers.IO, database))
+    val dependencyContainer = (LocalContext.current.applicationContext as XkcdReaderApplication).dependencyContainer
     val factory = ComicViewModel.Factory(
         owner = savedStateRegistryOwner,
-        comicRepository = comicRepository,
+        comicRepository = dependencyContainer.comicRepository,
     )
     return viewModel(factory = factory)
 }
