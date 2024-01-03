@@ -1,12 +1,8 @@
 package com.colibrez.xkcdreader.android.ui.features.comiclist
 
-import android.os.Bundle
 import androidx.compose.runtime.Stable
-import androidx.lifecycle.AbstractSavedStateViewModelFactory
 import androidx.lifecycle.SavedStateHandle
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import androidx.navigation.NavBackStackEntry
 import androidx.paging.ExperimentalPagingApi
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
@@ -20,8 +16,8 @@ import com.colibrez.xkcdreader.android.ui.core.mvvm.BaseViewModel
 import com.colibrez.xkcdreader.android.ui.core.mvvm.BaseViewModelFactory
 import com.colibrez.xkcdreader.android.ui.core.mvvm.UiState
 import com.colibrez.xkcdreader.android.ui.core.mvvm.UserAction
+import com.colibrez.xkcdreader.android.ui.core.navigation.NavigationState
 import com.colibrez.xkcdreader.android.ui.features.comic.ComicScreenArguments
-import com.colibrez.xkcdreader.android.ui.features.comic.ComicViewModel
 import com.colibrez.xkcdreader.data.repository.ComicRepository
 import com.colibrez.xkcdreader.model.Comic
 import kotlinx.coroutines.flow.Flow
@@ -88,10 +84,12 @@ class ComicListViewModel(
             }
 
             is ComicListUserAction.ComicClicked -> {
-                navigateTo(
-                    ComicScreenArguments(
-                        comicNumber = action.comicNum,
-                        comicTitle = action.comicTitle
+                setNavigationState(
+                    NavigationState.ShowScreen(
+                        ComicScreenArguments(
+                            comicNumber = action.comicNum,
+                            comicTitle = action.comicTitle
+                        )
                     )
                 )
             }

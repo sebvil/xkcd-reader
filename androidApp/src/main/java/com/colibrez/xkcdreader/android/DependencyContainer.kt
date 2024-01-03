@@ -41,7 +41,7 @@ class DependencyContainer(private val applicationContext: Context) {
         )
     }
 
-    val apiClient: ApiClient by lazy {
+    private val apiClient: ApiClient by lazy {
         ApiClient(Dispatchers.IO)
     }
 

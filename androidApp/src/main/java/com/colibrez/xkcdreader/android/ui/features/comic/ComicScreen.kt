@@ -25,7 +25,6 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -51,20 +50,31 @@ import coil.annotation.ExperimentalCoilApi
 import coil.compose.AsyncImage
 import coil.imageLoader
 import com.colibrez.xkcdreader.android.XkcdReaderApplication
+import com.colibrez.xkcdreader.android.ui.core.navigation.Screen
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import java.io.File
 
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Destination(navArgsDelegate = ComicScreenArguments::class)
 @Composable
 fun ComicScreen(
     navigator: DestinationsNavigator,
     viewModel: ComicViewModel = comicViewModel()
 ) {
-    val state by viewModel.state.collectAsState()
+    Screen(viewModel = viewModel, navigator = navigator) { state, handleUserAction ->
+        ComicLayout(state = state, handleUserAction = handleUserAction)
+    }
 
+}
+
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun ComicLayout(
+    state: ComicState,
+    handleUserAction: (ComicUserAction) -> Unit
+) {
     var imageFile: File? by remember {
         mutableStateOf(null)
     }
@@ -75,7 +85,7 @@ fun ComicScreen(
                     Text(text = "${state.comicNumber}. ${state.comicTitle}")
                 },
                 navigationIcon = {
-                    IconButton(onClick = { navigator.navigateUp() }) {
+                    IconButton(onClick = { handleUserAction(ComicUserAction.BackButtonClicked) }) {
                         Icon(imageVector = Icons.Default.ArrowBack, contentDescription = "Back")
                     }
                 },
@@ -84,18 +94,18 @@ fun ComicScreen(
                         ComicTopBarActions(
                             state = it,
                             imageFile = imageFile,
-                            handleUserAction = viewModel::handle
+                            handleUserAction = handleUserAction
                         )
                     }
                 })
         }
     ) { paddingValues ->
-        when (val currentState = state) {
+        when (state) {
             is ComicState.Data -> {
                 ComicBody(
-                    state = currentState,
+                    state = state,
                     paddingValues = paddingValues,
-                    handleUserAction = viewModel::handle,
+                    handleUserAction = handleUserAction,
                     setImageFile = { imageFile = it })
             }
 
@@ -120,7 +130,7 @@ private fun ComicBody(
 ) {
     if (state.showDialog) {
         AlertDialog(
-            onDismissRequest = { handleUserAction(ComicUserAction.HideDialog) },
+            onDismissRequest = { handleUserAction(ComicUserAction.OverlayClicked) },
         ) {
             Text(text = state.altText)
         }
@@ -219,7 +229,7 @@ private fun ComicBody(
                         }
                     )
                 }
-                .clickable { handleUserAction(ComicUserAction.ShowDialog) }
+                .clickable { handleUserAction(ComicUserAction.ImageClicked) }
                 .onSizeChanged { size = it.toSize() }
                 .graphicsLayer {
                     scaleX = scale
@@ -314,7 +324,8 @@ private fun RowScope.ComicTopBarActions(
 fun comicViewModel(
     savedStateRegistryOwner: SavedStateRegistryOwner = LocalSavedStateRegistryOwner.current,
 ): ComicViewModel {
-    val dependencyContainer = (LocalContext.current.applicationContext as XkcdReaderApplication).dependencyContainer
+    val dependencyContainer =
+        (LocalContext.current.applicationContext as XkcdReaderApplication).dependencyContainer
     val factory = ComicViewModel.Factory(
         owner = savedStateRegistryOwner,
         comicRepository = dependencyContainer.comicRepository,

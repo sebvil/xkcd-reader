@@ -17,8 +17,6 @@ import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -37,10 +35,10 @@ import androidx.paging.compose.itemKey
 import androidx.savedstate.SavedStateRegistryOwner
 import coil.compose.AsyncImage
 import com.colibrez.xkcdreader.android.XkcdReaderApplication
+import com.colibrez.xkcdreader.android.ui.core.navigation.Screen
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootNavGraph
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
-
 
 @Destination
 @RootNavGraph(start = true)
@@ -49,17 +47,16 @@ fun ComicListScreen(
     viewModel: ComicListViewModel = comicListViewModel(),
     navigator: DestinationsNavigator
 ) {
-
-    val navigationState by viewModel.navigationState.collectAsState()
-
-    LaunchedEffect(key1 = navigationState) {
-        navigationState?.let {
-            navigator.navigate(it.direction, onlyIfResumed = true)
-            viewModel.resetNavigationState()
-        }
+    Screen(viewModel = viewModel, navigator = navigator) { state, handleUserAction ->
+        ComicListLayout(state = state, handleUserAction = handleUserAction)
     }
+}
 
-    val state by viewModel.state.collectAsState()
+@Composable
+fun ComicListLayout(
+    state: ComicListState,
+    handleUserAction: (ComicListUserAction) -> Unit
+) {
 
     val lazyPagingItems = state.comics.collectAsLazyPagingItems()
 
@@ -104,7 +101,7 @@ fun ComicListScreen(
                 modifier = Modifier
                     .padding(vertical = 8.dp)
                     .clickable {
-                        viewModel.handle(
+                        handleUserAction(
                             ComicListUserAction.ComicClicked(
                                 comicNum = item.comicNumber,
                                 comicTitle = item.title
@@ -115,7 +112,7 @@ fun ComicListScreen(
                     image(item.imageUrl)
                 }, trailingContent = {
                     IconButton(onClick = {
-                        viewModel.handle(
+                        handleUserAction(
                             ComicListUserAction.ToggleFavorite(
                                 comicNum = item.comicNumber,
                                 isFavorite = item.isFavorite

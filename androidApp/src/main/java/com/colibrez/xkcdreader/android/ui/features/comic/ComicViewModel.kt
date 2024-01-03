@@ -7,6 +7,7 @@ import com.colibrez.xkcdreader.android.ui.core.mvvm.BaseViewModel
 import com.colibrez.xkcdreader.android.ui.core.mvvm.BaseViewModelFactory
 import com.colibrez.xkcdreader.android.ui.core.mvvm.UiState
 import com.colibrez.xkcdreader.android.ui.core.mvvm.UserAction
+import com.colibrez.xkcdreader.android.ui.core.navigation.NavigationState
 import com.colibrez.xkcdreader.android.ui.core.navigation.ScreenArguments
 import com.colibrez.xkcdreader.android.ui.features.destinations.ComicScreenDestination
 import com.colibrez.xkcdreader.android.ui.features.navArgs
@@ -22,8 +23,9 @@ import kotlinx.serialization.Serializable
 
 sealed interface ComicUserAction : UserAction {
     data class ToggleFavorite(val comicNum: Long, val isFavorite: Boolean) : ComicUserAction
-    data object ShowDialog : ComicUserAction
-    data object HideDialog : ComicUserAction
+    data object ImageClicked : ComicUserAction
+    data object OverlayClicked : ComicUserAction
+    data object BackButtonClicked : ComicUserAction
 }
 
 sealed interface ComicState : UiState {
@@ -93,12 +95,15 @@ class ComicViewModel(
                 }
             }
 
-            is ComicUserAction.ShowDialog -> {
+            is ComicUserAction.ImageClicked -> {
                 showDialog.update { true }
             }
 
-            is ComicUserAction.HideDialog -> {
+            is ComicUserAction.OverlayClicked -> {
                 showDialog.update { false }
+            }
+            is ComicUserAction.BackButtonClicked -> {
+                setNavigationState(NavigationState.NavigateUp)
             }
         }
     }
