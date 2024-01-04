@@ -8,11 +8,11 @@ import com.colibrez.xkcdreader.network.model.XkcdNetworkComic
 
 
 fun ComicInfo.asExternalModel() = Comic(
-    num = num,
+    number = num,
     title = title,
     transcript = transcript,
-    img = img,
-    alt = alt,
+    imageUrl = img,
+    altText = alt,
     link = link,
     year = year,
     month = month,
@@ -23,11 +23,11 @@ fun ComicInfo.asExternalModel() = Comic(
 
 
 fun Comic.asEntity(): ComicEntity = ComicEntity(
-    num = num,
+    num = number,
     title = title,
     transcript = transcript,
-    img = img,
-    alt = alt,
+    img = imageUrl,
+    alt = altText,
     link = link,
     year = year,
     month = month,
@@ -47,11 +47,11 @@ fun NetworkComic.asEntity() = ComicEntity(
 )
 
 fun Comic.asNetworkComic() = NetworkComic(
-    num = num,
+    num = number,
     title = title,
     transcript = transcript,
-    img = img,
-    alt = alt,
+    img = imageUrl,
+    alt = altText,
     link = link,
     year = year,
     month = month,

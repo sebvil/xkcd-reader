@@ -1,11 +1,11 @@
 package com.colibrez.xkcdreader.model
 
 data class Comic(
-    val num: Long,
+    val number: Long,
     val title: String,
     val transcript: String,
-    val img: String,
-    val alt: String,
+    val imageUrl: String,
+    val altText: String,
     val link: String,
     val year: Long,
     val month: Long,
@@ -13,5 +13,5 @@ data class Comic(
     val isFavorite: Boolean,
     val isRead: Boolean,
 ) {
-    val permalink: String = "https://xkcd.com/$num"
+    val permalink: String = "https://xkcd.com/$number"
 }

@@ -32,16 +32,22 @@ android {
         }
     }
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_1_8
-        targetCompatibility = JavaVersion.VERSION_1_8
+        sourceCompatibility = JavaVersion.VERSION_11
+        targetCompatibility = JavaVersion.VERSION_11
     }
     kotlinOptions {
-        jvmTarget = "1.8"
+        jvmTarget = JavaVersion.VERSION_11.toString()
+    }
+
+    testOptions {
+        unitTests.all {
+            it.useJUnitPlatform()
+        }
     }
 }
 
 dependencies {
-    implementation(project(":shared"))
+    implementation(projects.shared)
     implementation(libs.androidx.ui)
     implementation(libs.androidx.ui.tooling)
     implementation(libs.androidx.ui.tooling.preview)
@@ -61,5 +67,9 @@ dependencies {
 
     implementation(libs.kotlinx.serialization)
 
+    testImplementation(libs.kotest.runner.junit5)
+    testImplementation(libs.kotest.framework.datatest)
+    testImplementation(projects.sharedTest)
+    testImplementation(libs.turbine)
 
 }
