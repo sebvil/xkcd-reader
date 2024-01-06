@@ -29,8 +29,8 @@ class ComicListStateHolder(
                 comicNumber = it.number,
                 title = it.title,
                 imageUrl = it.imageUrl,
-                isFavorite = it.isRead,
-                isRead = it.isFavorite
+                isFavorite = it.isFavorite,
+                isRead = it.isRead
             )
         }
     )
