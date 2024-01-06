@@ -14,7 +14,6 @@ import com.colibrez.xkcdreader.data.repository.ComicRepository
 import com.colibrez.xkcdreader.model.Comic
 
 
-@OptIn(ExperimentalPagingApi::class)
 class ComicListViewModel(
     allComicsPagingDataSource: AllComicsPagingDataSource,
     comicRepository: ComicRepository

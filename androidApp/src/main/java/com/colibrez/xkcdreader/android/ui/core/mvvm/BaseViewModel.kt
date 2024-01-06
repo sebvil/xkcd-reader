@@ -17,7 +17,7 @@ abstract class BaseViewModel<State : UiState, Action : UserAction> : NavigationS
     }
 
     final override fun resetNavigationState() {
-        stateHolder.navigationState
+        stateHolder.resetNavigationState()
     }
 
     final override fun handle(action: Action) {
