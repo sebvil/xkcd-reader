@@ -17,7 +17,6 @@ import kotlinx.coroutines.flow.update
 class PagingStateHolderTest : FreeSpec({
 
     lateinit var pagingDataSourceDep: FakePagingDataSource<Int>
-
     lateinit var subject: PagingStateHolder<String, Int>
 
     fun TestScope.getSubject(): PagingStateHolder<String, Int> {
