@@ -2,6 +2,7 @@
 activity-compose = "1.8.2"
 agp = "8.2.0"
 coil-compose = "2.5.0"
+kotest = "5.8.0"
 kotlin = "1.9.21"
 kotlin-css-jvm = "1.0.0-pre.129-kotlin-1.4.20"
 ktor = "2.3.5"
@@ -16,6 +17,7 @@ compose-compiler = "1.5.7"
 com-google-devtools = "1.9.21-1.0.15"
 compose-destinations = "1.9.55"
 material3 = "1.1.2"
+turbine = "1.0.0"
 
 [libraries]
 android-driver = { module = "app.cash.sqldelight:android-driver", version.ref = "sqldelight" }
@@ -33,6 +35,8 @@ coil-compose = { module = "io.coil-kt:coil-compose", version.ref = "coil-compose
 compose-destinations-animations-core = { module = "io.github.raamcosta.compose-destinations:animations-core", version.ref = "compose-destinations" }
 compose-destinations-ksp = { module = "io.github.raamcosta.compose-destinations:ksp", version.ref = "compose-destinations" }
 coroutines-extensions = { module = "app.cash.sqldelight:coroutines-extensions", version.ref = "sqldelight" }
+kotest-runner-junit5 = { module = "io.kotest:kotest-runner-junit5", version.ref = "kotest" }
+kotest-framework-datatest = { module = "io.kotest:kotest-framework-datatest", version.ref = "kotest" }
 kotlin-css-jvm = { module = "org.jetbrains:kotlin-css-jvm", version.ref = "kotlin-css-jvm" }
 kotlin-test-junit = { module = "org.jetbrains.kotlin:kotlin-test-junit", version.ref = "kotlin" }
 kotlinx-coroutines = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "kotlinx-coroutines" }
@@ -56,6 +60,7 @@ ktor-server-swagger-jvm = { module = "io.ktor:ktor-server-swagger-jvm", version.
 ktor-server-tests-jvm = { module = "io.ktor:ktor-server-tests-jvm", version.ref = "ktor" }
 logback = { module = "ch.qos.logback:logback-classic", version.ref = "logback" }
 sqlite-driver = { module = "app.cash.sqldelight:sqlite-driver", version.ref = "sqldelight" }
+turbine = { module = "app.cash.turbine:turbine", version.ref = "turbine" }
 
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "agp" }

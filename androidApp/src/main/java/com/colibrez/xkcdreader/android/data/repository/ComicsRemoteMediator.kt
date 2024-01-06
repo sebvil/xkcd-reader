@@ -1,11 +1,9 @@
 package com.colibrez.xkcdreader.android.data.repository
 
-import android.util.Log
 import androidx.paging.ExperimentalPagingApi
 import androidx.paging.LoadType
 import androidx.paging.PagingState
 import androidx.paging.RemoteMediator
-import androidx.paging.log
 import com.colibrez.xkcdreader.data.model.asEntity
 import com.colibrez.xkcdreader.data.repository.ComicRepository
 import com.colibrez.xkcdreader.model.Comic
@@ -41,7 +39,7 @@ class ComicsRemoteMediator(
                     // items were loaded after the initial REFRESH and there are
                     // no more items to load.
                     val lastItem = comicRepository.getLatest().first()
-                    lastItem.num
+                    lastItem.number
                 }
             }
 
