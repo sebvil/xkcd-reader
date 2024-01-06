@@ -1,12 +1,12 @@
 package com.colibrez.xkcdreader.android.ui.features.comic
 
 import app.cash.turbine.test
+import com.colibrez.xkcdreader.android.extension.advanceUntilIdle
 import com.colibrez.xkcdreader.android.ui.core.navigation.NavigationState
 import com.colibrez.xkcdreader.data.repository.FakeComicRepository
 import com.colibrez.xkcdreader.model.comicFixtures
 import io.kotest.core.spec.style.FreeSpec
 import io.kotest.core.test.TestScope
-import io.kotest.core.test.testCoroutineScheduler
 import io.kotest.datatest.withData
 import io.kotest.matchers.Matcher
 import io.kotest.matchers.collections.shouldContainExactly
@@ -15,9 +15,7 @@ import io.kotest.matchers.equalityMatcher
 import io.kotest.matchers.reflection.havingProperty
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.beInstanceOf
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 
-@OptIn(ExperimentalStdlibApi::class, ExperimentalCoroutinesApi::class)
 class ComicStateHolderTest : FreeSpec({
     lateinit var comicRepositoryDep: FakeComicRepository
     lateinit var subject: ComicStateHolder
@@ -49,7 +47,7 @@ class ComicStateHolderTest : FreeSpec({
                     comicNumber = comic.number,
                     comicTitle = comic.title
                 )
-                testCoroutineScheduler.advanceUntilIdle()
+                advanceUntilIdle()
                 awaitItem() shouldBe ComicState.Data(
                     comicNumber = comic.number,
                     comicTitle = comic.title,
@@ -66,7 +64,7 @@ class ComicStateHolderTest : FreeSpec({
 
     "init marks comic as read" {
         subject = getSubject()
-        testCoroutineScheduler.advanceUntilIdle()
+        advanceUntilIdle()
         comicRepositoryDep.markAsSeenInvocations shouldContainExactly listOf(
             FakeComicRepository.MarkAsSeenArgs(
                 comicNum = DEFAULT_COMIC_NUMBER,
@@ -85,7 +83,7 @@ class ComicStateHolderTest : FreeSpec({
                         isFavorite = isFavorite
                     )
                 )
-                testCoroutineScheduler.advanceUntilIdle()
+                advanceUntilIdle()
                 comicRepositoryDep.toggleFavoriteInvocations shouldContainExactly listOf(
                     FakeComicRepository.ToggleFavoriteArgs(
                         DEFAULT_COMIC_NUMBER,
@@ -112,7 +110,7 @@ class ComicStateHolderTest : FreeSpec({
                     comicNumber = DEFAULT_COMIC_NUMBER,
                     comicTitle = DEFAULT_COMIC_TITLE
                 )
-                testCoroutineScheduler.advanceUntilIdle()
+                advanceUntilIdle()
                 awaitItem() shouldHaveShowDialogValueOf false
                 subject.handle(ComicUserAction.ImageClicked)
                 awaitItem() shouldHaveShowDialogValueOf true
