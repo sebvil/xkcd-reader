@@ -1,6 +1,7 @@
 package com.colibrez.xkcdreader.android.data.repository.paging
 
 import com.colibrez.xkcdreader.android.ui.components.paging.PagingState
+import kotlinx.collections.immutable.persistentListOf
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 
@@ -8,7 +9,7 @@ class FakePagingDataSource<T> : PagingDataSource<T> {
 
     val stateValue: MutableStateFlow<PagingState<T>> = MutableStateFlow(
         PagingState(
-            items = listOf(),
+            items = persistentListOf(),
             status = PagingStatus.Loading
         )
     )

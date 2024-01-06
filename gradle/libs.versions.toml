@@ -5,6 +5,7 @@ coil-compose = "2.5.0"
 kotest = "5.8.0"
 kotlin = "1.9.21"
 kotlin-css-jvm = "1.0.0-pre.129-kotlin-1.4.20"
+kotlinx-collections-immutable = "0.3.7"
 ktor = "2.3.5"
 logback = "1.4.11"
 compose = "1.5.4"
@@ -35,6 +36,7 @@ kotest-runner-junit5 = { module = "io.kotest:kotest-runner-junit5", version.ref 
 kotest-framework-datatest = { module = "io.kotest:kotest-framework-datatest", version.ref = "kotest" }
 kotlin-css-jvm = { module = "org.jetbrains:kotlin-css-jvm", version.ref = "kotlin-css-jvm" }
 kotlin-test-junit = { module = "org.jetbrains.kotlin:kotlin-test-junit", version.ref = "kotlin" }
+kotlinx-collections-immutable = { module = "org.jetbrains.kotlinx:kotlinx-collections-immutable", version.ref = "kotlinx-collections-immutable" }
 kotlinx-coroutines = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "kotlinx-coroutines" }
 kotlinx-serialization = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinx-serialization" }
 ktor-client-cio = { module = "io.ktor:ktor-client-cio", version.ref = "ktor" }
