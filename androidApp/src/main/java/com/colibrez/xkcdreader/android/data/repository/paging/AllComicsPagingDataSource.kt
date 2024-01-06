@@ -6,6 +6,9 @@ import com.colibrez.xkcdreader.data.repository.ComicRepository
 import com.colibrez.xkcdreader.extensions.withDefault
 import com.colibrez.xkcdreader.model.Comic
 import com.colibrez.xkcdreader.network.ApiClient
+import kotlinx.collections.immutable.persistentListOf
+import kotlinx.collections.immutable.toImmutableList
+import kotlinx.collections.immutable.toPersistentList
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.first
@@ -23,8 +26,8 @@ class AllComicsPagingDataSource(
         _items,
         _pagingStatus
     ) { items, pagingStatus ->
-        PagingState(items = items, status = pagingStatus)
-    }.withDefault(PagingState(items = listOf(), status = PagingStatus.Loading))
+        PagingState(items = items.toImmutableList(), status = pagingStatus)
+    }.withDefault(PagingState(items = persistentListOf(), status = PagingStatus.Loading))
 
 
     override suspend fun fetch(pageSize: Long, isInitialFetch: Boolean) {

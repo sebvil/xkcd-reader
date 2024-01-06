@@ -64,8 +64,11 @@ dependencies {
 
     implementation(libs.kotlinx.serialization)
 
+    implementation(libs.kotlinx.collections.immutable)
+
     testImplementation(libs.kotest.runner.junit5)
     testImplementation(libs.kotest.framework.datatest)
     testImplementation(libs.turbine)
+
 
 }

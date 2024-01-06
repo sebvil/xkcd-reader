@@ -9,6 +9,7 @@ import io.kotest.core.test.TestScope
 import io.kotest.datatest.withData
 import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.shouldBe
+import kotlinx.collections.immutable.persistentListOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.update
 
@@ -55,8 +56,8 @@ class PagingStateHolderTest : FreeSpec({
         "items are updated when paging data source items change" - {
             withData(
                 nameFn = { it.joinToString() },
-                listOf(1,2,3),
-                listOf(3,5,7,9)
+                persistentListOf(1,2,3),
+                persistentListOf(3,5,7,9)
             ) { items ->
                 subject = getSubject()
                 subject.state.map { it.items }.test {
@@ -66,7 +67,7 @@ class PagingStateHolderTest : FreeSpec({
                     }
                     awaitItem() shouldBe items.map(Int::toString)
                     pagingDataSourceDep.stateValue.update {
-                        it.copy(items = listOf())
+                        it.copy(items = persistentListOf())
                     }
                     expectNoEvents()
                 }
