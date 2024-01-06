@@ -9,7 +9,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlin.reflect.KProperty
 
-abstract class BaseStateHolder<State : UiState, Action : UserAction> : StateHolder<State, Action> {
+abstract class BaseStateHolder<State : UiState, Action : UserAction> : NavigationSupportedStateHolder<State, Action> {
     private val _navigationState: MutableStateFlow<NavigationState?> = MutableStateFlow(null)
 
     final override val navigationState: StateFlow<NavigationState?>

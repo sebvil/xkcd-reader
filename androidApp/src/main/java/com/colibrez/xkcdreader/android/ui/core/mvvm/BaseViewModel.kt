@@ -1,17 +1,13 @@
 package com.colibrez.xkcdreader.android.ui.core.mvvm
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import com.colibrez.xkcdreader.android.ui.core.navigation.NavigationState
-import com.colibrez.xkcdreader.android.ui.core.navigation.ScreenArguments
-import com.colibrez.xkcdreader.android.ui.features.comic.ComicUserAction
-import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.update
 
-abstract class BaseViewModel<State : UiState, Action : UserAction> : StateHolder<State, Action>,
+abstract class BaseViewModel<State : UiState, Action : UserAction> : NavigationSupportedStateHolder<State, Action>,
     ViewModel() {
-    protected abstract val stateHolder: StateHolder<State, Action>
+    protected abstract val stateHolder: NavigationSupportedStateHolder<State, Action>
     final override val state by lazy {
         stateHolder.state
     }
@@ -24,6 +20,9 @@ abstract class BaseViewModel<State : UiState, Action : UserAction> : StateHolder
         stateHolder.navigationState
     }
 
-    final override fun handle(action: Action) = stateHolder.handle(action)
+    final override fun handle(action: Action) {
+        Log.i("ViewModel", "handle($action)")
+        stateHolder.handle(action)
+    }
 
 }

@@ -35,6 +35,9 @@ import androidx.paging.compose.itemKey
 import androidx.savedstate.SavedStateRegistryOwner
 import coil.compose.AsyncImage
 import com.colibrez.xkcdreader.android.XkcdReaderApplication
+import com.colibrez.xkcdreader.android.data.repository.AllComicsPagingDataSource
+import com.colibrez.xkcdreader.android.ui.components.paging.PagingLazyColumn
+import com.colibrez.xkcdreader.android.ui.components.paging.PagingStateHolder
 import com.colibrez.xkcdreader.android.ui.core.navigation.Screen
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootNavGraph
@@ -47,18 +50,20 @@ fun ComicListScreen(
     viewModel: ComicListViewModel = comicListViewModel(),
     navigator: DestinationsNavigator
 ) {
-    Screen(viewModel = viewModel, navigator = navigator) { state, handleUserAction ->
-        ComicListLayout(state = state, handleUserAction = handleUserAction)
+    Screen(viewModel = viewModel, navigator = navigator) { _, handleUserAction ->
+        ComicListLayout(
+            pagingStateHolder = viewModel.pagingStateHolder,
+            handleUserAction = handleUserAction
+        )
     }
 }
 
 @Composable
 fun ComicListLayout(
-    state: ComicListState,
+    pagingStateHolder: PagingStateHolder<ListComic, *>,
     handleUserAction: (ComicListUserAction) -> Unit
 ) {
 
-    val lazyPagingItems = state.comics.collectAsLazyPagingItems()
 
     val image: @Composable (imageUrl: String) -> Unit = { imageUrl ->
         var loading by remember {
@@ -84,54 +89,46 @@ fun ComicListLayout(
         )
     }
 
-    LazyColumn {
-        items(
-            lazyPagingItems.itemCount,
-            key = lazyPagingItems.itemKey { it.comicNumber },
-            contentType = lazyPagingItems.itemContentType { ListComic::class.hashCode() }
-        ) { index ->
-            val item = lazyPagingItems[index] ?: return@items
-            ListItem(
-                headlineContent = {
-                    Text(
-                        text = "${item.comicNumber}. ${item.title}",
-                        fontWeight = if (item.isRead) null else FontWeight.ExtraBold
+    PagingLazyColumn(stateHolder = pagingStateHolder) { item ->
+        ListItem(
+            headlineContent = {
+                Text(
+                    text = "${item.comicNumber}. ${item.title}",
+                    fontWeight = if (item.isRead) null else FontWeight.ExtraBold
+                )
+            },
+            modifier = Modifier
+                .padding(vertical = 8.dp)
+                .clickable {
+                    handleUserAction(
+                        ComicListUserAction.ComicClicked(
+                            comicNum = item.comicNumber,
+                            comicTitle = item.title
+                        )
                     )
                 },
-                modifier = Modifier
-                    .padding(vertical = 8.dp)
-                    .clickable {
-                        handleUserAction(
-                            ComicListUserAction.ComicClicked(
-                                comicNum = item.comicNumber,
-                                comicTitle = item.title
-                            )
+            leadingContent = {
+                image(item.imageUrl)
+            }, trailingContent = {
+                IconButton(onClick = {
+                    handleUserAction(
+                        ComicListUserAction.ToggleFavorite(
+                            comicNum = item.comicNumber,
+                            isFavorite = item.isFavorite
                         )
-                    },
-                leadingContent = {
-                    image(item.imageUrl)
-                }, trailingContent = {
-                    IconButton(onClick = {
-                        handleUserAction(
-                            ComicListUserAction.ToggleFavorite(
-                                comicNum = item.comicNumber,
-                                isFavorite = item.isFavorite
-                            )
-                        )
-                    }) {
-                        Icon(
-                            imageVector = if (item.isFavorite) Icons.Filled.Star else Icons.Outlined.Star,
-                            contentDescription = "Mark as favorite",
-                            tint = if (item.isFavorite) Color.Yellow else LocalContentColor.current
-                        )
-                    }
+                    )
+                }) {
+                    Icon(
+                        imageVector = if (item.isFavorite) Icons.Filled.Star else Icons.Outlined.Star,
+                        contentDescription = "Mark as favorite",
+                        tint = if (item.isFavorite) Color.Yellow else LocalContentColor.current
+                    )
                 }
-            )
-        }
+            }
+        )
     }
 }
 
-@OptIn(ExperimentalPagingApi::class)
 @Composable
 fun comicListViewModel(savedStateRegistryOwner: SavedStateRegistryOwner = LocalSavedStateRegistryOwner.current): ComicListViewModel {
     val dependencyContainer =
@@ -139,8 +136,10 @@ fun comicListViewModel(savedStateRegistryOwner: SavedStateRegistryOwner = LocalS
 
     val factory = ComicListViewModel.Factory(
         owner = savedStateRegistryOwner,
-        comicsRemoteMediator = dependencyContainer.comicsRemoteMediator,
-        pagingSourceFactory = dependencyContainer.comicPagingSourceFactory,
+        allComicsPagingDataSource = AllComicsPagingDataSource(
+            dependencyContainer.apiClient,
+            dependencyContainer.comicRepository
+        ),
         comicRepository = dependencyContainer.comicRepository,
     )
     return viewModel(factory = factory)
