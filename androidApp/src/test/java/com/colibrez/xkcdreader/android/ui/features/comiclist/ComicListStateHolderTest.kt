@@ -2,6 +2,7 @@ package com.colibrez.xkcdreader.android.ui.features.comiclist
 
 import app.cash.turbine.test
 import com.colibrez.xkcdreader.android.data.repository.paging.FakePagingDataSource
+import com.colibrez.xkcdreader.android.extension.advanceUntilIdle
 import com.colibrez.xkcdreader.android.ui.components.paging.PagingStateHolder
 import com.colibrez.xkcdreader.android.ui.core.navigation.NavigationState
 import com.colibrez.xkcdreader.android.ui.features.comic.ComicScreenArguments
@@ -9,13 +10,10 @@ import com.colibrez.xkcdreader.data.repository.FakeComicRepository
 import com.colibrez.xkcdreader.model.comicFixtures
 import io.kotest.core.spec.style.FreeSpec
 import io.kotest.core.test.TestScope
-import io.kotest.core.test.testCoroutineScheduler
 import io.kotest.datatest.withData
 import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.shouldBe
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 
-@OptIn(ExperimentalStdlibApi::class, ExperimentalCoroutinesApi::class)
 class ComicListStateHolderTest : FreeSpec({
 
     lateinit var comicRepositoryDep: FakeComicRepository
@@ -62,7 +60,7 @@ class ComicListStateHolderTest : FreeSpec({
                         isFavorite = isFavorite
                     )
                 )
-                testCoroutineScheduler.advanceUntilIdle()
+                advanceUntilIdle()
                 comicRepositoryDep.toggleFavoriteInvocations shouldContainExactly listOf(
                     FakeComicRepository.ToggleFavoriteArgs(
                         comicNum = comicNumber,
