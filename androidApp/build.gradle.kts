@@ -69,7 +69,6 @@ dependencies {
 
     testImplementation(libs.kotest.runner.junit5)
     testImplementation(libs.kotest.framework.datatest)
-    testImplementation(projects.sharedTest)
     testImplementation(libs.turbine)
 
 }
