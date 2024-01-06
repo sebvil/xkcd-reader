@@ -1,13 +1,11 @@
 package com.colibrez.xkcdreader.android.ui.features.comiclist
 
-import com.colibrez.xkcdreader.android.data.repository.AllComicsPagingDataSource
 import com.colibrez.xkcdreader.android.ui.components.paging.PagingState
 import com.colibrez.xkcdreader.android.ui.components.paging.PagingStateHolder
 import com.colibrez.xkcdreader.android.ui.core.mvvm.BaseStateHolder
 import com.colibrez.xkcdreader.android.ui.core.navigation.NavigationState
 import com.colibrez.xkcdreader.android.ui.features.comic.ComicScreenArguments
 import com.colibrez.xkcdreader.data.repository.ComicRepository
-import com.colibrez.xkcdreader.extensions.mapAsStateFlow
 import com.colibrez.xkcdreader.model.Comic
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.StateFlow
@@ -16,24 +14,11 @@ import kotlinx.coroutines.launch
 
 class ComicListStateHolder(
     private val viewModelScope: CoroutineScope,
-    private val pagingDataSource: AllComicsPagingDataSource,
+    val pagingStateHolder: PagingStateHolder<ListComic, Comic>,
     private val comicRepository: ComicRepository,
 ) : BaseStateHolder<PagingState<ListComic>, ComicListUserAction>() {
 
-    val pagingStateHolder = PagingStateHolder(
-        pageSize = 20,
-        viewModelScope = viewModelScope,
-        pagingDataSource = pagingDataSource,
-        itemTransform = {
-            ListComic(
-                comicNumber = it.number,
-                title = it.title,
-                imageUrl = it.imageUrl,
-                isFavorite = it.isFavorite,
-                isRead = it.isRead
-            )
-        }
-    )
+
 
     override val state: StateFlow<PagingState<ListComic>> = pagingStateHolder.state
 

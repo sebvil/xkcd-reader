@@ -1,4 +1,4 @@
-package com.colibrez.xkcdreader.android.data.repository
+package com.colibrez.xkcdreader.android.data.repository.paging
 
 import com.colibrez.xkcdreader.android.ui.components.paging.PagingState
 import com.colibrez.xkcdreader.data.model.asEntity
@@ -9,7 +9,6 @@ import com.colibrez.xkcdreader.network.ApiClient
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.update
 
 class AllComicsPagingDataSource(
@@ -18,21 +17,22 @@ class AllComicsPagingDataSource(
 ) : PagingDataSource<Comic> {
 
     private val _items = comicRepository.getAllComics().withDefault(listOf())
-    private val _endOfPaginationReached = MutableStateFlow(false)
-    private val _isLoading = MutableStateFlow(false)
+    private val _pagingStatus = MutableStateFlow<PagingStatus>(PagingStatus.Idle(endOfPaginationReached = false))
 
     override val state = combine(
         _items,
-        _isLoading,
-        _endOfPaginationReached
-    ) { items, isLoading, endOfPaginationReached ->
-        PagingState(items, isLoading, endOfPaginationReached)
-    }.withDefault(PagingState(items = listOf(), isLoading = false, endOfPaginationReached = false))
+        _pagingStatus
+    ) { items, pagingStatus ->
+        PagingState(items = items, status = pagingStatus)
+    }.withDefault(PagingState(items = listOf(), status = PagingStatus.Loading))
 
 
-    override suspend fun fetch(pageSize: Long) {
+    override suspend fun fetch(pageSize: Long, isInitialFetch: Boolean) {
         val key = comicRepository.getComicCount().first()
-        _isLoading.update { true }
+        if (isInitialFetch && key != 0L) {
+            return
+        }
+        _pagingStatus.update { PagingStatus.Loading }
         val response = apiClient.getPaginatedComics(key, pageSize)
 
         val result = response.fold(
@@ -40,12 +40,16 @@ class AllComicsPagingDataSource(
                 it
             },
             onFailure = {
-                throw it
+               _pagingStatus.update {
+                   PagingStatus.NetworkError("There was an issue fetching comics.")
+               }
+                return
             }
         )
         comicRepository.insertComics(result.map { it.asEntity() })
-        _isLoading.update { false }
-        _endOfPaginationReached.update { result.isEmpty() }
+        _pagingStatus.update {
+            PagingStatus.Idle(endOfPaginationReached = result.isEmpty())
+        }
 
 
     }

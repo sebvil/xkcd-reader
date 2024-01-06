@@ -2,16 +2,13 @@ package com.colibrez.xkcdreader.android.ui.features.comiclist
 
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
-import androidx.paging.ExperimentalPagingApi
-import androidx.paging.PagingSource
-import androidx.paging.RemoteMediator
 import androidx.savedstate.SavedStateRegistryOwner
-import com.colibrez.xkcdreader.android.data.repository.AllComicsPagingDataSource
+import com.colibrez.xkcdreader.android.data.repository.paging.AllComicsPagingDataSource
 import com.colibrez.xkcdreader.android.ui.components.paging.PagingState
+import com.colibrez.xkcdreader.android.ui.components.paging.PagingStateHolder
 import com.colibrez.xkcdreader.android.ui.core.mvvm.BaseViewModel
 import com.colibrez.xkcdreader.android.ui.core.mvvm.BaseViewModelFactory
 import com.colibrez.xkcdreader.data.repository.ComicRepository
-import com.colibrez.xkcdreader.model.Comic
 
 
 class ComicListViewModel(
@@ -20,14 +17,26 @@ class ComicListViewModel(
 ) : BaseViewModel<PagingState<ListComic>, ComicListUserAction>() {
 
 
-    override val stateHolder: ComicListStateHolder = ComicListStateHolder(
+    val pagingStateHolder = PagingStateHolder(
+        pageSize = 20,
         viewModelScope = viewModelScope,
         pagingDataSource = allComicsPagingDataSource,
-        comicRepository = comicRepository
+        itemTransform = {
+            ListComic(
+                comicNumber = it.number,
+                title = it.title,
+                imageUrl = it.imageUrl,
+                isFavorite = it.isFavorite,
+                isRead = it.isRead
+            )
+        }
     )
 
-    val pagingStateHolder
-        get() = stateHolder.pagingStateHolder
+    override val stateHolder: ComicListStateHolder = ComicListStateHolder(
+        viewModelScope = viewModelScope,
+        pagingStateHolder = pagingStateHolder,
+        comicRepository = comicRepository
+    )
 
 
     class Factory(

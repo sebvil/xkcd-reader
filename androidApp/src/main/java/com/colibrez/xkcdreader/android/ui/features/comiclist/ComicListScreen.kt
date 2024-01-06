@@ -6,7 +6,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.sizeIn
-import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.outlined.Star
@@ -28,14 +27,10 @@ import androidx.compose.ui.platform.LocalSavedStateRegistryOwner
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.paging.ExperimentalPagingApi
-import androidx.paging.compose.collectAsLazyPagingItems
-import androidx.paging.compose.itemContentType
-import androidx.paging.compose.itemKey
 import androidx.savedstate.SavedStateRegistryOwner
 import coil.compose.AsyncImage
 import com.colibrez.xkcdreader.android.XkcdReaderApplication
-import com.colibrez.xkcdreader.android.data.repository.AllComicsPagingDataSource
+import com.colibrez.xkcdreader.android.data.repository.paging.AllComicsPagingDataSource
 import com.colibrez.xkcdreader.android.ui.components.paging.PagingLazyColumn
 import com.colibrez.xkcdreader.android.ui.components.paging.PagingStateHolder
 import com.colibrez.xkcdreader.android.ui.core.navigation.Screen
@@ -50,10 +45,12 @@ fun ComicListScreen(
     viewModel: ComicListViewModel = comicListViewModel(),
     navigator: DestinationsNavigator
 ) {
+
+
     Screen(viewModel = viewModel, navigator = navigator) { _, handleUserAction ->
         ComicListLayout(
             pagingStateHolder = viewModel.pagingStateHolder,
-            handleUserAction = handleUserAction
+            handleUserAction = handleUserAction,
         )
     }
 }
@@ -61,9 +58,9 @@ fun ComicListScreen(
 @Composable
 fun ComicListLayout(
     pagingStateHolder: PagingStateHolder<ListComic, *>,
-    handleUserAction: (ComicListUserAction) -> Unit
+    handleUserAction: (ComicListUserAction) -> Unit,
+    modifier: Modifier = Modifier
 ) {
-
 
     val image: @Composable (imageUrl: String) -> Unit = { imageUrl ->
         var loading by remember {
@@ -89,7 +86,7 @@ fun ComicListLayout(
         )
     }
 
-    PagingLazyColumn(stateHolder = pagingStateHolder) { item ->
+    PagingLazyColumn(modifier = modifier, stateHolder = pagingStateHolder) { item ->
         ListItem(
             headlineContent = {
                 Text(

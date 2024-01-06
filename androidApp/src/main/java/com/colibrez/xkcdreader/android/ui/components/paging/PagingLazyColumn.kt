@@ -1,6 +1,8 @@
 package com.colibrez.xkcdreader.android.ui.components.paging
 
-import android.util.Log
+import androidx.compose.foundation.layout.Column
+import androidx.compose.material3.Button
+import androidx.compose.material3.Text
 import androidx.compose.foundation.gestures.FlingBehavior
 import androidx.compose.foundation.gestures.ScrollableDefaults
 import androidx.compose.foundation.layout.Arrangement
@@ -22,6 +24,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.colibrez.xkcdreader.android.data.repository.paging.PagingStatus
 
 @Composable
 fun <T> PagingLazyColumn(
@@ -43,16 +46,15 @@ fun <T> PagingLazyColumn(
 
     val isNearEnd by remember {
         derivedStateOf {
-            Log .i("PAGING", "Is near end calc")
-            val lastItemIndex = listState.layoutInfo.visibleItemsInfo.lastOrNull()?.index ?: return@derivedStateOf true
+            val lastItemIndex = listState.layoutInfo.visibleItemsInfo.lastOrNull()?.index
+                ?: return@derivedStateOf true
             lastItemIndex > state.items.size - stateHolder.pageSize * 2
         }
     }
 
     LaunchedEffect(key1 = isNearEnd, key2 = state.items.size) {
-        Log .i("PAGING", "Is near end effect")
-        if (isNearEnd && !state.endOfPaginationReached) {
-            stateHolder.handle(PagingUserAction.FetchPage)
+        if (isNearEnd && state.status.canFetchData()) {
+            stateHolder.handle(PagingUserAction.FetchPage(isInitialFetch = state.items.isEmpty()))
         }
     }
 
@@ -68,13 +70,42 @@ fun <T> PagingLazyColumn(
     ) {
         items(items = state.items, key = itemKey, contentType = contentType, itemRow)
 
-//        if (state.isLoading) {
-//            item(key = "PaginationLoadingSpinner") {
-//                Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {}
-//                CircularProgressIndicator()
-//            }
-//        }
+        when (val status = state.status) {
+            is PagingStatus.Idle -> Unit
+            PagingStatus.Loading -> {
+                item {
+                    LaunchedEffect(key1 = Unit) {
+                        listState.animateScrollToItem(state.items.size)
+                    }
+                    Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
+                        CircularProgressIndicator()
+                    }
+                }
+            }
+
+            is PagingStatus.NetworkError -> {
+                item {
+                    LaunchedEffect(key1 = Unit) {
+                        listState.animateScrollToItem(state.items.size)
+                    }
+                    Column(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        Text(text = status.message)
+                        Button(onClick = {
+                            stateHolder.handle(
+                                PagingUserAction.FetchPage(
+                                    isInitialFetch = false
+                                )
+                            )
+                        }) {
+                            Text(text = "Try again")
+                        }
+                    }
+                }
+
+            }
+        }
     }
-
-
 }

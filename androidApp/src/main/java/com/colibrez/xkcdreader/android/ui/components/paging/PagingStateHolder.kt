@@ -1,7 +1,7 @@
 package com.colibrez.xkcdreader.android.ui.components.paging
 
-import com.colibrez.xkcdreader.android.data.repository.AllComicsPagingDataSource
-import com.colibrez.xkcdreader.android.data.repository.PagingDataSource
+import com.colibrez.xkcdreader.android.data.repository.paging.PagingDataSource
+import com.colibrez.xkcdreader.android.data.repository.paging.PagingStatus
 import com.colibrez.xkcdreader.android.ui.core.mvvm.StateHolder
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.SharingStarted
@@ -17,19 +17,23 @@ class PagingStateHolder<R, T>(
     itemTransform: (T) -> R,
 ) : StateHolder<PagingState<R>, PagingUserAction> {
 
+    // Helps preserve scroll position in the case we navigate to another screen
+    private var cachedItems: List<R> = listOf()
+
     override val state: StateFlow<PagingState<R>> = pagingDataSource.state.map {
+        if (it.items.isNotEmpty()) {
+            cachedItems = it.items.map(itemTransform)
+        }
         PagingState(
-            items = it.items.map(itemTransform),
-            isLoading = it.isLoading,
-            endOfPaginationReached = it.endOfPaginationReached
+            items = cachedItems,
+            status = it.status
         )
     }.stateIn(
         scope = viewModelScope,
         started = SharingStarted.WhileSubscribed(5_000),
         initialValue = PagingState(
-            items = listOf(),
-            isLoading = false,
-            endOfPaginationReached = false
+            items = cachedItems,
+            status = PagingStatus.Loading
         )
     )
 
@@ -37,7 +41,7 @@ class PagingStateHolder<R, T>(
         when (action) {
             is PagingUserAction.FetchPage -> {
                 viewModelScope.launch {
-                    pagingDataSource.fetch(pageSize)
+                    pagingDataSource.fetch(pageSize, action.isInitialFetch)
                 }
             }
         }
