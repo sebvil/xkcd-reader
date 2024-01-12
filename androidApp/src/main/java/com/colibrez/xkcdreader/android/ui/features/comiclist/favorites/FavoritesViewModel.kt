@@ -1,15 +1,16 @@
-package com.colibrez.xkcdreader.android.ui.features.favorites
+package com.colibrez.xkcdreader.android.ui.features.comiclist.favorites
 
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import androidx.savedstate.SavedStateRegistryOwner
 import com.colibrez.xkcdreader.android.ui.core.mvvm.BaseViewModel
 import com.colibrez.xkcdreader.android.ui.core.mvvm.BaseViewModelFactory
+import com.colibrez.xkcdreader.android.ui.features.comiclist.ComicListUserAction
 import com.colibrez.xkcdreader.data.repository.ComicRepository
 
 class FavoritesViewModel(
     comicRepository: ComicRepository
-) : BaseViewModel<FavoritesState, FavoritesUserAction>() {
+) : BaseViewModel<FavoritesState, ComicListUserAction>() {
 
     override val stateHolder: FavoritesStateHolder = FavoritesStateHolder(
         viewModelScope = viewModelScope,

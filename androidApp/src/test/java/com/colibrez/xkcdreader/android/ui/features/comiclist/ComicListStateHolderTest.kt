@@ -1,10 +1,8 @@
 package com.colibrez.xkcdreader.android.ui.features.comiclist
 
 import app.cash.turbine.test
-import com.colibrez.xkcdreader.android.data.repository.paging.FakePagingDataSource
 import com.colibrez.xkcdreader.android.extension.advanceUntilIdle
-import com.colibrez.xkcdreader.android.ui.components.comic.ListComic
-import com.colibrez.xkcdreader.android.ui.components.paging.PagingStateHolder
+import com.colibrez.xkcdreader.android.ui.core.mvvm.UiState
 import com.colibrez.xkcdreader.android.ui.core.navigation.NavigationState
 import com.colibrez.xkcdreader.android.ui.features.comic.ComicScreenArguments
 import com.colibrez.xkcdreader.data.repository.FakeComicRepository
@@ -14,25 +12,20 @@ import io.kotest.core.test.TestScope
 import io.kotest.datatest.withData
 import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.shouldBe
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 
 class ComicListStateHolderTest : FreeSpec({
-
     lateinit var comicRepositoryDep: FakeComicRepository
-    lateinit var subject: ComicListStateHolder
+    lateinit var subject: ComicListStateHolder<TestState>
 
-    fun TestScope.getSubject(): ComicListStateHolder {
-        return ComicListStateHolder(
-            viewModelScope = this,
-            pagingStateHolder = PagingStateHolder(
-                pageSize = 0,
-                viewModelScope = this,
-                pagingDataSource = FakePagingDataSource(),
-            ) {
-                ListComic.fromExternalModel(it)
-            },
-            comicRepository = comicRepositoryDep,
-        )
+    fun TestScope.getSubject() = object : ComicListStateHolder<TestState>(
+        viewModelScope = this,
+        comicRepository = comicRepositoryDep,
+    ) {
+        override val state: StateFlow<TestState> = MutableStateFlow(TestState)
     }
+
     beforeTest {
         comicRepositoryDep = FakeComicRepository()
     }
@@ -82,4 +75,6 @@ class ComicListStateHolderTest : FreeSpec({
             }
         }
     }
-})
+}) {
+    data object TestState : UiState
+}

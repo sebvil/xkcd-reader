@@ -1,4 +1,4 @@
-package com.colibrez.xkcdreader.android.ui.features.favorites
+package com.colibrez.xkcdreader.android.ui.features.comiclist.favorites
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.padding
@@ -16,6 +16,7 @@ import androidx.savedstate.SavedStateRegistryOwner
 import com.colibrez.xkcdreader.android.XkcdReaderApplication
 import com.colibrez.xkcdreader.android.ui.components.comic.ComicListItem
 import com.colibrez.xkcdreader.android.ui.core.navigation.Screen
+import com.colibrez.xkcdreader.android.ui.features.comiclist.ComicListUserAction
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 
@@ -36,7 +37,7 @@ fun FavoritesScreen(
 @Composable
 fun FavoritesLayout(
     state: FavoritesState,
-    handleUserAction: (FavoritesUserAction) -> Unit,
+    handleUserAction: (ComicListUserAction) -> Unit,
     modifier: Modifier = Modifier
 ) {
     when (state) {
@@ -47,7 +48,7 @@ fun FavoritesLayout(
                         state = item,
                         onClick = {
                             handleUserAction(
-                                FavoritesUserAction.ComicClicked(
+                                ComicListUserAction.ComicClicked(
                                     comicNum = item.comicNumber,
                                     comicTitle = item.title,
                                 ),
