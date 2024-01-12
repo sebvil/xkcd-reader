@@ -24,5 +24,4 @@ abstract class BaseViewModel<State : UiState, Action : UserAction> : NavigationS
         Log.i("ViewModel", "handle($action)")
         stateHolder.handle(action)
     }
-
 }

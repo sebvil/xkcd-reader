@@ -42,11 +42,9 @@ import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 @RootNavGraph(start = true)
 @Composable
 fun ComicListScreen(
-    viewModel: ComicListViewModel = comicListViewModel(),
-    navigator: DestinationsNavigator
+    navigator: DestinationsNavigator,
+    viewModel: ComicListViewModel = comicListViewModel()
 ) {
-
-
     Screen(viewModel = viewModel, navigator = navigator) { _, handleUserAction ->
         ComicListLayout(
             pagingStateHolder = viewModel.pagingStateHolder,
@@ -56,42 +54,42 @@ fun ComicListScreen(
 }
 
 @Composable
+private fun ComicImage(imageUrl: String) {
+    var loading by remember {
+        mutableStateOf(true)
+    }
+    if (loading) {
+        Box(
+            modifier = Modifier
+                .background(MaterialTheme.colorScheme.onSurface)
+                .size(64.dp),
+        )
+    }
+    AsyncImage(
+        model = imageUrl,
+        contentDescription = null,
+        modifier = Modifier.sizeIn(minWidth = 64.dp, maxHeight = 64.dp, maxWidth = 64.dp),
+        onSuccess = {
+            loading = false
+        },
+        onError = {
+            loading = false
+        },
+    )
+}
+
+@Composable
 fun ComicListLayout(
     pagingStateHolder: PagingStateHolder<ListComic, *>,
     handleUserAction: (ComicListUserAction) -> Unit,
     modifier: Modifier = Modifier
 ) {
-
-    val image: @Composable (imageUrl: String) -> Unit = { imageUrl ->
-        var loading by remember {
-            mutableStateOf(true)
-        }
-        if (loading) {
-            Box(
-                modifier = Modifier
-                    .background(MaterialTheme.colorScheme.onSurface)
-                    .size(64.dp)
-            )
-        }
-        AsyncImage(
-            model = imageUrl,
-            contentDescription = null,
-            modifier = Modifier.sizeIn(minWidth = 64.dp, maxHeight = 64.dp, maxWidth = 64.dp),
-            onSuccess = {
-                loading = false
-            },
-            onError = {
-                loading = false
-            }
-        )
-    }
-
     PagingLazyColumn(modifier = modifier, stateHolder = pagingStateHolder) { item ->
         ListItem(
             headlineContent = {
                 Text(
                     text = "${item.comicNumber}. ${item.title}",
-                    fontWeight = if (item.isRead) null else FontWeight.ExtraBold
+                    fontWeight = if (item.isRead) null else FontWeight.ExtraBold,
                 )
             },
             modifier = Modifier
@@ -100,34 +98,37 @@ fun ComicListLayout(
                     handleUserAction(
                         ComicListUserAction.ComicClicked(
                             comicNum = item.comicNumber,
-                            comicTitle = item.title
-                        )
+                            comicTitle = item.title,
+                        ),
                     )
                 },
             leadingContent = {
-                image(item.imageUrl)
-            }, trailingContent = {
+                ComicImage(item.imageUrl)
+            },
+            trailingContent = {
                 IconButton(onClick = {
                     handleUserAction(
                         ComicListUserAction.ToggleFavorite(
                             comicNum = item.comicNumber,
-                            isFavorite = item.isFavorite
-                        )
+                            isFavorite = item.isFavorite,
+                        ),
                     )
                 }) {
                     Icon(
                         imageVector = if (item.isFavorite) Icons.Filled.Star else Icons.Outlined.Star,
                         contentDescription = "Mark as favorite",
-                        tint = if (item.isFavorite) Color.Yellow else LocalContentColor.current
+                        tint = if (item.isFavorite) Color.Yellow else LocalContentColor.current,
                     )
                 }
-            }
+            },
         )
     }
 }
 
 @Composable
-fun comicListViewModel(savedStateRegistryOwner: SavedStateRegistryOwner = LocalSavedStateRegistryOwner.current): ComicListViewModel {
+fun comicListViewModel(
+    savedStateRegistryOwner: SavedStateRegistryOwner = LocalSavedStateRegistryOwner.current
+): ComicListViewModel {
     val dependencyContainer =
         (LocalContext.current.applicationContext as XkcdReaderApplication).dependencyContainer
 
@@ -135,7 +136,7 @@ fun comicListViewModel(savedStateRegistryOwner: SavedStateRegistryOwner = LocalS
         owner = savedStateRegistryOwner,
         allComicsPagingDataSource = AllComicsPagingDataSource(
             dependencyContainer.apiClient,
-            dependencyContainer.comicRepository
+            dependencyContainer.comicRepository,
         ),
         comicRepository = dependencyContainer.comicRepository,
     )

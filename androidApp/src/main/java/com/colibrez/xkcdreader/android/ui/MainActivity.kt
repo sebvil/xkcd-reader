@@ -24,7 +24,8 @@ class MainActivity : ComponentActivity() {
                 }
                 .diskCache {
                     DiskCache.Builder()
-                        .directory(this.cacheDir.resolve("image_cache")).build()
+                        .directory(this.cacheDir.resolve("image_cache"))
+                        .build()
                 }
                 .build()
         }
@@ -32,7 +33,7 @@ class MainActivity : ComponentActivity() {
             MyApplicationTheme {
                 Surface(
                     modifier = Modifier.fillMaxSize(),
-                    color = MaterialTheme.colorScheme.background
+                    color = MaterialTheme.colorScheme.background,
                 ) {
                     DestinationsNavHost(navGraph = NavGraphs.root)
                 }

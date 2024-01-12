@@ -27,10 +27,10 @@ class ComicStateHolderTest : FreeSpec({
         return ComicStateHolder(
             arguments = ComicScreenArguments(
                 comicNumber = comicNumber,
-                comicTitle = comicTitle
+                comicTitle = comicTitle,
             ),
             viewModelScope = this,
-            comicRepository = comicRepositoryDep
+            comicRepository = comicRepositoryDep,
         )
     }
 
@@ -38,14 +38,13 @@ class ComicStateHolderTest : FreeSpec({
         comicRepositoryDep = FakeComicRepository()
     }
 
-
     "state comic properties match properties from repository comic" - {
         withData(comicFixtures) { comic ->
             subject = getSubject(comicNumber = comic.number, comicTitle = comic.title)
             subject.state.test {
                 awaitItem() shouldBe ComicState.Loading(
                     comicNumber = comic.number,
-                    comicTitle = comic.title
+                    comicTitle = comic.title,
                 )
                 advanceUntilIdle()
                 awaitItem() shouldBe ComicState.Data(
@@ -56,7 +55,7 @@ class ComicStateHolderTest : FreeSpec({
                     imageDescription = comic.transcript,
                     permalink = comic.permalink,
                     isFavorite = comic.isFavorite,
-                    showDialog = false
+                    showDialog = false,
                 )
             }
         }
@@ -68,8 +67,8 @@ class ComicStateHolderTest : FreeSpec({
         comicRepositoryDep.markAsSeenInvocations shouldContainExactly listOf(
             FakeComicRepository.MarkAsSeenArgs(
                 comicNum = DEFAULT_COMIC_NUMBER,
-                userId = 0L
-            )
+                userId = 0L,
+            ),
         )
     }
 
@@ -80,16 +79,16 @@ class ComicStateHolderTest : FreeSpec({
                 subject.handle(
                     ComicUserAction.ToggleFavorite(
                         comicNum = DEFAULT_COMIC_NUMBER,
-                        isFavorite = isFavorite
-                    )
+                        isFavorite = isFavorite,
+                    ),
                 )
                 advanceUntilIdle()
                 comicRepositoryDep.toggleFavoriteInvocations shouldContainExactly listOf(
                     FakeComicRepository.ToggleFavoriteArgs(
                         DEFAULT_COMIC_NUMBER,
                         isFavorite,
-                        userId = 0
-                    )
+                        userId = 0,
+                    ),
                 )
             }
         }
@@ -99,8 +98,8 @@ class ComicStateHolderTest : FreeSpec({
                 this shouldBe Matcher.all(
                     beInstanceOf<ComicState.Data>(),
                     havingProperty(
-                        equalityMatcher(expected) to ComicState.Data::showDialog
-                    )
+                        equalityMatcher(expected) to ComicState.Data::showDialog,
+                    ),
                 )
                 return this
             }
@@ -108,7 +107,7 @@ class ComicStateHolderTest : FreeSpec({
             subject.state.test {
                 awaitItem() shouldBe ComicState.Loading(
                     comicNumber = DEFAULT_COMIC_NUMBER,
-                    comicTitle = DEFAULT_COMIC_TITLE
+                    comicTitle = DEFAULT_COMIC_TITLE,
                 )
                 advanceUntilIdle()
                 awaitItem() shouldHaveShowDialogValueOf false
@@ -134,5 +133,3 @@ class ComicStateHolderTest : FreeSpec({
         private const val DEFAULT_COMIC_TITLE = ""
     }
 }
-
-

@@ -10,13 +10,12 @@ class FakePagingDataSource<T> : PagingDataSource<T> {
     val stateValue: MutableStateFlow<PagingState<T>> = MutableStateFlow(
         PagingState(
             items = persistentListOf(),
-            status = PagingStatus.Loading
-        )
+            status = PagingStatus.Loading,
+        ),
     )
 
     override val state: Flow<PagingState<T>>
         get() = stateValue
-
 
     // region fetch
 

@@ -10,5 +10,4 @@ class ProjectConfig : AbstractProjectConfig() {
     override fun extensions(): List<Extension> {
         return listOf(CancelChildrenOnFinishExtension)
     }
-
 }

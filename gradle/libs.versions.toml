@@ -1,7 +1,9 @@
 [versions]
 activity-compose = "1.8.2"
-agp = "8.2.0"
+agp = "8.2.1"
 coil-compose = "2.5.0"
+detekt = "1.23.4"
+detekt-verify-implementation = "1.2.5"
 kotest = "5.8.0"
 kotlin = "1.9.21"
 kotlin-css-jvm = "1.0.0-pre.129-kotlin-1.4.20"
@@ -9,6 +11,7 @@ kotlinx-collections-immutable = "0.3.7"
 ktor = "2.3.5"
 logback = "1.4.11"
 compose = "1.5.4"
+nlopez-detekt = "0.3.8"
 sqldelight = "2.0.0"
 kotlinx-coroutines = "1.7.3"
 kotlinx-serialization = "1.6.2"
@@ -32,6 +35,9 @@ coil-compose = { module = "io.coil-kt:coil-compose", version.ref = "coil-compose
 compose-destinations-animations-core = { module = "io.github.raamcosta.compose-destinations:animations-core", version.ref = "compose-destinations" }
 compose-destinations-ksp = { module = "io.github.raamcosta.compose-destinations:ksp", version.ref = "compose-destinations" }
 coroutines-extensions = { module = "app.cash.sqldelight:coroutines-extensions", version.ref = "sqldelight" }
+detekt-compose = { module = "io.nlopez.compose.rules:detekt", version.ref = "nlopez-detekt" }
+detekt-formatting = { module = "io.gitlab.arturbosch.detekt:detekt-formatting", version.ref = "detekt" }
+detekt-verify-implementation = { module = "dk.cachet.detekt.extensions:detekt-verify-implementation", version.ref = "detekt-verify-implementation" }
 kotest-runner-junit5 = { module = "io.kotest:kotest-runner-junit5", version.ref = "kotest" }
 kotest-framework-datatest = { module = "io.kotest:kotest-framework-datatest", version.ref = "kotest" }
 kotlin-css-jvm = { module = "org.jetbrains:kotlin-css-jvm", version.ref = "kotlin-css-jvm" }
@@ -49,7 +55,7 @@ ktor-server-content-negotiation-jvm = { module = "io.ktor:ktor-server-content-ne
 ktor-server-core-jvm = { module = "io.ktor:ktor-server-core-jvm", version.ref = "ktor" }
 ktor-server-default-headers-jvm = { module = "io.ktor:ktor-server-default-headers-jvm", version.ref = "ktor" }
 ktor-server-http-redirect-jvm = { module = "io.ktor:ktor-server-http-redirect-jvm", version.ref = "ktor" }
-ktor-server-html-builder-jvm = { group = "io.ktor", "name" = "ktor-server-html-builder-jvm", version.ref = "ktor"}
+ktor-server-html-builder-jvm = { group = "io.ktor", "name" = "ktor-server-html-builder-jvm", version.ref = "ktor" }
 ktor-server-netty-jvm = { module = "io.ktor:ktor-server-netty-jvm", version.ref = "ktor" }
 ktor-server-openapi = { module = "io.ktor:ktor-server-openapi", version.ref = "ktor" }
 ktor-server-resources = { module = "io.ktor:ktor-server-resources", version.ref = "ktor" }
@@ -68,7 +74,9 @@ kotlinJvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
 kotlinMultiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin" }
 ktor = { id = "io.ktor.plugin", version.ref = "ktor" }
 serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
-sqldelight = { id = "app.cash.sqldelight", version.ref = "sqldelight"}
+sqldelight = { id = "app.cash.sqldelight", version.ref = "sqldelight" }
 com-google-devtools-ksp = { id = "com.google.devtools.ksp", version.ref = "com-google-devtools" }
+detekt = { id = "io.gitlab.arturbosch.detekt", version.ref = "detekt" }
 
-
+[bundles]
+detekt-rules = ["detekt-compose", "detekt-formatting", "detekt-verify-implementation"]

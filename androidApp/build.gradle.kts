@@ -3,6 +3,7 @@ plugins {
     alias(libs.plugins.kotlinAndroid)
     alias(libs.plugins.com.google.devtools.ksp)
     alias(libs.plugins.serialization)
+    alias(libs.plugins.detekt)
 }
 
 android {
@@ -70,5 +71,20 @@ dependencies {
     testImplementation(libs.kotest.framework.datatest)
     testImplementation(libs.turbine)
 
+    detektPlugins(libs.bundles.detekt.rules)
 
+
+}
+
+detekt {
+    config.setFrom("../config/detekt/detekt.yml")
+
+    // Android config
+    ignoredBuildTypes = listOf("release")
+    ignoredFlavors = listOf("production")
+    ignoredVariants = listOf("productionRelease")
+
+    basePath = projectDir.absolutePath
+
+    autoCorrect = true
 }

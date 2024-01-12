@@ -11,17 +11,13 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
-
 class ComicListStateHolder(
     private val viewModelScope: CoroutineScope,
     val pagingStateHolder: PagingStateHolder<ListComic, Comic>,
     private val comicRepository: ComicRepository,
 ) : BaseStateHolder<PagingState<ListComic>, ComicListUserAction>() {
 
-
-
     override val state: StateFlow<PagingState<ListComic>> = pagingStateHolder.state
-
 
     override fun handle(action: ComicListUserAction) {
         when (action) {
@@ -36,9 +32,9 @@ class ComicListStateHolder(
                     NavigationState.ShowScreen(
                         ComicScreenArguments(
                             comicNumber = action.comicNum,
-                            comicTitle = action.comicTitle
-                        )
-                    )
+                            comicTitle = action.comicTitle,
+                        ),
+                    ),
                 )
             }
         }
