@@ -29,11 +29,17 @@ class SqlDelightLocalComicDataSource(
     }
 
     override fun getAllComics(): Flow<List<Comic>> {
-        return database.comicEntityQueries.selectAll().getList(ioDispatcher) { it.asExternalModel() }
+        return database.comicEntityQueries.selectAll()
+            .getList(ioDispatcher) { it.asExternalModel() }
     }
 
     override fun getComicsPaged(next: Long, limit: Long): Flow<List<Comic>> {
         return database.comicEntityQueries.selectPaged(limit = limit, offset = next)
+            .getList(ioDispatcher) { it.asExternalModel() }
+    }
+
+    override fun getFavorites(): Flow<List<Comic>> {
+        return database.comicEntityQueries.getFavorites()
             .getList(ioDispatcher) { it.asExternalModel() }
     }
 

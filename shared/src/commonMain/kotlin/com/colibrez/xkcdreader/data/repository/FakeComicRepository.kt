@@ -1,15 +1,19 @@
 package com.colibrez.xkcdreader.data.repository
 
 import com.colibrez.xkcdreader.database.model.ComicEntity
+import com.colibrez.xkcdreader.extensions.filterValues
+import com.colibrez.xkcdreader.extensions.mapValues
 import com.colibrez.xkcdreader.model.Comic
 import com.colibrez.xkcdreader.model.comicFixtures
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.mapNotNull
 
 class FakeComicRepository : ComicRepository {
 
-    private val comics = MutableStateFlow(comicFixtures)
+    val comics = MutableStateFlow(comicFixtures)
 
     override fun getComic(num: Long): Flow<Comic> {
         return comics.mapNotNull { comics ->
@@ -36,6 +40,12 @@ class FakeComicRepository : ComicRepository {
         TODO("Not yet implemented")
     }
 
+
+    override fun getFavorites(): Flow<List<Comic>> {
+        return comics.filterValues {
+            it.isFavorite
+        }
+    }
     override suspend fun insertComics(comics: List<ComicEntity>) {
         TODO("Not yet implemented")
     }

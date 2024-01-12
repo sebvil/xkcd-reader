@@ -4,6 +4,7 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import androidx.savedstate.SavedStateRegistryOwner
 import com.colibrez.xkcdreader.android.data.repository.paging.AllComicsPagingDataSource
+import com.colibrez.xkcdreader.android.ui.components.comic.ListComic
 import com.colibrez.xkcdreader.android.ui.components.paging.PagingState
 import com.colibrez.xkcdreader.android.ui.components.paging.PagingStateHolder
 import com.colibrez.xkcdreader.android.ui.core.mvvm.BaseViewModel
@@ -19,15 +20,7 @@ class ComicListViewModel(
         pageSize = 20,
         viewModelScope = viewModelScope,
         pagingDataSource = allComicsPagingDataSource,
-        itemTransform = {
-            ListComic(
-                comicNumber = it.number,
-                title = it.title,
-                imageUrl = it.imageUrl,
-                isFavorite = it.isFavorite,
-                isRead = it.isRead,
-            )
-        },
+        itemTransform = { ListComic.fromExternalModel(it) },
     )
 
     override val stateHolder: ComicListStateHolder = ComicListStateHolder(

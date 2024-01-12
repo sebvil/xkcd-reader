@@ -10,6 +10,7 @@ interface LocalComicDataSource {
     fun getAllComics(): Flow<List<Comic>>
     fun getComicCount(): Flow<Long>
     fun getComicsPaged(next: Long, limit: Long): Flow<List<Comic>>
+    fun getFavorites(): Flow<List<Comic>>
 
     suspend fun insertComics(comics: List<ComicEntity>)
 

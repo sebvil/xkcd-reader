@@ -31,6 +31,10 @@ class OfflineFirstComicRepository(
         return localComicDataSource.getComicsPaged(next = next, limit = limit)
     }
 
+    override fun getFavorites(): Flow<List<Comic>> {
+        return localComicDataSource.getFavorites()
+    }
+
     override suspend fun insertComics(comics: List<ComicEntity>) {
         localComicDataSource.insertComics(comics = comics)
     }
