@@ -3,6 +3,7 @@ package com.colibrez.xkcdreader.android.ui.features.comiclist
 import app.cash.turbine.test
 import com.colibrez.xkcdreader.android.data.repository.paging.FakePagingDataSource
 import com.colibrez.xkcdreader.android.extension.advanceUntilIdle
+import com.colibrez.xkcdreader.android.ui.components.comic.ListComic
 import com.colibrez.xkcdreader.android.ui.components.paging.PagingStateHolder
 import com.colibrez.xkcdreader.android.ui.core.navigation.NavigationState
 import com.colibrez.xkcdreader.android.ui.features.comic.ComicScreenArguments
@@ -27,13 +28,7 @@ class ComicListStateHolderTest : FreeSpec({
                 viewModelScope = this,
                 pagingDataSource = FakePagingDataSource(),
             ) {
-                ListComic(
-                    comicNumber = it.number,
-                    title = it.title,
-                    imageUrl = it.imageUrl,
-                    isFavorite = it.isFavorite,
-                    isRead = it.isRead,
-                )
+                ListComic.fromExternalModel(it)
             },
             comicRepository = comicRepositoryDep,
         )

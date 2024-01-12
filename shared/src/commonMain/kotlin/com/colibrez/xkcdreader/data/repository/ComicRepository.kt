@@ -10,6 +10,7 @@ interface ComicRepository {
     fun getComicCount(): Flow<Long>
     fun getAllComics(): Flow<List<Comic>>
     fun getComicsPaged(next: Long, limit: Long): Flow<List<Comic>>
+    fun getFavorites(): Flow<List<Comic>>
 
     suspend fun insertComics(comics: List<ComicEntity>)
 

@@ -10,4 +10,10 @@ fun <T, R> Flow<List<T>>.mapValues(transform: (T) -> R): Flow<List<R>> {
     }
 }
 
+fun <T> Flow<List<T>>.filterValues(predicate: (T) -> Boolean): Flow<List<T>> {
+    return this.map {
+        it.filter(predicate)
+    }
+}
+
 fun <T> Flow<T>.withDefault(value: T) = onStart { emit(value) }

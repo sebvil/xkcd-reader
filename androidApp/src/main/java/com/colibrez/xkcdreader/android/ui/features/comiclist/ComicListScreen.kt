@@ -1,36 +1,17 @@
 package com.colibrez.xkcdreader.android.ui.features.comiclist
 
-import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.sizeIn
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Star
-import androidx.compose.material.icons.outlined.Star
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.ListItem
-import androidx.compose.material3.LocalContentColor
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSavedStateRegistryOwner
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.savedstate.SavedStateRegistryOwner
-import coil.compose.AsyncImage
 import com.colibrez.xkcdreader.android.XkcdReaderApplication
 import com.colibrez.xkcdreader.android.data.repository.paging.AllComicsPagingDataSource
+import com.colibrez.xkcdreader.android.ui.components.comic.ComicListItem
+import com.colibrez.xkcdreader.android.ui.components.comic.ListComic
 import com.colibrez.xkcdreader.android.ui.components.paging.PagingLazyColumn
 import com.colibrez.xkcdreader.android.ui.components.paging.PagingStateHolder
 import com.colibrez.xkcdreader.android.ui.core.navigation.Screen
@@ -54,73 +35,23 @@ fun ComicListScreen(
 }
 
 @Composable
-private fun ComicImage(imageUrl: String) {
-    var loading by remember {
-        mutableStateOf(true)
-    }
-    if (loading) {
-        Box(
-            modifier = Modifier
-                .background(MaterialTheme.colorScheme.onSurface)
-                .size(64.dp),
-        )
-    }
-    AsyncImage(
-        model = imageUrl,
-        contentDescription = null,
-        modifier = Modifier.sizeIn(minWidth = 64.dp, maxHeight = 64.dp, maxWidth = 64.dp),
-        onSuccess = {
-            loading = false
-        },
-        onError = {
-            loading = false
-        },
-    )
-}
-
-@Composable
 fun ComicListLayout(
     pagingStateHolder: PagingStateHolder<ListComic, *>,
     handleUserAction: (ComicListUserAction) -> Unit,
     modifier: Modifier = Modifier
 ) {
     PagingLazyColumn(modifier = modifier, stateHolder = pagingStateHolder) { item ->
-        ListItem(
-            headlineContent = {
-                Text(
-                    text = "${item.comicNumber}. ${item.title}",
-                    fontWeight = if (item.isRead) null else FontWeight.ExtraBold,
+        ComicListItem(
+            state = item,
+            onClick = {
+                handleUserAction(
+                    ComicListUserAction.ComicClicked(
+                        comicNum = item.comicNumber,
+                        comicTitle = item.title,
+                    ),
                 )
             },
-            modifier = Modifier
-                .padding(vertical = 8.dp)
-                .clickable {
-                    handleUserAction(
-                        ComicListUserAction.ComicClicked(
-                            comicNum = item.comicNumber,
-                            comicTitle = item.title,
-                        ),
-                    )
-                },
-            leadingContent = {
-                ComicImage(item.imageUrl)
-            },
-            trailingContent = {
-                IconButton(onClick = {
-                    handleUserAction(
-                        ComicListUserAction.ToggleFavorite(
-                            comicNum = item.comicNumber,
-                            isFavorite = item.isFavorite,
-                        ),
-                    )
-                }) {
-                    Icon(
-                        imageVector = if (item.isFavorite) Icons.Filled.Star else Icons.Outlined.Star,
-                        contentDescription = "Mark as favorite",
-                        tint = if (item.isFavorite) Color.Yellow else LocalContentColor.current,
-                    )
-                }
-            },
+            modifier = Modifier.padding(vertical = 8.dp),
         )
     }
 }
