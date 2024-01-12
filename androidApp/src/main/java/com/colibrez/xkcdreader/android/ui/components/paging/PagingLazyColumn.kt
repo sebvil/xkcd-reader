@@ -1,12 +1,10 @@
 package com.colibrez.xkcdreader.android.ui.components.paging
 
-import androidx.compose.foundation.layout.Column
-import androidx.compose.material3.Button
-import androidx.compose.material3.Text
 import androidx.compose.foundation.gestures.FlingBehavior
 import androidx.compose.foundation.gestures.ScrollableDefaults
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.lazy.LazyColumn
@@ -14,7 +12,9 @@ import androidx.compose.foundation.lazy.LazyItemScope
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -43,7 +43,6 @@ fun <T> PagingLazyColumn(
     itemRow: @Composable LazyItemScope.(T) -> Unit
 ) {
     val state by stateHolder.state.collectAsState()
-
     val isNearEnd by remember {
         derivedStateOf {
             val lastItemIndex = listState.layoutInfo.visibleItemsInfo.lastOrNull()?.index
@@ -66,46 +65,77 @@ fun <T> PagingLazyColumn(
         verticalArrangement = verticalArrangement,
         horizontalAlignment = horizontalAlignment,
         flingBehavior = flingBehavior,
-        userScrollEnabled = userScrollEnabled
+        userScrollEnabled = userScrollEnabled,
     ) {
-        items(items = state.items, key = itemKey, contentType = contentType, itemRow)
+        items(items = state.items, key = itemKey, contentType = contentType, itemContent = itemRow)
 
         when (val status = state.status) {
-            is PagingStatus.Idle -> Unit
+            is PagingStatus.Idle -> {
+                Unit
+            }
             PagingStatus.Loading -> {
                 item {
-                    LaunchedEffect(key1 = Unit) {
-                        listState.animateScrollToItem(state.items.size)
-                    }
-                    Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
-                        CircularProgressIndicator()
-                    }
+                    LoadingIndicator(
+                        listState = listState,
+                        itemCount = state.items.size,
+                        modifier = Modifier.fillMaxWidth(),
+                    )
                 }
             }
 
             is PagingStatus.NetworkError -> {
                 item {
-                    LaunchedEffect(key1 = Unit) {
-                        listState.animateScrollToItem(state.items.size)
-                    }
-                    Column(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalAlignment = Alignment.CenterHorizontally
-                    ) {
-                        Text(text = status.message)
-                        Button(onClick = {
+                    NetworkError(
+                        message = status.message,
+                        listState = listState,
+                        itemCount = state.items.size,
+                        onTryAgain = {
                             stateHolder.handle(
                                 PagingUserAction.FetchPage(
-                                    isInitialFetch = false
-                                )
+                                    isInitialFetch = false,
+                                ),
                             )
-                        }) {
-                            Text(text = "Try again")
-                        }
-                    }
+                        },
+                        modifier = Modifier.fillMaxWidth(),
+                    )
                 }
-
             }
+        }
+    }
+}
+
+@Composable
+private fun LoadingIndicator(
+    listState: LazyListState,
+    itemCount: Int,
+    modifier: Modifier = Modifier
+) {
+    LaunchedEffect(key1 = Unit) {
+        listState.animateScrollToItem(itemCount)
+    }
+    Box(modifier = modifier, contentAlignment = Alignment.Center) {
+        CircularProgressIndicator()
+    }
+}
+
+@Composable
+private fun NetworkError(
+    message: String,
+    listState: LazyListState,
+    itemCount: Int,
+    onTryAgain: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    LaunchedEffect(key1 = Unit) {
+        listState.animateScrollToItem(itemCount)
+    }
+    Column(
+        modifier = modifier.fillMaxWidth(),
+        horizontalAlignment = Alignment.CenterHorizontally,
+    ) {
+        Text(text = message)
+        Button(onClick = onTryAgain) {
+            Text(text = "Try again")
         }
     }
 }

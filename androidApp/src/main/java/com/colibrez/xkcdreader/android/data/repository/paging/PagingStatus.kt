@@ -22,7 +22,7 @@ sealed interface PagingStatus {
     data class NetworkError(val message: String) : PagingStatus
 
     fun canFetchData(): Boolean {
-        return  when (this) {
+        return when (this) {
             is Idle -> !endOfPaginationReached
             is Loading -> false
             is NetworkError -> true

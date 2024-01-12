@@ -10,12 +10,10 @@ import com.colibrez.xkcdreader.android.ui.core.mvvm.BaseViewModel
 import com.colibrez.xkcdreader.android.ui.core.mvvm.BaseViewModelFactory
 import com.colibrez.xkcdreader.data.repository.ComicRepository
 
-
 class ComicListViewModel(
     allComicsPagingDataSource: AllComicsPagingDataSource,
     comicRepository: ComicRepository
 ) : BaseViewModel<PagingState<ListComic>, ComicListUserAction>() {
-
 
     val pagingStateHolder = PagingStateHolder(
         pageSize = 20,
@@ -27,17 +25,16 @@ class ComicListViewModel(
                 title = it.title,
                 imageUrl = it.imageUrl,
                 isFavorite = it.isFavorite,
-                isRead = it.isRead
+                isRead = it.isRead,
             )
-        }
+        },
     )
 
     override val stateHolder: ComicListStateHolder = ComicListStateHolder(
         viewModelScope = viewModelScope,
         pagingStateHolder = pagingStateHolder,
-        comicRepository = comicRepository
+        comicRepository = comicRepository,
     )
-
 
     class Factory(
         owner: SavedStateRegistryOwner,
@@ -51,7 +48,7 @@ class ComicListViewModel(
         ): ComicListViewModel {
             return ComicListViewModel(
                 allComicsPagingDataSource,
-                comicRepository
+                comicRepository,
             )
         }
     }

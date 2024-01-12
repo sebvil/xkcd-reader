@@ -25,17 +25,17 @@ class ComicListStateHolderTest : FreeSpec({
             pagingStateHolder = PagingStateHolder(
                 pageSize = 0,
                 viewModelScope = this,
-                pagingDataSource = FakePagingDataSource()
+                pagingDataSource = FakePagingDataSource(),
             ) {
                 ListComic(
                     comicNumber = it.number,
                     title = it.title,
                     imageUrl = it.imageUrl,
                     isFavorite = it.isFavorite,
-                    isRead = it.isRead
+                    isRead = it.isRead,
                 )
             },
-            comicRepository = comicRepositoryDep
+            comicRepository = comicRepositoryDep,
         )
     }
     beforeTest {
@@ -50,23 +50,23 @@ class ComicListStateHolderTest : FreeSpec({
                     1L to true,
                     1L to false,
                     2L to true,
-                    2L to false
-                )
+                    2L to false,
+                ),
             ) { (comicNumber, isFavorite) ->
                 subject = getSubject()
                 subject.handle(
                     ComicListUserAction.ToggleFavorite(
                         comicNum = comicNumber,
-                        isFavorite = isFavorite
-                    )
+                        isFavorite = isFavorite,
+                    ),
                 )
                 advanceUntilIdle()
                 comicRepositoryDep.toggleFavoriteInvocations shouldContainExactly listOf(
                     FakeComicRepository.ToggleFavoriteArgs(
                         comicNum = comicNumber,
                         isFavorite = isFavorite,
-                        userId = 0
-                    )
+                        userId = 0,
+                    ),
                 )
             }
         }
@@ -80,8 +80,8 @@ class ComicListStateHolderTest : FreeSpec({
                     awaitItem() shouldBe NavigationState.ShowScreen(
                         ComicScreenArguments(
                             comicNumber = comic.number,
-                            comicTitle = comic.title
-                        )
+                            comicTitle = comic.title,
+                        ),
                     )
                 }
             }

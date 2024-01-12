@@ -16,6 +16,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
 @Composable
+@Suppress("MagicNumber")
 fun MyApplicationTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
     content: @Composable () -> Unit
@@ -23,31 +24,31 @@ fun MyApplicationTheme(
     val colors = if (darkTheme) {
         darkColorScheme(
             primary = Color(0xFFBB86FC),
-            secondary = Color(0xFF03DAC5)
+            secondary = Color(0xFF03DAC5),
         )
     } else {
         lightColorScheme(
             primary = Color(0xFF6200EE),
-            secondary = Color(0xFF03DAC5)
+            secondary = Color(0xFF03DAC5),
         )
     }
     val typography = Typography(
         bodyMedium = TextStyle(
             fontFamily = FontFamily.Default,
             fontWeight = FontWeight.Normal,
-            fontSize = 16.sp
-        )
+            fontSize = 16.sp,
+        ),
     )
     val shapes = Shapes(
         small = RoundedCornerShape(4.dp),
         medium = RoundedCornerShape(4.dp),
-        large = RoundedCornerShape(0.dp)
+        large = RoundedCornerShape(0.dp),
     )
 
     MaterialTheme(
         colorScheme = colors,
         typography = typography,
         shapes = shapes,
-        content = content
+        content = content,
     )
 }

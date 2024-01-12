@@ -19,5 +19,4 @@ abstract class BaseStateHolder<State : UiState, Action : UserAction> : Navigatio
     protected fun setNavigationState(newNavigationState: NavigationState) {
         _navigationState.update { newNavigationState }
     }
-
 }

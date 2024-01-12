@@ -4,8 +4,6 @@ import com.colibrez.xkcdreader.android.data.repository.paging.PagingDataSource
 import com.colibrez.xkcdreader.android.data.repository.paging.PagingStatus
 import com.colibrez.xkcdreader.android.ui.core.mvvm.StateHolder
 import kotlinx.collections.immutable.ImmutableList
-import kotlinx.collections.immutable.PersistentList
-import kotlinx.collections.immutable.immutableListOf
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.CoroutineScope
@@ -31,15 +29,15 @@ class PagingStateHolder<R, T>(
         }
         PagingState(
             items = cachedItems,
-            status = it.status
+            status = it.status,
         )
     }.stateIn(
         scope = viewModelScope,
-        started = SharingStarted.WhileSubscribed(5_000),
+        started = SharingStarted.WhileSubscribed(stopTimeoutMillis = StateHolder.DEFAULT_SUBSCRIPTION_TIME),
         initialValue = PagingState(
             items = cachedItems,
-            status = PagingStatus.Loading
-        )
+            status = PagingStatus.Loading,
+        ),
     )
 
     override fun handle(action: PagingUserAction) {

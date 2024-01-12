@@ -13,8 +13,8 @@ import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 fun <State : UiState, Action : UserAction> Screen(
     viewModel: BaseViewModel<State, Action>,
     navigator: DestinationsNavigator,
-    layout: @Composable (state: State, handleUserAction: (Action) -> Unit) -> Unit) {
-
+    layout: @Composable (state: State, handleUserAction: (Action) -> Unit) -> Unit
+) {
     val navigationState by viewModel.navigationState.collectAsState()
 
     LaunchedEffect(key1 = navigationState) {
@@ -26,12 +26,13 @@ fun <State : UiState, Action : UserAction> Screen(
                 navigator.navigate(navState.arguments.direction, onlyIfResumed = true)
                 viewModel.resetNavigationState()
             }
-            null -> Unit
+            null -> {
+                Unit
+            }
         }
     }
 
     val state by viewModel.state.collectAsState()
 
     layout(state, viewModel::handle)
-
 }

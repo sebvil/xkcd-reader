@@ -23,7 +23,7 @@ class PagingStateHolderTest : FreeSpec({
             pageSize = PAGE_SIZE,
             viewModelScope = this,
             pagingDataSource = pagingDataSourceDep,
-            itemTransform = Int::toString
+            itemTransform = Int::toString,
         )
     }
 
@@ -36,7 +36,7 @@ class PagingStateHolderTest : FreeSpec({
             withData(
                 PagingStatus.Idle(endOfPaginationReached = false),
                 PagingStatus.Idle(endOfPaginationReached = true),
-                PagingStatus.NetworkError(message = "Error")
+                PagingStatus.NetworkError(message = "Error"),
             ) { status ->
                 subject = getSubject()
                 subject.state.map { it.status }.test {
@@ -56,8 +56,8 @@ class PagingStateHolderTest : FreeSpec({
         "items are updated when paging data source items change" - {
             withData(
                 nameFn = { it.joinToString() },
-                persistentListOf(1,2,3),
-                persistentListOf(3,5,7,9)
+                persistentListOf(1, 2, 3),
+                persistentListOf(3, 5, 7, 9),
             ) { items ->
                 subject = getSubject()
                 subject.state.map { it.items }.test {
@@ -75,24 +75,23 @@ class PagingStateHolderTest : FreeSpec({
         }
     }
 
-
-
     "handle" - {
         "FetchPage fetches page from paging data source" - {
             withData(
                 mapOf(
                     "when is initial fetch" to true,
-                    "when is not initial fetch" to false
-                )
-            ) {isInitialFetch ->
+                    "when is not initial fetch" to false,
+                ),
+            ) { isInitialFetch ->
                 subject = getSubject()
                 subject.handle(PagingUserAction.FetchPage(isInitialFetch = isInitialFetch))
                 advanceUntilIdle()
-                pagingDataSourceDep.fetchInvocations shouldContainExactly  listOf(
+                pagingDataSourceDep.fetchInvocations shouldContainExactly listOf(
                     FakePagingDataSource.FetchArguments(
                         pageSize = PAGE_SIZE,
-                        isInitialFetch = isInitialFetch
-                    ))
+                        isInitialFetch = isInitialFetch,
+                    ),
+                )
             }
         }
     }

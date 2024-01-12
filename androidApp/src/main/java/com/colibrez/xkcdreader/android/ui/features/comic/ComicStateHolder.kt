@@ -28,17 +28,16 @@ class ComicStateHolder(
                 imageDescription = comic.transcript,
                 permalink = comic.permalink,
                 isFavorite = comic.isFavorite,
-                showDialog = showDialog
+                showDialog = showDialog,
             )
         }.stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(stopTimeoutMillis = 5_000),
             initialValue = ComicState.Loading(
                 comicNumber = arguments.comicNumber,
-                comicTitle = arguments.comicTitle
-            )
+                comicTitle = arguments.comicTitle,
+            ),
         )
-
 
     init {
         viewModelScope.launch {

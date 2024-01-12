@@ -8,7 +8,6 @@ import com.colibrez.xkcdreader.model.Comic
 import com.colibrez.xkcdreader.network.ApiClient
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.toImmutableList
-import kotlinx.collections.immutable.toPersistentList
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.first
@@ -24,11 +23,10 @@ class AllComicsPagingDataSource(
 
     override val state = combine(
         _items,
-        _pagingStatus
+        _pagingStatus,
     ) { items, pagingStatus ->
         PagingState(items = items.toImmutableList(), status = pagingStatus)
     }.withDefault(PagingState(items = persistentListOf(), status = PagingStatus.Loading))
-
 
     override suspend fun fetch(pageSize: Long, isInitialFetch: Boolean) {
         val key = comicRepository.getComicCount().first()
@@ -43,17 +41,15 @@ class AllComicsPagingDataSource(
                 it
             },
             onFailure = {
-               _pagingStatus.update {
-                   PagingStatus.NetworkError("There was an issue fetching comics.")
-               }
+                _pagingStatus.update {
+                    PagingStatus.NetworkError("There was an issue fetching comics.")
+                }
                 return
-            }
+            },
         )
         comicRepository.insertComics(result.map { it.asEntity() })
         _pagingStatus.update {
             PagingStatus.Idle(endOfPaginationReached = result.isEmpty())
         }
-
-
     }
 }
