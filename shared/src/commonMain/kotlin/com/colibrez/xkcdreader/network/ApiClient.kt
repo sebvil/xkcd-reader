@@ -43,4 +43,10 @@ class ApiClient(private val ioDispatcher: CoroutineDispatcher) {
         }
     }
 
+    suspend fun getLatest(): Result<NetworkComic> {
+        return withContext(ioDispatcher){
+            client.getResult(Latest)
+        }
+    }
+
 }
