@@ -1,4 +1,4 @@
-package com.colibrez.xkcdreader.android.ui.features.comiclist
+package com.colibrez.xkcdreader.android.ui.features.comiclist.all
 
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
@@ -9,9 +9,10 @@ import com.colibrez.xkcdreader.android.ui.components.paging.PagingState
 import com.colibrez.xkcdreader.android.ui.components.paging.PagingStateHolder
 import com.colibrez.xkcdreader.android.ui.core.mvvm.BaseViewModel
 import com.colibrez.xkcdreader.android.ui.core.mvvm.BaseViewModelFactory
+import com.colibrez.xkcdreader.android.ui.features.comiclist.ComicListUserAction
 import com.colibrez.xkcdreader.data.repository.ComicRepository
 
-class ComicListViewModel(
+class AllComicsViewModel(
     allComicsPagingDataSource: AllComicsPagingDataSource,
     comicRepository: ComicRepository
 ) : BaseViewModel<PagingState<ListComic>, ComicListUserAction>() {
@@ -23,7 +24,7 @@ class ComicListViewModel(
         itemTransform = { ListComic.fromExternalModel(it) },
     )
 
-    override val stateHolder: ComicListStateHolder = ComicListStateHolder(
+    override val stateHolder: AllComicsStateHolder = AllComicsStateHolder(
         viewModelScope = viewModelScope,
         pagingStateHolder = pagingStateHolder,
         comicRepository = comicRepository,
@@ -33,13 +34,13 @@ class ComicListViewModel(
         owner: SavedStateRegistryOwner,
         private val allComicsPagingDataSource: AllComicsPagingDataSource,
         private val comicRepository: ComicRepository,
-    ) : BaseViewModelFactory<ComicListViewModel>(owner) {
+    ) : BaseViewModelFactory<AllComicsViewModel>(owner) {
 
         override fun create(
             key: String,
             handle: SavedStateHandle
-        ): ComicListViewModel {
-            return ComicListViewModel(
+        ): AllComicsViewModel {
+            return AllComicsViewModel(
                 allComicsPagingDataSource,
                 comicRepository,
             )

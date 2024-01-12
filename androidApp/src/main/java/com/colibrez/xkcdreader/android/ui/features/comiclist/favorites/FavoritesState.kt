@@ -1,4 +1,4 @@
-package com.colibrez.xkcdreader.android.ui.features.favorites
+package com.colibrez.xkcdreader.android.ui.features.comiclist.favorites
 
 import com.colibrez.xkcdreader.android.ui.components.comic.ListComic
 import com.colibrez.xkcdreader.android.ui.core.mvvm.UiState
