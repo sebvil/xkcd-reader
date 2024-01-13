@@ -2,23 +2,24 @@
 activity-compose = "1.8.2"
 agp = "8.2.1"
 coil-compose = "2.5.0"
+com-google-devtools = "1.9.22-1.0.16"
+compose = "1.5.4"
+compose-compiler = "1.5.8"
+compose-destinations = "1.9.59"
 detekt = "1.23.4"
 detekt-verify-implementation = "1.2.5"
 kotest = "5.8.0"
 kotlin = "1.9.22"
 kotlin-css-jvm = "1.0.0-pre.129-kotlin-1.4.20"
 kotlinx-collections-immutable = "0.3.7"
-ktor = "2.3.7"
-logback = "1.4.14"
-compose = "1.5.4"
-nlopez-detekt = "0.3.9"
-sqldelight = "2.0.1"
 kotlinx-coroutines = "1.7.3"
 kotlinx-serialization = "1.6.2"
-compose-compiler = "1.5.8"
-com-google-devtools = "1.9.22-1.0.16"
-compose-destinations = "1.9.59"
+ktor = "2.3.7"
+logback = "1.4.14"
 material3 = "1.1.2"
+molecule = "1.3.2"
+nlopez-detekt = "0.3.9"
+sqldelight = "2.0.1"
 turbine = "1.0.0"
 
 [libraries]
@@ -69,14 +70,15 @@ turbine = { module = "app.cash.turbine:turbine", version.ref = "turbine" }
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "agp" }
 androidLibrary = { id = "com.android.library", version.ref = "agp" }
+com-google-devtools-ksp = { id = "com.google.devtools.ksp", version.ref = "com-google-devtools" }
+detekt = { id = "io.gitlab.arturbosch.detekt", version.ref = "detekt" }
 kotlinAndroid = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 kotlinJvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
 kotlinMultiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin" }
 ktor = { id = "io.ktor.plugin", version.ref = "ktor" }
+molecule = { id = "app.cash.molecule", version.ref = "molecule"}
 serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
 sqldelight = { id = "app.cash.sqldelight", version.ref = "sqldelight" }
-com-google-devtools-ksp = { id = "com.google.devtools.ksp", version.ref = "com-google-devtools" }
-detekt = { id = "io.gitlab.arturbosch.detekt", version.ref = "detekt" }
 
 [bundles]
 detekt-rules = ["detekt-compose", "detekt-formatting", "detekt-verify-implementation"]

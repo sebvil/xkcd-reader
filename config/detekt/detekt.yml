@@ -1062,6 +1062,7 @@ Compose:
     active: true
   ComposableNaming:
     active: true
+    allowedComposableFunctionNames: .*Presenter
   ComposableParamOrder:
     active: true
   CompositionLocalAllowlist:
