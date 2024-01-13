@@ -1,7 +1,6 @@
 package com.colibrez.xkcdreader.network
 
 import com.colibrez.xkcdreader.extensions.getResult
-import com.colibrez.xkcdreader.model.Comic
 import com.colibrez.xkcdreader.network.model.NetworkComic
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.ProxyBuilder
@@ -26,7 +25,7 @@ class ApiClient(private val ioDispatcher: CoroutineDispatcher) {
             }
 
             defaultRequest {
-                url("http://colibrez:8080")
+                url("http://localhost:8080")
             }
 
             install(ContentNegotiation) {
@@ -40,6 +39,12 @@ class ApiClient(private val ioDispatcher: CoroutineDispatcher) {
     suspend fun getPaginatedComics(next: Long = 1, limit: Long = 10): Result<List<NetworkComic>> {
         return withContext(ioDispatcher) {
             client.getResult(Comics(limit = limit, next = next))
+        }
+    }
+
+    suspend fun getLatest(): Result<NetworkComic> {
+        return withContext(ioDispatcher){
+            client.getResult(Latest)
         }
     }
 

@@ -6,6 +6,7 @@ import com.colibrez.xkcdreader.model.Comic
 import com.colibrez.xkcdreader.model.comicFixtures
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.mapNotNull
 
 class FakeComicRepository : ComicRepository {
@@ -19,7 +20,9 @@ class FakeComicRepository : ComicRepository {
     }
 
     override fun getLatest(): Flow<Comic> {
-        TODO("Not yet implemented")
+        return comics.map { comics ->
+            comics.maxBy { it.number }
+        }
     }
 
     override fun getComicCount(): Flow<Long> {

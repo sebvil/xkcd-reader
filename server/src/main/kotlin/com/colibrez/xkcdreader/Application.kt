@@ -10,6 +10,7 @@ import com.colibrez.xkcdreader.plugins.configureSerialization
 import com.colibrez.xkcdreader.plugins.configureTemplating
 import com.colibrez.xkcdreader.data.repository.OfflineFirstComicRepository
 import com.colibrez.xkcdreader.database.SqlDelightLocalComicDataSource
+import com.colibrez.xkcdreader.network.ApiClient
 import io.ktor.server.application.Application
 import io.ktor.server.engine.embeddedServer
 import io.ktor.server.netty.Netty
@@ -25,7 +26,7 @@ fun main() {
 fun Application.module() {
     val database = createDatabase(DriverFactory())
     val applicationScope = CoroutineScope(Dispatchers.Default + SupervisorJob())
-    val comicRepository = OfflineFirstComicRepository(SqlDelightLocalComicDataSource(Dispatchers.IO, database))
+    val comicRepository = OfflineFirstComicRepository(SqlDelightLocalComicDataSource(Dispatchers.IO, database), ApiClient(Dispatchers.IO))
     val xkcdClient = XkcdClient(Dispatchers.IO)
     init(comicRepository, xkcdClient, applicationScope)
     configureTemplating()
