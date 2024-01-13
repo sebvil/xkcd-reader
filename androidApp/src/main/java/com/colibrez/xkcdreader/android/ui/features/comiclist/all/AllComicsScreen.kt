@@ -52,6 +52,14 @@ fun AllComicsLayout(
                     ),
                 )
             },
+            onToggleFavorite = {
+                handleUserAction(
+                    ComicListUserAction.ToggleFavorite(
+                        comicNum = item.comicNumber,
+                        isFavorite = it,
+                    ),
+                )
+            },
             modifier = Modifier.padding(vertical = 8.dp),
         )
     }
