@@ -6,6 +6,13 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.sizeIn
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Star
+import androidx.compose.material.icons.filled.StarBorder
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButtonDefaults
+import androidx.compose.material3.IconToggleButton
+import androidx.compose.material3.IconToggleButtonColors
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -15,12 +22,18 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 
 @Composable
-fun ComicListItem(state: ListComic, modifier: Modifier = Modifier, onClick: () -> Unit) {
+fun ComicListItem(
+    state: ListComic,
+    onClick: () -> Unit,
+    onToggleFavorite: (isFavorite: Boolean) -> Unit,
+    modifier: Modifier = Modifier,
+) {
     ListItem(
         headlineContent = {
             Text(
@@ -34,6 +47,18 @@ fun ComicListItem(state: ListComic, modifier: Modifier = Modifier, onClick: () -
         leadingContent = {
             ComicImage(state.imageUrl)
         },
+        trailingContent = {
+            IconToggleButton(
+                checked = state.isFavorite,
+                onCheckedChange = { onToggleFavorite(!it) },
+                colors = IconButtonDefaults.iconToggleButtonColors(checkedContentColor = Color.Yellow)
+            ) {
+                Icon(
+                    imageVector = if (state.isFavorite) Icons.Default.Star else Icons.Default.StarBorder,
+                    contentDescription = "Toggle favorite"
+                )
+            }
+        }
     )
 }
 
