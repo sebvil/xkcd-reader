@@ -58,8 +58,8 @@ fun FavoritesLayout(
                             handleUserAction(
                                 ComicListUserAction.ToggleFavorite(
                                     comicNum = item.comicNumber,
-                                    isFavorite = it
-                                )
+                                    isFavorite = it,
+                                ),
                             )
                         },
                         modifier = Modifier.padding(vertical = 8.dp),

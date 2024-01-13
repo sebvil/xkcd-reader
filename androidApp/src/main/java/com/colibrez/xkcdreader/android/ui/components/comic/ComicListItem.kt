@@ -12,7 +12,6 @@ import androidx.compose.material.icons.filled.StarBorder
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.IconToggleButton
-import androidx.compose.material3.IconToggleButtonColors
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -51,14 +50,14 @@ fun ComicListItem(
             IconToggleButton(
                 checked = state.isFavorite,
                 onCheckedChange = { onToggleFavorite(!it) },
-                colors = IconButtonDefaults.iconToggleButtonColors(checkedContentColor = Color.Yellow)
+                colors = IconButtonDefaults.iconToggleButtonColors(checkedContentColor = Color.Yellow),
             ) {
                 Icon(
                     imageVector = if (state.isFavorite) Icons.Default.Star else Icons.Default.StarBorder,
-                    contentDescription = "Toggle favorite"
+                    contentDescription = "Toggle favorite",
                 )
             }
-        }
+        },
     )
 }
 
