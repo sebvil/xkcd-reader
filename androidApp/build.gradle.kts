@@ -1,9 +1,10 @@
 plugins {
     alias(libs.plugins.androidApplication)
-    alias(libs.plugins.kotlinAndroid)
     alias(libs.plugins.com.google.devtools.ksp)
-    alias(libs.plugins.serialization)
     alias(libs.plugins.detekt)
+    alias(libs.plugins.kotlinAndroid)
+    alias(libs.plugins.molecule)
+    alias(libs.plugins.serialization)
 }
 
 android {
@@ -41,8 +42,10 @@ android {
     }
 
     testOptions {
+        unitTests.isReturnDefaultValues = true
         unitTests.all {
             it.useJUnitPlatform()
+
         }
     }
 }

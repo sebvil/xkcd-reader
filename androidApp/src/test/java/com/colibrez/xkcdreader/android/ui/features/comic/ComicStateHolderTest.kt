@@ -39,7 +39,7 @@ class ComicStateHolderTest : FreeSpec({
     }
 
     "state comic properties match properties from repository comic" - {
-        withData(comicFixtures) { comic ->
+        withData(nameFn = { "$it.number" }, comicFixtures) { comic ->
             subject = getSubject(comicNumber = comic.number, comicTitle = comic.title)
             subject.state.test {
                 awaitItem() shouldBe ComicState.Loading(
