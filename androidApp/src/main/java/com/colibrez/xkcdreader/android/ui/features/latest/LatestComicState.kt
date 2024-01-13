@@ -1,6 +1,8 @@
 package com.colibrez.xkcdreader.android.ui.features.latest
 
+import com.colibrez.xkcdreader.android.ui.components.comic.ListComic
 import com.colibrez.xkcdreader.android.ui.core.mvvm.UiState
+import com.colibrez.xkcdreader.model.Comic
 
 sealed interface LatestComicState : UiState {
 

@@ -2,10 +2,8 @@ package com.colibrez.xkcdreader.data.repository
 
 import com.colibrez.xkcdreader.data.model.asEntity
 import com.colibrez.xkcdreader.model.Comic
-import com.colibrez.xkcdreader.data.model.asExternalModel
 import com.colibrez.xkcdreader.database.LocalComicDataSource
 import com.colibrez.xkcdreader.database.model.ComicEntity
-import com.colibrez.xkcdreader.database.model.ComicInfo
 import com.colibrez.xkcdreader.network.ApiClient
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.emitAll
@@ -60,36 +58,6 @@ class OfflineFirstComicRepository(
             isFavorite = isFavorite,
             userId = userId
         )
-    }
-
-    companion object {
-        fun mapComicSelecting(
-            num: Long,
-            title: String,
-            transcript: String,
-            img: String,
-            alt: String,
-            link: String,
-            year: Long,
-            month: Long,
-            day: Long,
-            isFavorite: Long,
-            isRead: Long,
-        ): Comic {
-            return ComicInfo(
-                num = num,
-                title = title,
-                transcript = transcript,
-                img = img,
-                alt = alt,
-                link = link,
-                year = year,
-                month = month,
-                day = day,
-                isFavorite = isFavorite,
-                isRead = isRead
-            ).asExternalModel()
-        }
     }
 
 }
