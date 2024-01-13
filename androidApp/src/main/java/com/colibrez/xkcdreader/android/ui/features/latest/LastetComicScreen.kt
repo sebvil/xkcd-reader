@@ -9,7 +9,6 @@ import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Share
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.outlined.Star
@@ -41,8 +40,6 @@ import coil.imageLoader
 import com.colibrez.xkcdreader.android.XkcdReaderApplication
 import com.colibrez.xkcdreader.android.ui.components.images.ZoomableImage
 import com.colibrez.xkcdreader.android.ui.core.navigation.Screen
-import com.colibrez.xkcdreader.android.ui.features.comic.ComicUserAction
-import com.colibrez.xkcdreader.android.ui.features.comic.comicViewModel
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import java.io.File
@@ -83,7 +80,6 @@ fun LatestComicLayout(
                                 imageFile = imageFile,
                                 handleUserAction = handleUserAction,
                             )
-
                         },
                     )
                 },
@@ -104,7 +100,6 @@ fun LatestComicLayout(
             }
         }
     }
-
 }
 
 @OptIn(ExperimentalCoilApi::class, ExperimentalMaterial3Api::class)

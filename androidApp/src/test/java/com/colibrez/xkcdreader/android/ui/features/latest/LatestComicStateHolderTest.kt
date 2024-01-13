@@ -2,7 +2,6 @@ package com.colibrez.xkcdreader.android.ui.features.latest
 
 import app.cash.turbine.test
 import com.colibrez.xkcdreader.android.extension.advanceUntilIdle
-import com.colibrez.xkcdreader.android.ui.features.comic.ComicState
 import com.colibrez.xkcdreader.data.repository.FakeComicRepository
 import com.colibrez.xkcdreader.model.comicFixtures
 import io.kotest.core.spec.style.FreeSpec
@@ -27,13 +26,11 @@ class LatestComicStateHolderTest : FreeSpec({
         comicRepositoryDep = FakeComicRepository()
     }
 
-
-
     "state" - {
         "is updated when latest comic is" - {
             withData(
-                nameFn = { "comic #${it}" },
-                comicFixtures.indices.map { it + 1 }
+                nameFn = { "comic #$it" },
+                comicFixtures.indices.map { it + 1 },
             ) { comicNumber ->
                 val comics = comicFixtures.subList(0, comicNumber)
                 comicRepositoryDep.comics.value = comics
@@ -50,7 +47,7 @@ class LatestComicStateHolderTest : FreeSpec({
                         imageDescription = comic.transcript,
                         permalink = comic.permalink,
                         isFavorite = comic.isFavorite,
-                        showDialog = false
+                        showDialog = false,
                     )
                 }
             }
@@ -105,4 +102,3 @@ class LatestComicStateHolderTest : FreeSpec({
         private const val DEFAULT_COMIC_NUMBER = 1L
     }
 }
-
