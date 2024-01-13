@@ -5,19 +5,19 @@ coil-compose = "2.5.0"
 detekt = "1.23.4"
 detekt-verify-implementation = "1.2.5"
 kotest = "5.8.0"
-kotlin = "1.9.21"
+kotlin = "1.9.22"
 kotlin-css-jvm = "1.0.0-pre.129-kotlin-1.4.20"
 kotlinx-collections-immutable = "0.3.7"
-ktor = "2.3.5"
-logback = "1.4.11"
+ktor = "2.3.7"
+logback = "1.4.14"
 compose = "1.5.4"
-nlopez-detekt = "0.3.8"
-sqldelight = "2.0.0"
+nlopez-detekt = "0.3.9"
+sqldelight = "2.0.1"
 kotlinx-coroutines = "1.7.3"
 kotlinx-serialization = "1.6.2"
-compose-compiler = "1.5.7"
-com-google-devtools = "1.9.21-1.0.15"
-compose-destinations = "1.9.55"
+compose-compiler = "1.5.8"
+com-google-devtools = "1.9.22-1.0.16"
+compose-destinations = "1.9.59"
 material3 = "1.1.2"
 turbine = "1.0.0"
 
@@ -32,7 +32,7 @@ androidx-ui = { module = "androidx.compose.ui:ui", version.ref = "compose" }
 androidx-ui-tooling = { module = "androidx.compose.ui:ui-tooling", version.ref = "compose" }
 androidx-ui-tooling-preview = { module = "androidx.compose.ui:ui-tooling-preview", version.ref = "compose" }
 coil-compose = { module = "io.coil-kt:coil-compose", version.ref = "coil-compose" }
-compose-destinations-animations-core = { module = "io.github.raamcosta.compose-destinations:animations-core", version.ref = "compose-destinations" }
+compose-destinations-core = { module = "io.github.raamcosta.compose-destinations:core", version.ref = "compose-destinations" }
 compose-destinations-ksp = { module = "io.github.raamcosta.compose-destinations:ksp", version.ref = "compose-destinations" }
 coroutines-extensions = { module = "app.cash.sqldelight:coroutines-extensions", version.ref = "sqldelight" }
 detekt-compose = { module = "io.nlopez.compose.rules:detekt", version.ref = "nlopez-detekt" }
