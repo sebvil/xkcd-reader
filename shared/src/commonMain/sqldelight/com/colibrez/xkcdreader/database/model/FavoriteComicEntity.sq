@@ -1,6 +1,9 @@
+import kotlin.Boolean;
+
 CREATE TABLE IF NOT EXISTS FavoriteComicEntity (
     comicNum INTEGER NOT NULL,
     userId INTEGER NOT NULL,
+    isFavorite INTEGER  AS Boolean NOT NULL DEFAULT 1,
     FOREIGN KEY  (comicNum)
     REFERENCES ComicEntity (num)
     ON DELETE CASCADE,

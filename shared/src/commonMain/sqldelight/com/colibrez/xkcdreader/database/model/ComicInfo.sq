@@ -1,8 +1,8 @@
 CREATE VIEW IF NOT EXISTS ComicInfo AS
 SELECT
     ComicEntity.*,
-    CASE WHEN FavoriteComicEntity.comicNum IS NULL THEN 0 ELSE 1  END AS isFavorite,
-    CASE WHEN ReadComicEntity.comicNum IS NULL THEN 0 ELSE 1  END AS isRead
+    FavoriteComicEntity.isFavorite,
+    ReadComicEntity.isRead
 FROM ComicEntity
 LEFT JOIN FavoriteComicEntity ON ComicEntity.num = FavoriteComicEntity.comicNum
 LEFT JOIN ReadComicEntity ON ComicEntity.num = ReadComicEntity.comicNum;

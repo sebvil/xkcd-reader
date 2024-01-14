@@ -29,7 +29,7 @@ class FakeComicRepository : ComicRepository {
         TODO("Not yet implemented")
     }
 
-    override fun getAllComics(): Flow<List<Comic>> {
+    override fun getAllComics(isRead: Boolean?): Flow<List<Comic>> {
         return comics.map { it.sortedByDescending(Comic::number) }
     }
 

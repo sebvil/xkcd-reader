@@ -8,7 +8,7 @@ interface ComicRepository {
     fun getComic(num: Long): Flow<Comic>
     fun getLatest(): Flow<Comic>
     fun getComicCount(): Flow<Long>
-    fun getAllComics(): Flow<List<Comic>>
+    fun getAllComics(isRead: Boolean?): Flow<List<Comic>>
     fun getNewestComics(
         lastFetchTimestamp: Long = 0,
         maxComicNumber: Long = Long.MAX_VALUE,

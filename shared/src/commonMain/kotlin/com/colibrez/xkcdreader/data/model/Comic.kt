@@ -17,8 +17,8 @@ fun ComicInfo.asExternalModel() = Comic(
     year = year,
     month = month,
     day = day,
-    isFavorite = isFavorite == 1L,
-    isRead = isRead == 1L
+    isFavorite = isFavorite == true,
+    isRead = isRead == true
 )
 
 

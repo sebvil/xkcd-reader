@@ -11,7 +11,6 @@ import com.colibrez.xkcdreader.extensions.getOne
 import com.colibrez.xkcdreader.model.Comic
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.withContext
 
@@ -31,8 +30,8 @@ class SqlDelightLocalComicDataSource(
         return database.comicEntityQueries.count().getOne(ioDispatcher)
     }
 
-    override fun getAllComics(): Flow<List<Comic>> {
-        return database.comicEntityQueries.selectAll().asExternalModelsFlow()
+    override fun getAllComics(isRead: Boolean?): Flow<List<Comic>> {
+        return database.comicEntityQueries.selectAll(isRead = isRead).asExternalModelsFlow()
     }
 
 

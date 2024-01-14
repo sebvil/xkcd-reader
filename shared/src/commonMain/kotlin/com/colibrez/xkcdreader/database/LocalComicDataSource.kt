@@ -7,7 +7,7 @@ import kotlinx.coroutines.flow.Flow
 interface LocalComicDataSource {
     fun getComic(num: Long): Flow<Comic>
     fun getLatest(): Flow<Comic>
-    fun getAllComics(): Flow<List<Comic>>
+    fun getAllComics(isRead: Boolean?): Flow<List<Comic>>
     fun getComicCount(): Flow<Long>
     fun getNewestComics(
         lastFetchTimestamp: Long = 0,
