@@ -9,7 +9,11 @@ interface LocalComicDataSource {
     fun getLatest(): Flow<Comic>
     fun getAllComics(): Flow<List<Comic>>
     fun getComicCount(): Flow<Long>
-    fun getComicsPaged(next: Long, limit: Long): Flow<List<Comic>>
+    fun getNewestComics(
+        lastFetchTimestamp: Long = 0,
+        maxComicNumber: Long = Long.MAX_VALUE,
+        limit: Long = Long.MAX_VALUE
+    ): Flow<List<Comic>>
     fun getFavorites(): Flow<List<Comic>>
 
     suspend fun insertComics(comics: List<ComicEntity>)
@@ -17,4 +21,5 @@ interface LocalComicDataSource {
     suspend fun markAsSeen(comicNum: Long, userId: Long = 0L)
 
     suspend fun toggleFavorite(comicNum: Long, isFavorite: Boolean, userId: Long = 0L)
+    suspend fun getLatestUpdateTimestamp(): Long
 }

@@ -69,6 +69,8 @@ dependencies {
     implementation(libs.kotlinx.serialization)
 
     implementation(libs.kotlinx.collections.immutable)
+    implementation(libs.androidx.work.runtime.ktx)
+
 
     testImplementation(libs.kotest.runner.junit5)
     testImplementation(libs.kotest.framework.datatest)

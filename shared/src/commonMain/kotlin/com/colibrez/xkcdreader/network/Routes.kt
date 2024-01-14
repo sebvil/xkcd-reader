@@ -7,11 +7,8 @@ import io.ktor.resources.Resource
 interface ApiRoute<Response>
 
 @Resource("/comics")
-data class Comics(val limit: Long = 10, val next: Long = 1): ApiRoute<List<NetworkComic>> {
-
-    @Resource("{num}")
-    data class Num(val num: Long, val parent: Comics = Comics()) : ApiRoute<NetworkComic>
-}
-
-@Resource("/latest")
-data object Latest : ApiRoute<NetworkComic>
+data class Comics(
+    val lastFetchTimestamp: Long = 0,
+    val maxComicNumber: Long = Long.MAX_VALUE,
+    val limit: Long = Long.MAX_VALUE,
+) : ApiRoute<List<NetworkComic>>

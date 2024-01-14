@@ -1,4 +1,4 @@
-package com.colibrez.xkcdreader.android.ui.features.comiclist.favorites
+package com.colibrez.xkcdreader.android.ui.features.comiclist.all
 
 import app.cash.turbine.test
 import com.colibrez.xkcdreader.android.extension.advanceUntilIdle
@@ -11,13 +11,12 @@ import io.kotest.core.test.TestScope
 import io.kotest.matchers.shouldBe
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.toImmutableList
-import kotlinx.coroutines.flow.update
 
-class FavoritesStateHolderTest : FreeSpec({
+class AllComicsStateHolderTest : FreeSpec({
     lateinit var comicRepositoryDep: FakeComicRepository
-    lateinit var subject: FavoritesStateHolder
+    lateinit var subject: AllComicsStateHolder
 
-    fun TestScope.getSubject() = FavoritesStateHolder(
+    fun TestScope.getSubject() = AllComicsStateHolder(
         viewModelScope = this,
         comicRepository = comicRepositoryDep,
     )
@@ -27,20 +26,15 @@ class FavoritesStateHolderTest : FreeSpec({
     }
 
     "state" - {
-        "gets updated when favorites change" {
-            comicRepositoryDep.comics.update { comics ->
-                comics.map { it.copy(isFavorite = false) }
-            }
+        "gets updated when all comics change" {
+            comicRepositoryDep.comics.value = listOf()
             subject = getSubject()
             subject.state.test {
                 awaitItem() shouldBe ComicListState.Loading
                 advanceUntilIdle()
                 awaitItem() shouldBe ComicListState.Data(comics = persistentListOf())
-                comicRepositoryDep.comics.update { comics ->
-                    comics.toMutableList().apply {
-                        set(0, get(0).copy(isFavorite = true))
-                    }
-                }
+
+                comicRepositoryDep.comics.value = comicFixtures.subList(0, 1)
                 awaitItem() shouldBe ComicListState.Data(
                     comics = persistentListOf(
                         ListComic.fromExternalModel(
@@ -48,11 +42,12 @@ class FavoritesStateHolderTest : FreeSpec({
                         ),
                     ),
                 )
-                comicRepositoryDep.comics.update { comics ->
-                    comics.map { it.copy(isFavorite = true) }
-                }
+                comicRepositoryDep.comics.value = comicFixtures
                 awaitItem() shouldBe ComicListState.Data(
-                    comics = comicFixtures.map { ListComic.fromExternalModel(it) }.toImmutableList(),
+                    comics = comicFixtures
+                        .map { ListComic.fromExternalModel(it) }
+                        .sortedByDescending { it.comicNumber }
+                        .toImmutableList(),
                 )
             }
         }

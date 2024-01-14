@@ -10,11 +10,9 @@ import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.client.plugins.defaultRequest
 import io.ktor.client.plugins.resources.Resources
 import io.ktor.serialization.kotlinx.json.json
-import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.Json
 
-class ApiClient(private val ioDispatcher: CoroutineDispatcher) {
+class ApiClient {
 
     private val client: HttpClient by lazy {
         HttpClient(CIO) {
@@ -36,16 +34,18 @@ class ApiClient(private val ioDispatcher: CoroutineDispatcher) {
         }
     }
 
-    suspend fun getPaginatedComics(next: Long = 1, limit: Long = 10): Result<List<NetworkComic>> {
-        return withContext(ioDispatcher) {
-            client.getResult(Comics(limit = limit, next = next))
-        }
-    }
-
-    suspend fun getLatest(): Result<NetworkComic> {
-        return withContext(ioDispatcher){
-            client.getResult(Latest)
-        }
+    suspend fun getNewestComics(
+        lastFetchTimestamp: Long = 0,
+        maxComicNumber: Long = Long.MAX_VALUE,
+        limit: Long = Long.MAX_VALUE
+    ): Result<List<NetworkComic>> {
+        return client.getResult(
+            Comics(
+                lastFetchTimestamp = lastFetchTimestamp,
+                maxComicNumber = maxComicNumber,
+                limit = limit
+            )
+        )
     }
 
 }
