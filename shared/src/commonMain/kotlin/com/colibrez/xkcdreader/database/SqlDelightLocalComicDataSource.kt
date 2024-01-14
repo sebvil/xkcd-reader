@@ -1,8 +1,10 @@
 package com.colibrez.xkcdreader.database
 
+import app.cash.sqldelight.Query
 import com.colibrez.xkcdreader.data.Database
 import com.colibrez.xkcdreader.data.model.asExternalModel
 import com.colibrez.xkcdreader.database.model.ComicEntity
+import com.colibrez.xkcdreader.database.model.ComicInfo
 import com.colibrez.xkcdreader.database.model.UserEntity
 import com.colibrez.xkcdreader.extensions.getList
 import com.colibrez.xkcdreader.extensions.getOne
@@ -16,12 +18,11 @@ class SqlDelightLocalComicDataSource(
     private val database: Database
 ) : LocalComicDataSource {
     override fun getComic(num: Long): Flow<Comic> {
-        return database.comicEntityQueries.select(num).getOne(ioDispatcher) { it.asExternalModel() }
+        return database.comicEntityQueries.select(num).asExternalModelFlow()
     }
 
     override fun getLatest(): Flow<Comic> {
-        return database.comicEntityQueries.selectLatest()
-            .getOne(ioDispatcher) { it.asExternalModel() }
+        return database.comicEntityQueries.selectLatest().asExternalModelFlow()
     }
 
     override fun getComicCount(): Flow<Long> {
@@ -29,13 +30,20 @@ class SqlDelightLocalComicDataSource(
     }
 
     override fun getAllComics(): Flow<List<Comic>> {
-        return database.comicEntityQueries.selectAll()
-            .getList(ioDispatcher) { it.asExternalModel() }
+        return database.comicEntityQueries.selectAll().asExternalModelsFlow()
     }
 
-    override fun getComicsPaged(next: Long, limit: Long): Flow<List<Comic>> {
-        return database.comicEntityQueries.selectPaged(limit = limit, offset = next)
-            .getList(ioDispatcher) { it.asExternalModel() }
+
+    override fun getNewestComics(
+        lastFetchTimestamp: Long,
+        maxComicNumber: Long,
+        limit: Long
+    ): Flow<List<Comic>> {
+        return database.comicEntityQueries.getNewComics(
+            lastFetchTimestamp = lastFetchTimestamp,
+            maxComicNumber = maxComicNumber,
+            limit = limit
+        ).asExternalModelsFlow()
     }
 
     override fun getFavorites(): Flow<List<Comic>> {
@@ -79,5 +87,12 @@ class SqlDelightLocalComicDataSource(
             }
         }
     }
+
+
+    private fun Query<ComicInfo>.asExternalModelsFlow(): Flow<List<Comic>> =
+        getList(ioDispatcher) { it.asExternalModel() }
+
+    private fun Query<ComicInfo>.asExternalModelFlow(): Flow<Comic> =
+        getOne(ioDispatcher) { it.asExternalModel() }
 
 }

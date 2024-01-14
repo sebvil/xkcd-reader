@@ -21,13 +21,15 @@ fun Application.init(
         val comicNum = latestComic.num
         val savedComics =
             comicRepository.getAllComics().map { it.map { comic -> comic.number }.toSet() }.first()
-        val comics = (1..comicNum).filter { it !in savedComics && it != 404L }.chunked(XkcdClient.MAX_CONNECTIONS_PER_ROUTE).flatMap {chunk ->
-            chunk.map { comicNum ->
-                async {
-                    xkcdClient.getComic(comicNum).getOrElse { null }
-                }
-            }.awaitAll().filterNotNull()
-        }
+        val comics = (1..comicNum).filter { it !in savedComics && it != 404L }
+            .chunked(XkcdClient.MAX_CONNECTIONS_PER_ROUTE)
+            .flatMap { chunk ->
+                chunk.map { comicNum ->
+                    async {
+                        xkcdClient.getComic(comicNum).getOrElse { null }
+                    }
+                }.awaitAll().filterNotNull()
+            }
         comicRepository.insertComics(comics.map { it.asEntity() })
     }
 

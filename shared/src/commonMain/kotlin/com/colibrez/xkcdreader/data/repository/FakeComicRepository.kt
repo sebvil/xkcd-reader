@@ -30,11 +30,12 @@ class FakeComicRepository : ComicRepository {
     }
 
     override fun getAllComics(): Flow<List<Comic>> {
-        TODO("Not yet implemented")
+        return comics.map { it.sortedByDescending(Comic::number) }
     }
 
-    override fun getComicsPaged(
-        next: Long,
+    override fun getNewestComics(
+        lastFetchTimestamp: Long,
+        maxComicNumber: Long,
         limit: Long
     ): Flow<List<Comic>> {
         TODO("Not yet implemented")
@@ -74,6 +75,10 @@ class FakeComicRepository : ComicRepository {
                 userId = userId
             )
         )
+    }
+
+    override suspend fun latestUpdateTimestamp(): Long {
+        TODO("Not yet implemented")
     }
     // endregion
 }

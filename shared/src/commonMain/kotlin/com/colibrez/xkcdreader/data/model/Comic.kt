@@ -31,7 +31,8 @@ fun Comic.asEntity(): ComicEntity = ComicEntity(
     link = link,
     year = year,
     month = month,
-    day = day
+    day = day,
+    insertedTimestamp = 0
 )
 
 fun NetworkComic.asEntity() = ComicEntity(
@@ -43,7 +44,8 @@ fun NetworkComic.asEntity() = ComicEntity(
     link = link,
     year = year,
     month = month,
-    day = day
+    day = day,
+    insertedTimestamp = 0
 )
 
 fun Comic.asNetworkComic() = NetworkComic(
@@ -69,5 +71,6 @@ fun XkcdNetworkComic.asEntity() = ComicEntity(
     link = link,
     year = year,
     month = month,
-    day = day
+    day = day,
+    insertedTimestamp = 0
 )

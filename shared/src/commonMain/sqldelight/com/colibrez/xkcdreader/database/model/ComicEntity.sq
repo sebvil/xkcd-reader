@@ -7,7 +7,8 @@ CREATE TABLE IF NOT EXISTS ComicEntity (
     link TEXT NOT NULL,
     year INTEGER NOT NULL,
     month INTEGER NOT NULL,
-    day INTEGER NOT NULL
+    day INTEGER NOT NULL,
+    insertedTimestamp INTEGER NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
 select:
@@ -17,16 +18,18 @@ count:
 SELECT COUNT(*) FROM ComicEntity;
 
 selectAll:
-SELECT * FROM ComicInfo ORDER BY ComicInfo.num;
+SELECT * FROM ComicInfo ORDER BY ComicInfo.num DESC;
 
 selectLatest:
 SELECT * FROM ComicInfo ORDER BY ComicInfo.num DESC LIMIT 1;
-
-selectPaged:
-SELECT * FROM ComicInfo ORDER BY ComicInfo.num LIMIT :limit OFFSET :offset;
 
 getFavorites:
 SELECT * FROM ComicInfo WHERE ComicInfo.isFavorite = 1 ORDER BY ComicInfo.num;
 
 insert:
 INSERT OR REPLACE INTO ComicEntity (num, title, transcript, img, alt, link, year, month, day) VALUES ?;
+
+getNewComics:
+SELECT * FROM ComicInfo
+WHERE ComicInfo.insertedTimestamp > :lastFetchTimestamp AND ComicInfo.num < :maxComicNumber
+ORDER BY ComicInfo.num DESC LIMIT :limit;

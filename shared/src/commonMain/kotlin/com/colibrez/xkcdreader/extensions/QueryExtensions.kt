@@ -4,12 +4,13 @@ import app.cash.sqldelight.Query
 import app.cash.sqldelight.coroutines.asFlow
 import app.cash.sqldelight.coroutines.mapToList
 import app.cash.sqldelight.coroutines.mapToOne
+import app.cash.sqldelight.coroutines.mapToOneNotNull
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import kotlin.coroutines.CoroutineContext
 
 fun <T : Any> Query<T>.getOne(coroutineContext: CoroutineContext): Flow<T> {
-    return asFlow().mapToOne(coroutineContext)
+    return asFlow().mapToOneNotNull(coroutineContext)
 }
 
 

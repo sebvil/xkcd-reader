@@ -2,28 +2,28 @@ package com.colibrez.xkcdreader.android.ui.features.comiclist
 
 import app.cash.turbine.test
 import com.colibrez.xkcdreader.android.extension.advanceUntilIdle
-import com.colibrez.xkcdreader.android.ui.core.mvvm.UiState
 import com.colibrez.xkcdreader.android.ui.core.navigation.NavigationState
 import com.colibrez.xkcdreader.android.ui.features.comic.ComicScreenArguments
 import com.colibrez.xkcdreader.data.repository.FakeComicRepository
+import com.colibrez.xkcdreader.model.Comic
 import com.colibrez.xkcdreader.model.comicFixtures
 import io.kotest.core.spec.style.FreeSpec
 import io.kotest.core.test.TestScope
 import io.kotest.datatest.withData
 import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.shouldBe
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.emptyFlow
 
 class ComicListStateHolderTest : FreeSpec({
     lateinit var comicRepositoryDep: FakeComicRepository
-    lateinit var subject: ComicListStateHolder<TestState>
+    lateinit var subject: ComicListStateHolder
 
-    fun TestScope.getSubject() = object : ComicListStateHolder<TestState>(
-        viewModelScope = this,
+    fun TestScope.getSubject() = object : ComicListStateHolder(
+        viewModelScope = this@getSubject,
         comicRepository = comicRepositoryDep,
     ) {
-        override val state: StateFlow<TestState> = MutableStateFlow(TestState)
+        override val comicsFlow: Flow<List<Comic>> = emptyFlow()
     }
 
     beforeTest {
@@ -75,6 +75,4 @@ class ComicListStateHolderTest : FreeSpec({
             }
         }
     }
-}) {
-    data object TestState : UiState
-}
+})

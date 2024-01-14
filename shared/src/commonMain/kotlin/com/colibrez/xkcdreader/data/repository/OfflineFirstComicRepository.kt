@@ -36,8 +36,16 @@ class OfflineFirstComicRepository(
         return localComicDataSource.getAllComics()
     }
 
-    override fun getComicsPaged(next: Long, limit: Long): Flow<List<Comic>> {
-        return localComicDataSource.getComicsPaged(next = next, limit = limit)
+    override fun getNewestComics(
+        lastFetchTimestamp: Long,
+        maxComicNumber: Long,
+        limit: Long
+    ): Flow<List<Comic>> {
+        return localComicDataSource.getNewestComics(
+            lastFetchTimestamp = lastFetchTimestamp,
+            maxComicNumber = maxComicNumber,
+            limit = limit
+        )
     }
 
     override fun getFavorites(): Flow<List<Comic>> {
@@ -58,6 +66,10 @@ class OfflineFirstComicRepository(
             isFavorite = isFavorite,
             userId = userId
         )
+    }
+
+    override suspend fun latestUpdateTimestamp(): Long {
+        return 0
     }
 
 }
