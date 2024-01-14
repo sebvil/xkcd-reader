@@ -23,5 +23,5 @@ interface ComicRepository {
 
     suspend fun toggleFavorite(comicNum: Long, isFavorite: Boolean, userId: Long = 0L)
 
-    suspend fun latestUpdateTimestamp(): Long
+    suspend fun getLatestUpdateTimestamp(): Long
 }

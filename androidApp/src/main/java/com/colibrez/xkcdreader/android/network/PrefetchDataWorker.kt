@@ -23,27 +23,32 @@ class PrefetchDataWorker(
     // TODO FGS for < Android 12
 
     override suspend fun doWork(): Result {
-        val latestFetchTimestamp = comicRepository.latestUpdateTimestamp()
+        val latestFetchTimestamp = comicRepository.getLatestUpdateTimestamp()
         val oldestFetchedComic = apiClient.getNewestComics(latestFetchTimestamp, limit = 100L).map {
             comicRepository.insertComics(it.map(NetworkComic::asEntity))
-            it.first().num
+            it.firstOrNull()?.num
         }
 
-        oldestFetchedComic.fold(
+        return oldestFetchedComic.fold(
             onSuccess = { maxComicNumber ->
-                apiClient.getNewestComics(
-                    lastFetchTimestamp = latestFetchTimestamp,
-                    maxComicNumber = maxComicNumber,
-                ).onSuccess {
-                    comicRepository.insertComics(it.map(NetworkComic::asEntity))
-                }
+                maxComicNumber?.let {
+                    apiClient.getNewestComics(
+                        lastFetchTimestamp = latestFetchTimestamp,
+                        maxComicNumber = maxComicNumber,
+                    ).fold(
+                        onSuccess = {
+                            comicRepository.insertComics(it.map(NetworkComic::asEntity))
+                            Result.success()
+                        },
+                        onFailure = {
+                            Result.failure()
+                        }
+                    )
+                } ?: Result.success()
             },
             onFailure = {
-                kotlin.Result.failure(it)
+                Result.failure()
             },
         )
-
-        // Indicate whether the work finished successfully with the Result
-        return Result.success()
     }
 }

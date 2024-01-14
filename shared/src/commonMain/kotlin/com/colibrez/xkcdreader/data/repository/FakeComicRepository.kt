@@ -76,9 +76,9 @@ class FakeComicRepository : ComicRepository {
             )
         )
     }
+    // endregion
 
-    override suspend fun latestUpdateTimestamp(): Long {
+    override suspend fun getLatestUpdateTimestamp(): Long {
         TODO("Not yet implemented")
     }
-    // endregion
 }

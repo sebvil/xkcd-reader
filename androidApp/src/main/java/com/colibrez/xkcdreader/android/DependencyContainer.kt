@@ -16,10 +16,10 @@ class DependencyContainer(private val applicationContext: Context, private val i
     }
 
     val comicRepository by lazy {
-        OfflineFirstComicRepository(SqlDelightLocalComicDataSource(ioDispatcher, database), apiClient)
+        OfflineFirstComicRepository(SqlDelightLocalComicDataSource(ioDispatcher, database))
     }
 
     val apiClient: ApiClient by lazy {
-        ApiClient(ioDispatcher)
+        ApiClient()
     }
 }

@@ -72,5 +72,5 @@ fun XkcdNetworkComic.asEntity() = ComicEntity(
     year = year,
     month = month,
     day = day,
-    insertedTimestamp = 0
+    insertedTimestamp = 0,
 )

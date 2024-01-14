@@ -21,4 +21,5 @@ interface LocalComicDataSource {
     suspend fun markAsSeen(comicNum: Long, userId: Long = 0L)
 
     suspend fun toggleFavorite(comicNum: Long, isFavorite: Boolean, userId: Long = 0L)
+    suspend fun getLatestUpdateTimestamp(): Long
 }

@@ -1,7 +1,6 @@
 package com.colibrez.xkcdreader.network
 
 import com.colibrez.xkcdreader.extensions.getResult
-import com.colibrez.xkcdreader.model.Comic
 import com.colibrez.xkcdreader.network.model.NetworkComic
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.ProxyBuilder
@@ -11,12 +10,9 @@ import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.client.plugins.defaultRequest
 import io.ktor.client.plugins.resources.Resources
 import io.ktor.serialization.kotlinx.json.json
-import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.Json
 
-class ApiClient(private val ioDispatcher: CoroutineDispatcher) {
+class ApiClient {
 
     private val client: HttpClient by lazy {
         HttpClient(CIO) {
@@ -51,10 +47,5 @@ class ApiClient(private val ioDispatcher: CoroutineDispatcher) {
             )
         )
     }
-
-    suspend fun getLatest(): Result<NetworkComic> {
-        return client.getResult(Latest)
-    }
-
 
 }

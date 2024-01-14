@@ -8,7 +8,7 @@ CREATE TABLE IF NOT EXISTS ComicEntity (
     year INTEGER NOT NULL,
     month INTEGER NOT NULL,
     day INTEGER NOT NULL,
-    insertedTimestamp INTEGER NOT NULL DEFAULT CURRENT_TIMESTAMP
+    insertedTimestamp INTEGER NOT NULL DEFAULT (CAST (strftime('%s', CURRENT_TIMESTAMP) AS INTEGER))
 );
 
 select:
@@ -33,3 +33,6 @@ getNewComics:
 SELECT * FROM ComicInfo
 WHERE ComicInfo.insertedTimestamp > :lastFetchTimestamp AND ComicInfo.num < :maxComicNumber
 ORDER BY ComicInfo.num DESC LIMIT :limit;
+
+getLatestTimestamp:
+SELECT MAX(insertedTimestamp) AS latestTimestamp FROM ComicEntity;

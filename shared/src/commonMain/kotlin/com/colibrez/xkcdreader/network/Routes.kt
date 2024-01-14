@@ -12,6 +12,3 @@ data class Comics(
     val maxComicNumber: Long = Long.MAX_VALUE,
     val limit: Long = Long.MAX_VALUE,
 ) : ApiRoute<List<NetworkComic>>
-
-@Resource("/latest")
-data object Latest : ApiRoute<NetworkComic>

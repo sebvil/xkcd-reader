@@ -11,6 +11,8 @@ import com.colibrez.xkcdreader.extensions.getOne
 import com.colibrez.xkcdreader.model.Comic
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.withContext
 
 class SqlDelightLocalComicDataSource(
@@ -86,6 +88,11 @@ class SqlDelightLocalComicDataSource(
                 )
             }
         }
+    }
+
+    override suspend fun getLatestUpdateTimestamp(): Long {
+        return database.comicEntityQueries.getLatestTimestamp()
+            .getOne(ioDispatcher) { it.latestTimestamp }.firstOrNull() ?: 0
     }
 
 

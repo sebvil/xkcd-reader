@@ -1,17 +1,12 @@
 package com.colibrez.xkcdreader.data.repository
 
-import com.colibrez.xkcdreader.data.model.asEntity
 import com.colibrez.xkcdreader.model.Comic
 import com.colibrez.xkcdreader.database.LocalComicDataSource
 import com.colibrez.xkcdreader.database.model.ComicEntity
-import com.colibrez.xkcdreader.network.ApiClient
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.emitAll
-import kotlinx.coroutines.flow.flow
 
 class OfflineFirstComicRepository(
     private val localComicDataSource: LocalComicDataSource,
-    private val apiClient: ApiClient,
 ) : ComicRepository {
 
     override fun getComic(num: Long): Flow<Comic> {
@@ -19,13 +14,7 @@ class OfflineFirstComicRepository(
     }
 
     override fun getLatest(): Flow<Comic> {
-        return flow {
-            // TODO emit loading value
-            apiClient.getLatest().onSuccess {
-                insertComics(listOf(it.asEntity()))
-            }
-            emitAll(localComicDataSource.getLatest())
-        }
+        return localComicDataSource.getLatest()
     }
 
     override fun getComicCount(): Flow<Long> {
@@ -68,8 +57,8 @@ class OfflineFirstComicRepository(
         )
     }
 
-    override suspend fun latestUpdateTimestamp(): Long {
-        return 0
+    override suspend fun getLatestUpdateTimestamp(): Long {
+        return localComicDataSource.getLatestUpdateTimestamp()
     }
 
 }
