@@ -26,7 +26,7 @@ fun main() {
 fun Application.module() {
     val database = createDatabase(DriverFactory())
     val applicationScope = CoroutineScope(Dispatchers.Default + SupervisorJob())
-    val comicRepository = OfflineFirstComicRepository(SqlDelightLocalComicDataSource(Dispatchers.IO, database), ApiClient(Dispatchers.IO))
+    val comicRepository = OfflineFirstComicRepository(SqlDelightLocalComicDataSource(Dispatchers.IO, database))
     val xkcdClient = XkcdClient(Dispatchers.IO)
     init(comicRepository, xkcdClient, applicationScope)
     configureTemplating()

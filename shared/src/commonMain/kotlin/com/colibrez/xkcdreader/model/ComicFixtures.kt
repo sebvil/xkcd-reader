@@ -25,7 +25,7 @@ val comicFixtures = listOf(
         month = 1,
         day = 1,
         isFavorite = true,
-        isRead = true
+        isRead = false
     ),
     Comic(
         number = 3,
@@ -37,7 +37,7 @@ val comicFixtures = listOf(
         year = 2006,
         month = 1,
         day = 1,
-        isFavorite = true,
+        isFavorite = false,
         isRead = true
     ),
     Comic(
@@ -50,7 +50,7 @@ val comicFixtures = listOf(
         year = 2006,
         month = 1,
         day = 1,
-        isFavorite = true,
-        isRead = true
+        isFavorite = false,
+        isRead = false
     )
 )

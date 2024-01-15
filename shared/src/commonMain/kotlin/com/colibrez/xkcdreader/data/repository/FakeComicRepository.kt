@@ -26,11 +26,15 @@ class FakeComicRepository : ComicRepository {
     }
 
     override fun getComicCount(): Flow<Long> {
-        TODO("Not yet implemented")
+        return comics.map { it.size.toLong() }
     }
 
-    override fun getAllComics(): Flow<List<Comic>> {
-        return comics.map { it.sortedByDescending(Comic::number) }
+    override fun getAllComics(isRead: Boolean?): Flow<List<Comic>> {
+        return comics.map { comics ->
+            comics.filter {
+                isRead == null || it.isRead == isRead
+            }
+        }
     }
 
     override fun getNewestComics(
@@ -47,6 +51,7 @@ class FakeComicRepository : ComicRepository {
             it.isFavorite
         }
     }
+
     override suspend fun insertComics(comics: List<ComicEntity>) {
         TODO("Not yet implemented")
     }

@@ -52,7 +52,9 @@ class FavoritesStateHolderTest : FreeSpec({
                     comics.map { it.copy(isFavorite = true) }
                 }
                 awaitItem() shouldBe ComicListState.Data(
-                    comics = comicFixtures.map { ListComic.fromExternalModel(it) }.toImmutableList(),
+                    comics = comicFixtures.map {
+                        ListComic.fromExternalModel(it).copy(isFavorite = true)
+                    }.toImmutableList(),
                 )
             }
         }

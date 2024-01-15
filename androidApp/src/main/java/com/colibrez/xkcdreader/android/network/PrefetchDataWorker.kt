@@ -42,7 +42,7 @@ class PrefetchDataWorker(
                         },
                         onFailure = {
                             Result.failure()
-                        }
+                        },
                     )
                 } ?: Result.success()
             },

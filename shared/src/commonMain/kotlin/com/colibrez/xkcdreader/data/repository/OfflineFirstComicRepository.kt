@@ -21,8 +21,8 @@ class OfflineFirstComicRepository(
         return localComicDataSource.getComicCount()
     }
 
-    override fun getAllComics(): Flow<List<Comic>> {
-        return localComicDataSource.getAllComics()
+    override fun getAllComics(isRead: Boolean?): Flow<List<Comic>> {
+        return localComicDataSource.getAllComics(isRead = isRead)
     }
 
     override fun getNewestComics(

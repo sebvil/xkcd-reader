@@ -18,7 +18,9 @@ count:
 SELECT COUNT(*) FROM ComicEntity;
 
 selectAll:
-SELECT * FROM ComicInfo ORDER BY ComicInfo.num DESC;
+SELECT * FROM ComicInfo
+WHERE ComicInfo.isRead = :isRead OR :isRead IS NULL
+ORDER BY ComicInfo.num DESC;
 
 selectLatest:
 SELECT * FROM ComicInfo ORDER BY ComicInfo.num DESC LIMIT 1;
