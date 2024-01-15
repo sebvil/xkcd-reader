@@ -10,7 +10,6 @@ class FilterStateHolder : StateHolder<FiltersState, FilterUserAction> {
     private val _state =
         MutableStateFlow(FiltersState(isReadFilter = EnumFilterState(selection = ReadFilter.All)))
 
-
     override val state: StateFlow<FiltersState>
         get() = _state.asStateFlow()
 
@@ -24,4 +23,3 @@ class FilterStateHolder : StateHolder<FiltersState, FilterUserAction> {
         }
     }
 }
-
