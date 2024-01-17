@@ -1,7 +1,11 @@
 package com.colibrez.xkcdreader.android.ui.features.comiclist.all
 
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSavedStateRegistryOwner
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -10,10 +14,12 @@ import com.colibrez.xkcdreader.android.XkcdReaderApplication
 import com.colibrez.xkcdreader.android.ui.core.navigation.Screen
 import com.colibrez.xkcdreader.android.ui.features.comiclist.ComicListLayout
 import com.colibrez.xkcdreader.android.ui.features.comiclist.all.filters.FilterBar
+import com.colibrez.xkcdreader.android.ui.features.comiclist.search.SearchScreen
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootNavGraph
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 
+@OptIn(ExperimentalMaterial3Api::class)
 @RootNavGraph(start = true)
 @Destination
 @Composable
@@ -22,7 +28,12 @@ fun AllComicsScreen(
     viewModel: AllComicsViewModel = allComicsViewModel(),
 ) {
     Screen(viewModel = viewModel, navigator = navigator) { state, handleUserAction ->
-        Column {
+        Column(modifier = Modifier.fillMaxSize()) {
+            SearchScreen(
+                searchStateHolder = viewModel.searchStateHolder,
+                modifier = Modifier.align(Alignment.CenterHorizontally),
+                handleUserAction = handleUserAction,
+            )
             FilterBar(stateHolder = viewModel.filterStateHolder)
             ComicListLayout(state = state, handleUserAction = handleUserAction)
         }
@@ -39,6 +50,7 @@ fun allComicsViewModel(
     val factory = AllComicsViewModel.Factory(
         owner = savedStateRegistryOwner,
         comicRepository = dependencyContainer.comicRepository,
+        searchRepository = dependencyContainer.searchRepository,
     )
     return viewModel(factory = factory)
 }
