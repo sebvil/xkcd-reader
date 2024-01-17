@@ -1,12 +1,12 @@
 package com.colibrez.xkcdreader.data.repository
 
 import com.colibrez.xkcdreader.model.Comic
-import com.colibrez.xkcdreader.database.LocalComicDataSource
+import com.colibrez.xkcdreader.database.ComicDataSource
 import com.colibrez.xkcdreader.database.model.ComicEntity
 import kotlinx.coroutines.flow.Flow
 
 class OfflineFirstComicRepository(
-    private val localComicDataSource: LocalComicDataSource,
+    private val localComicDataSource: ComicDataSource,
 ) : ComicRepository {
 
     override fun getComic(num: Long): Flow<Comic> {

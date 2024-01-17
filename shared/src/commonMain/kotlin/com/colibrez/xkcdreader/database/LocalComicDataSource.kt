@@ -1,25 +1,104 @@
 package com.colibrez.xkcdreader.database
 
+import app.cash.sqldelight.Query
+import com.colibrez.xkcdreader.data.Database
+import com.colibrez.xkcdreader.data.model.asExternalModel
 import com.colibrez.xkcdreader.database.model.ComicEntity
+import com.colibrez.xkcdreader.database.model.ComicInfo
+import com.colibrez.xkcdreader.database.model.UserEntity
+import com.colibrez.xkcdreader.extensions.getList
+import com.colibrez.xkcdreader.extensions.getOne
 import com.colibrez.xkcdreader.model.Comic
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.firstOrNull
+import kotlinx.coroutines.withContext
 
-interface LocalComicDataSource {
-    fun getComic(num: Long): Flow<Comic>
-    fun getLatest(): Flow<Comic>
-    fun getAllComics(isRead: Boolean?): Flow<List<Comic>>
-    fun getComicCount(): Flow<Long>
-    fun getNewestComics(
-        lastFetchTimestamp: Long = 0,
-        maxComicNumber: Long = Long.MAX_VALUE,
-        limit: Long = Long.MAX_VALUE
-    ): Flow<List<Comic>>
-    fun getFavorites(): Flow<List<Comic>>
+class LocalComicDataSource(
+    private val ioDispatcher: CoroutineDispatcher,
+    private val database: Database
+) : ComicDataSource {
+    override fun getComic(num: Long): Flow<Comic> {
+        return database.comicEntityQueries.select(num).asExternalModelFlow()
+    }
 
-    suspend fun insertComics(comics: List<ComicEntity>)
+    override fun getLatest(): Flow<Comic> {
+        return database.comicEntityQueries.selectLatest().asExternalModelFlow()
+    }
 
-    suspend fun markAsSeen(comicNum: Long, userId: Long = 0L)
+    override fun getComicCount(): Flow<Long> {
+        return database.comicEntityQueries.count().getOne(ioDispatcher)
+    }
 
-    suspend fun toggleFavorite(comicNum: Long, isFavorite: Boolean, userId: Long = 0L)
-    suspend fun getLatestUpdateTimestamp(): Long
+    override fun getAllComics(isRead: Boolean?): Flow<List<Comic>> {
+        return database.comicEntityQueries.selectAll(isRead = isRead).asExternalModelsFlow()
+    }
+
+
+    override fun getNewestComics(
+        lastFetchTimestamp: Long,
+        maxComicNumber: Long,
+        limit: Long
+    ): Flow<List<Comic>> {
+        return database.comicEntityQueries.getNewComics(
+            lastFetchTimestamp = lastFetchTimestamp,
+            maxComicNumber = maxComicNumber,
+            limit = limit
+        ).asExternalModelsFlow()
+    }
+
+    override fun getFavorites(): Flow<List<Comic>> {
+        return database.comicEntityQueries.getFavorites()
+            .getList(ioDispatcher) { it.asExternalModel() }
+    }
+
+    override suspend fun insertComics(comics: List<ComicEntity>) {
+        withContext(ioDispatcher) {
+            database.comicEntityQueries.transaction {
+                comics.forEach { comic ->
+                    database.comicEntityQueries.insert(comic)
+                }
+            }
+        }
+    }
+
+    override suspend fun markAsSeen(comicNum: Long, userId: Long) {
+        withContext(ioDispatcher) {
+            database.userEntityQueries.createUser(id = UserEntity.Id(userId))
+            database.readComicEntityQueries.markComicAsRead(
+                comicNum,
+                userId = UserEntity.Id(userId)
+            )
+        }
+    }
+
+    override suspend fun toggleFavorite(comicNum: Long, isFavorite: Boolean, userId: Long) {
+        withContext(ioDispatcher) {
+            database.userEntityQueries.createUser(id = UserEntity.Id(userId))
+            if (isFavorite) {
+                database.favoriteComicEntityQueries.removeComicFromFavorites(
+                    comicNumber = comicNum,
+                    userId = UserEntity.Id(userId)
+                )
+            } else {
+                database.favoriteComicEntityQueries.markComicAsFavorite(
+                    comicNum,
+                    userId = UserEntity.Id(userId)
+                )
+            }
+        }
+    }
+
+    override suspend fun getLatestUpdateTimestamp(): Long {
+        return database.comicEntityQueries.getLatestTimestamp()
+            .getOne(ioDispatcher) { it.latestTimestamp }.firstOrNull() ?: 0
+    }
+
+
+    private fun Query<ComicInfo>.asExternalModelsFlow(): Flow<List<Comic>> =
+        getList(ioDispatcher) { it.asExternalModel() }
+
+    private fun Query<ComicInfo>.asExternalModelFlow(): Flow<Comic> =
+        getOne(ioDispatcher) { it.asExternalModel() }
+
 }

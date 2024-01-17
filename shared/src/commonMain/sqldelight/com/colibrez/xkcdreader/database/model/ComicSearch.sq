@@ -1,0 +1,26 @@
+CREATE VIRTUAL TABLE IF NOT EXISTS ComicSearch USING fts4(
+    num,
+    title,
+    alt,
+    transcript,
+    content='ComicEntity',
+    tokenize='porter'
+);
+
+CREATE TRIGGER IF NOT EXISTS ComicEntity_AI AFTER INSERT ON ComicEntity BEGIN
+  INSERT INTO ComicSearch(rowid, num, title, alt, transcript) VALUES (new.num, new.num, new.title, new.alt, new.transcript);
+END;
+
+CREATE TRIGGER IF NOT EXISTS ComicEntity_AD AFTER DELETE ON ComicEntity BEGIN
+  INSERT INTO ComicSearch(ComicSearch, num, title, alt, transcript) VALUES ('delete', old.num, old.title, old.alt, old.transcript);
+END;
+
+CREATE TRIGGER IF NOT EXISTS ComicEntity_AU AFTER UPDATE ON ComicEntity BEGIN
+  INSERT INTO ComicSearch(ComicSearch, num, title, alt, transcript) VALUES ('delete', old.num, old.title, old.alt, old.transcript);
+  INSERT INTO ComicSearch(num, title, alt, transcript) VALUES (new.num, new.title, new.alt, new.transcript);
+END;
+
+search:
+SELECT ComicInfo.* FROM ComicInfo
+JOIN ComicSearch ON ComicSearch.num = ComicInfo.num
+WHERE ComicSearch MATCH :query;
