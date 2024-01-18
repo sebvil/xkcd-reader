@@ -10,14 +10,11 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Share
-import androidx.compose.material.icons.filled.Star
-import androidx.compose.material.icons.outlined.Star
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
@@ -28,7 +25,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSavedStateRegistryOwner
 import androidx.core.content.ContextCompat.startActivity
@@ -38,6 +34,7 @@ import androidx.savedstate.SavedStateRegistryOwner
 import coil.annotation.ExperimentalCoilApi
 import coil.imageLoader
 import com.colibrez.xkcdreader.android.XkcdReaderApplication
+import com.colibrez.xkcdreader.android.ui.components.FavoriteButton
 import com.colibrez.xkcdreader.android.ui.components.images.ZoomableImage
 import com.colibrez.xkcdreader.android.ui.core.navigation.Screen
 import com.ramcosta.composedestinations.annotation.Destination
@@ -159,20 +156,14 @@ private fun RowScope.LatestComicTopBarActions(
     handleUserAction: (LatestComicUserAction) -> Unit = {}
 ) {
     val context = LocalContext.current
-    IconButton(onClick = {
+    FavoriteButton(isFavorite = state.isFavorite, onFavoriteChanged = {
         handleUserAction(
             LatestComicUserAction.ToggleFavorite(
                 comicNum = state.comicNumber,
-                isFavorite = state.isFavorite,
+                isFavorite = it,
             ),
         )
-    }) {
-        Icon(
-            imageVector = if (state.isFavorite) Icons.Filled.Star else Icons.Outlined.Star,
-            contentDescription = "Mark as favorite",
-            tint = if (state.isFavorite) Color.Yellow else LocalContentColor.current,
-        )
-    }
+    })
 
     IconButton(onClick = {
         val sendIntent: Intent = Intent().apply {

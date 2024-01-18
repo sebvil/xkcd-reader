@@ -1,6 +1,7 @@
 package com.colibrez.xkcdreader.android.ui.features.comiclist.all.filters
 
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.material.icons.Icons
@@ -24,10 +25,14 @@ import kotlin.enums.enumEntries
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun FilterBar(stateHolder: FilterStateHolder, modifier: Modifier = Modifier) {
+fun FilterBar(
+    stateHolder: FilterStateHolder,
+    modifier: Modifier = Modifier,
+    contentPadding: PaddingValues = PaddingValues()
+) {
     val state by stateHolder.state.collectAsState()
     // Using LazyRow to reduce refactoring if more filters are added
-    LazyRow(modifier = modifier) {
+    LazyRow(modifier = modifier, contentPadding = contentPadding) {
         item {
             var expanded by remember { mutableStateOf(false) }
 
@@ -82,7 +87,7 @@ private inline fun <reified T> EnumFilterDropdown(
     ) {
         enumEntries<T>().forEach {
             DropdownMenuItem(
-                text = { Text("All") },
+                text = { Text(it.displayName) },
                 onClick = {
                     onItemSelected(it)
                     onDismissRequest()

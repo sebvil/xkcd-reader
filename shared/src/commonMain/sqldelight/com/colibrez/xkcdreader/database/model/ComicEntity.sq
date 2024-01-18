@@ -19,7 +19,10 @@ SELECT COUNT(*) FROM ComicEntity;
 
 selectAll:
 SELECT * FROM ComicInfo
-WHERE ComicInfo.isRead = :isRead OR :isRead IS NULL
+WHERE
+    (ComicInfo.isRead = :isRead)
+    OR (ComicInfo.isRead IS NULL AND :isRead IS NOT NULL)
+    OR (:isRead IS NULL)
 ORDER BY ComicInfo.num DESC;
 
 selectLatest:
