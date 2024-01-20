@@ -2,6 +2,9 @@ package com.colibrez.xkcdreader.android.ui.features.latest
 
 import app.cash.turbine.test
 import com.colibrez.xkcdreader.android.extension.advanceUntilIdle
+import com.colibrez.xkcdreader.android.ui.features.comic.ComicState
+import com.colibrez.xkcdreader.android.ui.features.comic.ComicUserAction
+import com.colibrez.xkcdreader.android.ui.features.comic.latest.LatestComicStateHolder
 import com.colibrez.xkcdreader.data.repository.FakeComicRepository
 import com.colibrez.xkcdreader.model.comicFixtures
 import io.kotest.core.spec.style.FreeSpec
@@ -37,9 +40,9 @@ class LatestComicStateHolderTest : FreeSpec({
                 val comic = comics.last()
                 subject = getSubject()
                 subject.state.test {
-                    awaitItem() shouldBe LatestComicState.Loading
+                    awaitItem() shouldBe ComicState.Loading(comicNumber = null)
                     advanceUntilIdle()
-                    awaitItem() shouldBe LatestComicState.Data(
+                    awaitItem() shouldBe ComicState.Data(
                         comicNumber = comic.number,
                         comicTitle = comic.title,
                         imageUrl = comic.imageUrl,
@@ -59,7 +62,7 @@ class LatestComicStateHolderTest : FreeSpec({
             withData(listOf(true, false)) { isFavorite ->
                 subject = getSubject()
                 subject.handle(
-                    LatestComicUserAction.ToggleFavorite(
+                    ComicUserAction.ToggleFavorite(
                         comicNum = DEFAULT_COMIC_NUMBER,
                         isFavorite = isFavorite,
                     ),
@@ -76,23 +79,23 @@ class LatestComicStateHolderTest : FreeSpec({
         }
 
         "ImageClicked and OverlayClicked update showDialog state" {
-            infix fun <T : LatestComicState> T.shouldHaveShowDialogValueOf(expected: Boolean): T {
+            infix fun <T : ComicState> T.shouldHaveShowDialogValueOf(expected: Boolean): T {
                 this shouldBe Matcher.all(
-                    beInstanceOf<LatestComicState.Data>(),
+                    beInstanceOf<ComicState.Data>(),
                     havingProperty(
-                        equalityMatcher(expected) to LatestComicState.Data::showDialog,
+                        equalityMatcher(expected) to ComicState.Data::showDialog,
                     ),
                 )
                 return this
             }
             subject = getSubject()
             subject.state.test {
-                awaitItem() shouldBe LatestComicState.Loading
+                awaitItem() shouldBe ComicState.Loading(comicNumber = null)
                 advanceUntilIdle()
                 awaitItem() shouldHaveShowDialogValueOf false
-                subject.handle(LatestComicUserAction.ImageClicked)
+                subject.handle(ComicUserAction.ImageClicked)
                 awaitItem() shouldHaveShowDialogValueOf true
-                subject.handle(LatestComicUserAction.OverlayClicked)
+                subject.handle(ComicUserAction.OverlayClicked)
                 awaitItem() shouldHaveShowDialogValueOf false
             }
         }

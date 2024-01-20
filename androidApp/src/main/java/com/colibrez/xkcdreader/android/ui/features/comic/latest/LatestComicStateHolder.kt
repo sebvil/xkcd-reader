@@ -1,4 +1,4 @@
-package com.colibrez.xkcdreader.android.ui.features.latest
+package com.colibrez.xkcdreader.android.ui.features.comic.latest
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -6,6 +6,8 @@ import androidx.compose.runtime.getValue
 import app.cash.molecule.RecompositionMode
 import app.cash.molecule.launchMolecule
 import com.colibrez.xkcdreader.android.ui.core.mvvm.BaseStateHolder
+import com.colibrez.xkcdreader.android.ui.features.comic.ComicState
+import com.colibrez.xkcdreader.android.ui.features.comic.ComicUserAction
 import com.colibrez.xkcdreader.data.repository.ComicRepository
 import com.colibrez.xkcdreader.model.Comic
 import kotlinx.coroutines.CoroutineScope
@@ -19,7 +21,7 @@ import kotlinx.coroutines.launch
 class LatestComicStateHolder(
     private val viewModelScope: CoroutineScope,
     private val comicRepository: ComicRepository,
-) : BaseStateHolder<LatestComicState, LatestComicUserAction>() {
+) : BaseStateHolder<ComicState, ComicUserAction>() {
 
     private val _showDialogFlow: MutableStateFlow<Boolean> = MutableStateFlow(false)
     private val _latestComicFlow = comicRepository.getLatest()
@@ -29,25 +31,29 @@ class LatestComicStateHolder(
 
     init {
         viewModelScope.launch {
-            val comic = state.filterIsInstance<LatestComicState.Data>().first()
+            val comic = state.filterIsInstance<ComicState.Data>().first()
             comicRepository.markAsSeen(comicNum = comic.comicNumber)
         }
     }
 
-    override fun handle(action: LatestComicUserAction) {
+    override fun handle(action: ComicUserAction) {
         when (action) {
-            is LatestComicUserAction.ToggleFavorite -> {
+            is ComicUserAction.ToggleFavorite -> {
                 viewModelScope.launch {
                     comicRepository.toggleFavorite(action.comicNum, action.isFavorite)
                 }
             }
 
-            is LatestComicUserAction.ImageClicked -> {
+            is ComicUserAction.ImageClicked -> {
                 _showDialogFlow.update { true }
             }
 
-            is LatestComicUserAction.OverlayClicked -> {
+            is ComicUserAction.OverlayClicked -> {
                 _showDialogFlow.update { false }
+            }
+
+            ComicUserAction.BackButtonClicked -> {
+                TODO()
             }
         }
     }
@@ -56,12 +62,12 @@ class LatestComicStateHolder(
     private fun Presenter(
         latestComicFlow: Flow<Comic>,
         showDialogFlow: Flow<Boolean>
-    ): LatestComicState {
+    ): ComicState {
         val latestComic by latestComicFlow.collectAsState(initial = null)
         val showDialog by showDialogFlow.collectAsState(initial = false)
 
         return latestComic?.let { comic ->
-            LatestComicState.Data(
+            ComicState.Data(
                 comicNumber = comic.number,
                 comicTitle = comic.title,
                 imageUrl = comic.imageUrl,
@@ -71,6 +77,6 @@ class LatestComicStateHolder(
                 isFavorite = comic.isFavorite,
                 showDialog = showDialog,
             )
-        } ?: LatestComicState.Loading
+        } ?: ComicState.Loading(comicNumber = null)
     }
 }

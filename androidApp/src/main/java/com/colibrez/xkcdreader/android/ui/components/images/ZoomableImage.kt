@@ -2,6 +2,7 @@ package com.colibrez.xkcdreader.android.ui.components.images
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectTransformGestures
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
@@ -31,6 +32,9 @@ fun ZoomableImage(
     var offset by remember { mutableStateOf(Offset.Zero) }
     var displayedImageSize by remember { mutableStateOf(Size(width = 0f, height = 0f)) }
     var intrinsicImageSize by remember { mutableStateOf(Size(width = 0f, height = 0f)) }
+    val interactionSource = remember {
+        MutableInteractionSource()
+    }
 
     AsyncImage(
         model = imageUrl,
@@ -62,7 +66,15 @@ fun ZoomableImage(
                     },
                 )
             }
-            .let { m -> onClick?.let { m.clickable(onClick = it) } ?: m }
+            .let { m ->
+                onClick?.let {
+                    m.clickable(
+                        interactionSource = interactionSource,
+                        indication = null,
+                        onClick = it,
+                    )
+                } ?: m
+            }
             .onSizeChanged { displayedImageSize = it.toSize() }
             .graphicsLayer {
                 scaleX = scale

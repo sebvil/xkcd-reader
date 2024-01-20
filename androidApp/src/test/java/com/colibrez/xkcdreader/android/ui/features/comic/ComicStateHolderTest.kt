@@ -44,7 +44,6 @@ class ComicStateHolderTest : FreeSpec({
             subject.state.test {
                 awaitItem() shouldBe ComicState.Loading(
                     comicNumber = comic.number,
-                    comicTitle = comic.title,
                 )
                 advanceUntilIdle()
                 awaitItem() shouldBe ComicState.Data(
@@ -107,7 +106,6 @@ class ComicStateHolderTest : FreeSpec({
             subject.state.test {
                 awaitItem() shouldBe ComicState.Loading(
                     comicNumber = DEFAULT_COMIC_NUMBER,
-                    comicTitle = DEFAULT_COMIC_TITLE,
                 )
                 advanceUntilIdle()
                 awaitItem() shouldHaveShowDialogValueOf false
@@ -130,6 +128,5 @@ class ComicStateHolderTest : FreeSpec({
 }) {
     companion object {
         private const val DEFAULT_COMIC_NUMBER = 1L
-        private const val DEFAULT_COMIC_TITLE = ""
     }
 }

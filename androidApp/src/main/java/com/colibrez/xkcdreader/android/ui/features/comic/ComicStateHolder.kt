@@ -78,7 +78,6 @@ class ComicStateHolder(
             )
         } ?: ComicState.Loading(
             comicNumber = arguments.comicNumber,
-            comicTitle = arguments.comicTitle,
         )
     }
 }

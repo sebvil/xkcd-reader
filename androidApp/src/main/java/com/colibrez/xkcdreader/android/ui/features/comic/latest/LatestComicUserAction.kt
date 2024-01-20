@@ -1,4 +1,4 @@
-package com.colibrez.xkcdreader.android.ui.features.latest
+package com.colibrez.xkcdreader.android.ui.features.comic.latest
 
 import com.colibrez.xkcdreader.android.ui.core.mvvm.UserAction
 

@@ -3,12 +3,11 @@ package com.colibrez.xkcdreader.android.ui.features.comic
 import com.colibrez.xkcdreader.android.ui.core.mvvm.UiState
 
 sealed interface ComicState : UiState {
-    val comicNumber: Long
-    val comicTitle: String
+    val comicNumber: Long?
 
     data class Data(
         override val comicNumber: Long,
-        override val comicTitle: String,
+        val comicTitle: String,
         val imageUrl: String,
         val altText: String,
         val imageDescription: String,
@@ -17,5 +16,5 @@ sealed interface ComicState : UiState {
         val showDialog: Boolean
     ) : ComicState
 
-    data class Loading(override val comicNumber: Long, override val comicTitle: String) : ComicState
+    data class Loading(override val comicNumber: Long?) : ComicState
 }

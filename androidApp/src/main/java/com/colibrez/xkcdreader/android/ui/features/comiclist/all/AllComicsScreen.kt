@@ -27,10 +27,11 @@ import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 @Composable
 fun AllComicsScreen(
     navigator: DestinationsNavigator,
+    modifier: Modifier = Modifier,
     viewModel: AllComicsViewModel = allComicsViewModel(),
 ) {
     Screen(viewModel = viewModel, navigator = navigator) { state, handleUserAction ->
-        Column(modifier = Modifier.fillMaxSize()) {
+        Column(modifier = modifier.fillMaxSize()) {
             SearchScreen(
                 searchStateHolder = viewModel.searchStateHolder,
                 modifier = Modifier.align(Alignment.CenterHorizontally),

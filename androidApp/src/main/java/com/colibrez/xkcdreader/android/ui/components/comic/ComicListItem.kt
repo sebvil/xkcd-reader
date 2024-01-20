@@ -1,13 +1,10 @@
 package com.colibrez.xkcdreader.android.ui.components.comic
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.sizeIn
 import androidx.compose.material3.ListItem
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -35,8 +32,8 @@ fun ComicListItem(
             )
         },
         modifier = modifier
-            .padding(vertical = 8.dp)
-            .clickable(onClick = onClick),
+            .clickable(onClick = onClick)
+            .padding(vertical = 8.dp),
         leadingContent = {
             ComicImage(state.imageUrl)
         },
@@ -52,16 +49,13 @@ private fun ComicImage(imageUrl: String) {
         mutableStateOf(true)
     }
     if (loading) {
-        Box(
-            modifier = Modifier
-                .background(MaterialTheme.colorScheme.onSurface)
-                .size(64.dp),
-        )
+        // Images load fast enough that a placeholder is a bit jarring
+        Box(modifier = Modifier.size(64.dp))
     }
     AsyncImage(
         model = imageUrl,
         contentDescription = null,
-        modifier = Modifier.sizeIn(minWidth = 64.dp, maxHeight = 64.dp, maxWidth = 64.dp),
+        modifier = Modifier.size(64.dp),
         onSuccess = {
             loading = false
         },

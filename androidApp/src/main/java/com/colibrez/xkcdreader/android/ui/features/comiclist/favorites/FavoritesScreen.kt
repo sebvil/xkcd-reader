@@ -1,5 +1,8 @@
 package com.colibrez.xkcdreader.android.ui.features.comiclist.favorites
 
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.asPaddingValues
+import androidx.compose.foundation.layout.statusBars
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSavedStateRegistryOwner
@@ -21,6 +24,7 @@ fun FavoritesScreen(
         ComicListLayout(
             state = state,
             handleUserAction = handleUserAction,
+            contentPadding = WindowInsets.statusBars.asPaddingValues(),
         )
     }
 }
