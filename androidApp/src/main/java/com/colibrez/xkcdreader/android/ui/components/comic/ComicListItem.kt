@@ -1,19 +1,10 @@
 package com.colibrez.xkcdreader.android.ui.components.comic
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.sizeIn
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Star
-import androidx.compose.material.icons.filled.StarBorder
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButtonDefaults
-import androidx.compose.material3.IconToggleButton
 import androidx.compose.material3.ListItem
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -21,10 +12,10 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
+import com.colibrez.xkcdreader.android.ui.components.FavoriteButton
 
 @Composable
 fun ComicListItem(
@@ -41,22 +32,13 @@ fun ComicListItem(
             )
         },
         modifier = modifier
-            .padding(vertical = 8.dp)
-            .clickable(onClick = onClick),
+            .clickable(onClick = onClick)
+            .padding(vertical = 8.dp),
         leadingContent = {
             ComicImage(state.imageUrl)
         },
         trailingContent = {
-            IconToggleButton(
-                checked = state.isFavorite,
-                onCheckedChange = { onToggleFavorite(!it) },
-                colors = IconButtonDefaults.iconToggleButtonColors(checkedContentColor = Color.Yellow),
-            ) {
-                Icon(
-                    imageVector = if (state.isFavorite) Icons.Default.Star else Icons.Default.StarBorder,
-                    contentDescription = "Toggle favorite",
-                )
-            }
+            FavoriteButton(isFavorite = state.isFavorite, onFavoriteChanged = onToggleFavorite)
         },
     )
 }
@@ -67,16 +49,13 @@ private fun ComicImage(imageUrl: String) {
         mutableStateOf(true)
     }
     if (loading) {
-        Box(
-            modifier = Modifier
-                .background(MaterialTheme.colorScheme.onSurface)
-                .size(64.dp),
-        )
+        // Images load fast enough that a placeholder is a bit jarring
+        Box(modifier = Modifier.size(64.dp))
     }
     AsyncImage(
         model = imageUrl,
         contentDescription = null,
-        modifier = Modifier.sizeIn(minWidth = 64.dp, maxHeight = 64.dp, maxWidth = 64.dp),
+        modifier = Modifier.size(64.dp),
         onSuccess = {
             loading = false
         },

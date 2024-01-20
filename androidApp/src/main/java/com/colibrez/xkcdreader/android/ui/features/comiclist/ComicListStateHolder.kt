@@ -1,6 +1,5 @@
 package com.colibrez.xkcdreader.android.ui.features.comiclist
 
-import android.util.Log
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -56,7 +55,6 @@ abstract class ComicListStateHolder(
         @Composable
         private fun Presenter(comicsFlow: Flow<List<Comic>>): ComicListState {
             val comics by comicsFlow.collectAsState(initial = null)
-            Log.i("Comics", "Returning ${comics?.size} comics")
 
             return comics?.let {
                 ComicListState.Data(

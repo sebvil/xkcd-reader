@@ -15,7 +15,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import com.colibrez.xkcdreader.android.ui.components.comic.ComicListItem
@@ -28,10 +28,10 @@ fun SearchScreen(
     modifier: Modifier = Modifier,
     handleUserAction: (ComicListUserAction) -> Unit = {}
 ) {
-    var query by remember {
+    var query by rememberSaveable {
         mutableStateOf("")
     }
-    var active by remember {
+    var active by rememberSaveable {
         mutableStateOf(false)
     }
     SearchBar(

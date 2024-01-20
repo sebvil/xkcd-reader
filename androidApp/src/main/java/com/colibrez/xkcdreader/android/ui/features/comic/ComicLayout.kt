@@ -1,24 +1,29 @@
-package com.colibrez.xkcdreader.android.ui.features.latest
+package com.colibrez.xkcdreader.android.ui.features.comic
 
 import android.content.ClipData
 import android.content.Intent
 import android.net.Uri
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Share
-import androidx.compose.material.icons.filled.Star
-import androidx.compose.material.icons.outlined.Star
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.AlertDialogDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.LocalContentColor
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
@@ -28,63 +33,57 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalSavedStateRegistryOwner
-import androidx.core.content.ContextCompat.startActivity
-import androidx.core.content.FileProvider.getUriForFile
-import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.savedstate.SavedStateRegistryOwner
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.zIndex
+import androidx.core.content.ContextCompat
+import androidx.core.content.FileProvider
 import coil.annotation.ExperimentalCoilApi
 import coil.imageLoader
-import com.colibrez.xkcdreader.android.XkcdReaderApplication
+import com.colibrez.xkcdreader.android.ui.components.FavoriteButton
 import com.colibrez.xkcdreader.android.ui.components.images.ZoomableImage
-import com.colibrez.xkcdreader.android.ui.core.navigation.Screen
-import com.ramcosta.composedestinations.annotation.Destination
-import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import java.io.File
-
-@Destination
-@Composable
-fun LatestComicScreen(
-    navigator: DestinationsNavigator,
-    viewModel: LatestComicViewModel = latestComicViewModel()
-) {
-    Screen(viewModel = viewModel, navigator = navigator) { state, handleUserAction ->
-        LatestComicLayout(state = state, handleUserAction = handleUserAction)
-    }
-}
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun LatestComicLayout(
-    state: LatestComicState,
+fun ComicLayout(
+    state: ComicState,
+    hasBackButton: Boolean,
     modifier: Modifier = Modifier,
-    handleUserAction: (LatestComicUserAction) -> Unit
+    handleUserAction: (ComicUserAction) -> Unit
 ) {
     var imageFile: File? by remember {
         mutableStateOf(null)
     }
-    when (state) {
-        is LatestComicState.Data -> {
-            Scaffold(
-                modifier = modifier,
-                topBar = {
-                    TopAppBar(
-                        title = {
-                            Text(text = "${state.comicNumber}. ${state.comicTitle}")
-                        },
-                        actions = {
-                            LatestComicTopBarActions(
-                                state = state,
-                                imageFile = imageFile,
-                                handleUserAction = handleUserAction,
-                            )
-                        },
-                    )
+    Scaffold(
+        modifier = modifier,
+        topBar = {
+            TopAppBar(
+                title = {
+                    Text(text = state.comicNumber?.let { "xkcd $it" }.orEmpty())
                 },
-            ) { paddingValues ->
-
+                navigationIcon = {
+                    if (hasBackButton) {
+                        IconButton(onClick = { handleUserAction(ComicUserAction.BackButtonClicked) }) {
+                            Icon(imageVector = Icons.Default.ArrowBack, contentDescription = "Back")
+                        }
+                    }
+                },
+                actions = {
+                    (state as? ComicState.Data)?.let {
+                        ComicTopBarActions(
+                            state = it,
+                            imageFile = imageFile,
+                            handleUserAction = handleUserAction,
+                        )
+                    }
+                },
+            )
+        },
+    ) { paddingValues ->
+        when (state) {
+            is ComicState.Data -> {
                 ComicBody(
                     state = state,
                     paddingValues = paddingValues,
@@ -92,11 +91,11 @@ fun LatestComicLayout(
                     setImageFile = { imageFile = it },
                 )
             }
-        }
 
-        is LatestComicState.Loading -> {
-            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                CircularProgressIndicator()
+            is ComicState.Loading -> {
+                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                    CircularProgressIndicator()
+                }
             }
         }
     }
@@ -105,31 +104,53 @@ fun LatestComicLayout(
 @OptIn(ExperimentalCoilApi::class, ExperimentalMaterial3Api::class)
 @Composable
 private fun ComicBody(
-    state: LatestComicState.Data,
+    state: ComicState.Data,
     paddingValues: PaddingValues,
     modifier: Modifier = Modifier,
-    handleUserAction: (LatestComicUserAction) -> Unit = {},
+    handleUserAction: (ComicUserAction) -> Unit = {},
     setImageFile: (File) -> Unit = {}
 ) {
     if (state.showDialog) {
         AlertDialog(
-            onDismissRequest = { handleUserAction(LatestComicUserAction.OverlayClicked) },
+            modifier = Modifier.background(
+                color = AlertDialogDefaults.containerColor,
+                shape = AlertDialogDefaults.shape,
+            ).padding(28.dp),
+            onDismissRequest = { handleUserAction(ComicUserAction.OverlayClicked) },
         ) {
             Text(text = state.altText)
         }
     }
-    Box(
+    Column(
         modifier = modifier
             .fillMaxSize()
             .padding(paddingValues),
-        contentAlignment = Alignment.Center,
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center,
     ) {
         val context = LocalContext.current
+        Surface(
+            modifier = Modifier
+                .fillMaxWidth()
+                .zIndex(1f),
+        ) {
+            Text(
+                text = state.comicTitle,
+                style = MaterialTheme.typography.titleLarge,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = 16.dp),
+                textAlign = TextAlign.Center,
+            )
+        }
         ZoomableImage(
             imageUrl = state.imageUrl,
-            modifier = Modifier.fillMaxSize(),
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(horizontal = 16.dp)
+                .padding(bottom = 16.dp),
             contentDescription = state.imageDescription,
-            onClick = { handleUserAction(LatestComicUserAction.ImageClicked) },
+            onClick = { handleUserAction(ComicUserAction.ImageClicked) },
             onSuccess = {
                 context.imageLoader.diskCache?.also { cache ->
                     it.result.diskCacheKey?.also { key ->
@@ -153,33 +174,30 @@ private fun ComicBody(
 }
 
 @Composable
-private fun RowScope.LatestComicTopBarActions(
-    state: LatestComicState.Data,
+private fun RowScope.ComicTopBarActions(
+    state: ComicState.Data,
     imageFile: File?,
-    handleUserAction: (LatestComicUserAction) -> Unit = {}
+    handleUserAction: (ComicUserAction) -> Unit = {}
 ) {
     val context = LocalContext.current
-    IconButton(onClick = {
-        handleUserAction(
-            LatestComicUserAction.ToggleFavorite(
-                comicNum = state.comicNumber,
-                isFavorite = state.isFavorite,
-            ),
-        )
-    }) {
-        Icon(
-            imageVector = if (state.isFavorite) Icons.Filled.Star else Icons.Outlined.Star,
-            contentDescription = "Mark as favorite",
-            tint = if (state.isFavorite) Color.Yellow else LocalContentColor.current,
-        )
-    }
+    FavoriteButton(
+        isFavorite = state.isFavorite,
+        onFavoriteChanged = {
+            handleUserAction(
+                ComicUserAction.ToggleFavorite(
+                    comicNum = state.comicNumber,
+                    isFavorite = it,
+                ),
+            )
+        },
+    )
 
     IconButton(onClick = {
         val sendIntent: Intent = Intent().apply {
             action = Intent.ACTION_SEND
 
             imageFile?.let {
-                val contentUri: Uri = getUriForFile(
+                val contentUri: Uri = FileProvider.getUriForFile(
                     /* context = */
                     context,
                     /* authority = */
@@ -207,21 +225,8 @@ private fun RowScope.LatestComicTopBarActions(
         }
 
         val shareIntent = Intent.createChooser(sendIntent, null)
-        startActivity(context, shareIntent, null)
+        ContextCompat.startActivity(context, shareIntent, null)
     }) {
         Icon(imageVector = Icons.Default.Share, contentDescription = "Share")
     }
-}
-
-@Composable
-fun latestComicViewModel(
-    savedStateRegistryOwner: SavedStateRegistryOwner = LocalSavedStateRegistryOwner.current,
-): LatestComicViewModel {
-    val dependencyContainer =
-        (LocalContext.current.applicationContext as XkcdReaderApplication).dependencyContainer
-    val factory = LatestComicViewModel.Factory(
-        owner = savedStateRegistryOwner,
-        comicRepository = dependencyContainer.comicRepository,
-    )
-    return viewModel(factory = factory)
 }
