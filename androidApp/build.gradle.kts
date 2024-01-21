@@ -71,6 +71,7 @@ dependencies {
     implementation(libs.kotlinx.collections.immutable)
     implementation(libs.androidx.work.runtime.ktx)
 
+    implementation(libs.androidx.browser)
 
     testImplementation(libs.kotest.runner.junit5)
     testImplementation(libs.kotest.framework.datatest)

@@ -73,6 +73,7 @@ class ComicStateHolder(
                 altText = it.altText,
                 imageDescription = it.transcript,
                 permalink = it.permalink,
+                explainXckdPermalink = it.explainXkcdPermalink,
                 isFavorite = it.isFavorite,
                 showDialog = showDialog,
             )

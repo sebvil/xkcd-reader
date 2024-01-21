@@ -14,4 +14,5 @@ data class Comic(
     val isRead: Boolean,
 ) {
     val permalink: String = "https://xkcd.com/$number"
+    val explainXkcdPermalink: String = "https://www.explainxkcd.com/wiki/index.php/$number"
 }
