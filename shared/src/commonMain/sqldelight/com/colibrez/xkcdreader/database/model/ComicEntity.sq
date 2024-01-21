@@ -20,16 +20,21 @@ SELECT COUNT(*) FROM ComicEntity;
 selectAll:
 SELECT * FROM ComicInfo
 WHERE
-    (ComicInfo.isRead = :isRead)
-    OR (ComicInfo.isRead IS NULL AND CAST (:isRead AS INTEGER) = 0)
-    OR (:isRead IS NULL)
+    (
+        (ComicInfo.isRead = :isRead)
+        OR (ComicInfo.isRead IS NULL AND CAST (:isRead AS INTEGER) = 0)
+        OR (:isRead IS NULL)
+    )
+    AND
+    (
+        (ComicInfo.isFavorite = :isFavorite)
+        OR (ComicInfo.isFavorite IS NULL AND CAST (:isFavorite AS INTEGER) = 0)
+        OR (:isFavorite IS NULL)
+    )
 ORDER BY ComicInfo.num DESC;
 
 selectLatest:
 SELECT * FROM ComicInfo ORDER BY ComicInfo.num DESC LIMIT 1;
-
-getFavorites:
-SELECT * FROM ComicInfo WHERE ComicInfo.isFavorite = 1 ORDER BY ComicInfo.num DESC ;
 
 insert:
 INSERT OR REPLACE INTO ComicEntity (num, title, transcript, img, alt, link, year, month, day) VALUES ?;

@@ -8,14 +8,12 @@ interface ComicRepository {
     fun getComic(num: Long): Flow<Comic>
     fun getLatest(): Flow<Comic>
     fun getComicCount(): Flow<Long>
-    fun getAllComics(isRead: Boolean?): Flow<List<Comic>>
+    fun getAllComics(isRead: Boolean?,isFavorite: Boolean?): Flow<List<Comic>>
     fun getNewestComics(
         lastFetchTimestamp: Long = 0,
         maxComicNumber: Long = Long.MAX_VALUE,
         limit: Long = Long.MAX_VALUE
     ): Flow<List<Comic>>
-
-    fun getFavorites(): Flow<List<Comic>>
 
     suspend fun insertComics(comics: List<ComicEntity>)
 

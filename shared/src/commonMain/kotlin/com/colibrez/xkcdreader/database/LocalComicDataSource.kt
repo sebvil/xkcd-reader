@@ -30,8 +30,9 @@ class LocalComicDataSource(
         return database.comicEntityQueries.count().getOne(ioDispatcher)
     }
 
-    override fun getAllComics(isRead: Boolean?): Flow<List<Comic>> {
-        return database.comicEntityQueries.selectAll(isRead = isRead).asExternalModelsFlow()
+    override fun getAllComics(isRead: Boolean?, isFavorite: Boolean?): Flow<List<Comic>> {
+        return database.comicEntityQueries.selectAll(isRead = isRead, isFavorite = isFavorite)
+            .asExternalModelsFlow()
     }
 
 
@@ -45,11 +46,6 @@ class LocalComicDataSource(
             maxComicNumber = maxComicNumber,
             limit = limit
         ).asExternalModelsFlow()
-    }
-
-    override fun getFavorites(): Flow<List<Comic>> {
-        return database.comicEntityQueries.getFavorites()
-            .getList(ioDispatcher) { it.asExternalModel() }
     }
 
     override suspend fun insertComics(comics: List<ComicEntity>) {

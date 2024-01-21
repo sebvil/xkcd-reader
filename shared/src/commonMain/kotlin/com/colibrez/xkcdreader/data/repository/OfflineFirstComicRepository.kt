@@ -21,8 +21,8 @@ class OfflineFirstComicRepository(
         return localComicDataSource.getComicCount()
     }
 
-    override fun getAllComics(isRead: Boolean?): Flow<List<Comic>> {
-        return localComicDataSource.getAllComics(isRead = isRead)
+    override fun getAllComics(isRead: Boolean?, isFavorite: Boolean?): Flow<List<Comic>> {
+        return localComicDataSource.getAllComics(isRead = isRead, isFavorite = isFavorite)
     }
 
     override fun getNewestComics(
@@ -35,10 +35,6 @@ class OfflineFirstComicRepository(
             maxComicNumber = maxComicNumber,
             limit = limit
         )
-    }
-
-    override fun getFavorites(): Flow<List<Comic>> {
-        return localComicDataSource.getFavorites()
     }
 
     override suspend fun insertComics(comics: List<ComicEntity>) {
