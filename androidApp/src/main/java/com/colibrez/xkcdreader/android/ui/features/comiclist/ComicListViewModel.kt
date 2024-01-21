@@ -8,27 +8,25 @@ import com.colibrez.xkcdreader.android.ui.core.mvvm.BaseViewModelFactory
 import com.colibrez.xkcdreader.android.ui.features.comiclist.filters.FilterStateHolder
 import com.colibrez.xkcdreader.android.ui.features.comiclist.search.SearchStateHolder
 import com.colibrez.xkcdreader.data.repository.ComicRepository
-import com.colibrez.xkcdreader.data.repository.SearchRepository
 
 class ComicListViewModel(
     comicRepository: ComicRepository,
-    searchRepository: SearchRepository,
 ) : BaseViewModel<ComicListState, ComicListUserAction>() {
 
     val filterStateHolder: FilterStateHolder = FilterStateHolder()
 
-    val searchStateHolder = SearchStateHolder(viewModelScope, searchRepository)
+    val searchStateHolder = SearchStateHolder(viewModelScope)
 
     override val stateHolder: ComicListStateHolder = ComicListStateHolder(
         viewModelScope = viewModelScope,
         filterStateHolder = filterStateHolder,
         comicRepository = comicRepository,
+        searchStateHolder = searchStateHolder,
     )
 
     class Factory(
         owner: SavedStateRegistryOwner,
         private val comicRepository: ComicRepository,
-        private val searchRepository: SearchRepository,
     ) : BaseViewModelFactory<ComicListViewModel>(owner) {
 
         override fun create(
@@ -37,7 +35,6 @@ class ComicListViewModel(
         ): ComicListViewModel {
             return ComicListViewModel(
                 comicRepository,
-                searchRepository,
             )
         }
     }

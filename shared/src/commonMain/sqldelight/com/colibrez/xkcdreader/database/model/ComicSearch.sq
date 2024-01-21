@@ -19,8 +19,3 @@ CREATE TRIGGER IF NOT EXISTS ComicEntity_AU AFTER UPDATE ON ComicEntity BEGIN
   INSERT INTO ComicSearch(ComicSearch, num, title, alt, transcript) VALUES ('delete', old.num, old.title, old.alt, old.transcript);
   INSERT INTO ComicSearch(num, title, alt, transcript) VALUES (new.num, new.title, new.alt, new.transcript);
 END;
-
-search:
-SELECT ComicInfo.* FROM ComicInfo
-JOIN ComicSearch ON ComicSearch.num = ComicInfo.num
-WHERE ComicSearch MATCH :query;

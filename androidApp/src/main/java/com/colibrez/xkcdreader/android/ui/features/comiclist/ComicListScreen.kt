@@ -21,7 +21,7 @@ import com.colibrez.xkcdreader.android.XkcdReaderApplication
 import com.colibrez.xkcdreader.android.ui.components.comic.ComicListItem
 import com.colibrez.xkcdreader.android.ui.core.navigation.Screen
 import com.colibrez.xkcdreader.android.ui.features.comiclist.filters.FilterBar
-import com.colibrez.xkcdreader.android.ui.features.comiclist.search.SearchScreen
+import com.colibrez.xkcdreader.android.ui.features.comiclist.search.SearchBar
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootNavGraph
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
@@ -36,10 +36,9 @@ fun ComicListScreen(
 ) {
     Screen(viewModel = viewModel, navigator = navigator) { state, handleUserAction ->
         Column(modifier = modifier.fillMaxSize()) {
-            SearchScreen(
+            SearchBar(
                 searchStateHolder = viewModel.searchStateHolder,
                 modifier = Modifier.align(Alignment.CenterHorizontally),
-                handleUserAction = handleUserAction,
             )
             FilterBar(
                 stateHolder = viewModel.filterStateHolder,
@@ -103,7 +102,6 @@ fun comicListViewModel(
     val factory = ComicListViewModel.Factory(
         owner = savedStateRegistryOwner,
         comicRepository = dependencyContainer.comicRepository,
-        searchRepository = dependencyContainer.searchRepository,
     )
     return viewModel(factory = factory)
 }

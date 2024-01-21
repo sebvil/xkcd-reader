@@ -11,6 +11,8 @@ import com.colibrez.xkcdreader.android.ui.features.comiclist.filters.Filter
 import com.colibrez.xkcdreader.android.ui.features.comiclist.filters.FilterUserAction
 import com.colibrez.xkcdreader.android.ui.features.comiclist.filters.FiltersState
 import com.colibrez.xkcdreader.android.ui.features.comiclist.filters.ReadFilter
+import com.colibrez.xkcdreader.android.ui.features.comiclist.search.SearchState
+import com.colibrez.xkcdreader.android.ui.features.comiclist.search.SearchUserAction
 import com.colibrez.xkcdreader.data.repository.FakeComicRepository
 import com.colibrez.xkcdreader.model.comicFixtures
 import io.kotest.core.spec.style.FreeSpec
@@ -25,23 +27,27 @@ import kotlinx.coroutines.flow.update
 class ComicListStateHolderTest : FreeSpec({
     lateinit var comicRepositoryDep: FakeComicRepository
     lateinit var filterStateHolderDep: FakeStateHolder<FiltersState, FilterUserAction>
+    lateinit var searchStateHolderDep: FakeStateHolder<SearchState, SearchUserAction>
     lateinit var subject: ComicListStateHolder
 
     fun TestScope.getSubject() = ComicListStateHolder(
         viewModelScope = this,
-        filterStateHolder = filterStateHolderDep,
         comicRepository = comicRepositoryDep,
+        filterStateHolder = filterStateHolderDep,
+        searchStateHolder = searchStateHolderDep,
     )
 
     beforeTest {
         comicRepositoryDep = FakeComicRepository()
         filterStateHolderDep =
             FakeStateHolder(
-                FiltersState(
+                initialState = FiltersState(
                     isReadFilter = Filter.IsRead(selection = ReadFilter.All),
                     favoriteFilter = Filter.Favorite(selection = FavoriteFilter.All),
                 ),
             )
+
+        searchStateHolderDep = FakeStateHolder(initialState = SearchState(searchQuery = ""))
     }
 
     "state" - {
@@ -62,6 +68,40 @@ class ComicListStateHolderTest : FreeSpec({
                     ),
                 )
                 comicRepositoryDep.comics.value = comicFixtures
+                awaitItem() shouldBe ComicListState.Data(
+                    comics = comicFixtures
+                        .map { ListComic.fromExternalModel(it) }
+                        .toImmutableList(),
+                )
+            }
+        }
+
+        "gets updated when search query changes" {
+            subject = getSubject()
+            subject.state.test {
+                awaitItem() shouldBe ComicListState.Loading
+                advanceUntilIdle()
+                awaitItem() shouldBe ComicListState.Data(
+                    comics = comicFixtures
+                        .map { ListComic.fromExternalModel(it) }
+                        .toImmutableList(),
+                )
+
+                // Our fake implementation only matches on comic number
+                searchStateHolderDep.stateFlow.update {
+                    it.copy(searchQuery = "1")
+                }
+
+                awaitItem() shouldBe ComicListState.Data(
+                    comics = comicFixtures.subList(0, 1)
+                        .map { ListComic.fromExternalModel(it) }
+                        .toImmutableList(),
+                )
+
+                searchStateHolderDep.stateFlow.update {
+                    it.copy(searchQuery = "")
+                }
+
                 awaitItem() shouldBe ComicListState.Data(
                     comics = comicFixtures
                         .map { ListComic.fromExternalModel(it) }

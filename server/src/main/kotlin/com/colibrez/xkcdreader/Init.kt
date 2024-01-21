@@ -20,7 +20,7 @@ fun Application.init(
         val latestComic = xkcdClient.getLatest().getOrElse { return@launch }
         val comicNum = latestComic.num
         val savedComics =
-            comicRepository.getAllComics(isRead = null, isFavorite = null)
+            comicRepository.getAllComics(isRead = null, isFavorite = null, searchQuery = "")
                 .map { it.map { comic -> comic.number }.toSet() }.first()
         val comics = (1..comicNum).filter { it !in savedComics && it != 404L }
             .chunked(XkcdClient.MAX_CONNECTIONS_PER_ROUTE)
