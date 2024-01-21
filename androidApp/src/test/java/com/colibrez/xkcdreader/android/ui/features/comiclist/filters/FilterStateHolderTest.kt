@@ -1,4 +1,4 @@
-package com.colibrez.xkcdreader.android.ui.features.comiclist.all.filters
+package com.colibrez.xkcdreader.android.ui.features.comiclist.filters
 
 import app.cash.turbine.test
 import io.kotest.core.spec.style.FreeSpec
@@ -10,16 +10,16 @@ class FilterStateHolderTest : FreeSpec({
         "IsReadFilterSelected updates state" {
             val subject = FilterStateHolder()
             subject.state.test {
-                awaitItem() shouldBe FiltersState(isReadFilter = EnumFilterState(selection = ReadFilter.All))
+                awaitItem().isReadFilter.selection shouldBe ReadFilter.All
 
                 subject.handle(FilterUserAction.IsReadFilterSelected(newFilterValue = ReadFilter.Read))
-                awaitItem() shouldBe FiltersState(isReadFilter = EnumFilterState(selection = ReadFilter.Read))
+                awaitItem().isReadFilter.selection shouldBe ReadFilter.Read
 
                 subject.handle(FilterUserAction.IsReadFilterSelected(newFilterValue = ReadFilter.Unread))
-                awaitItem() shouldBe FiltersState(isReadFilter = EnumFilterState(selection = ReadFilter.Unread))
+                awaitItem().isReadFilter.selection shouldBe ReadFilter.Unread
 
                 subject.handle(FilterUserAction.IsReadFilterSelected(newFilterValue = ReadFilter.All))
-                awaitItem() shouldBe FiltersState(isReadFilter = EnumFilterState(selection = ReadFilter.All))
+                awaitItem().isReadFilter.selection shouldBe ReadFilter.All
             }
         }
     }

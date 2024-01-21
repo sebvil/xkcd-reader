@@ -7,14 +7,13 @@ import kotlinx.coroutines.flow.Flow
 interface ComicDataSource {
     fun getComic(num: Long): Flow<Comic>
     fun getLatest(): Flow<Comic>
-    fun getAllComics(isRead: Boolean?): Flow<List<Comic>>
+    fun getAllComics(isRead: Boolean?, isFavorite: Boolean?): Flow<List<Comic>>
     fun getComicCount(): Flow<Long>
     fun getNewestComics(
         lastFetchTimestamp: Long = 0,
         maxComicNumber: Long = Long.MAX_VALUE,
         limit: Long = Long.MAX_VALUE
     ): Flow<List<Comic>>
-    fun getFavorites(): Flow<List<Comic>>
 
     suspend fun insertComics(comics: List<ComicEntity>)
 

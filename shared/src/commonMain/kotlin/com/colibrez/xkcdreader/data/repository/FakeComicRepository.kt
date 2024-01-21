@@ -29,10 +29,11 @@ class FakeComicRepository : ComicRepository {
         return comics.map { it.size.toLong() }
     }
 
-    override fun getAllComics(isRead: Boolean?): Flow<List<Comic>> {
+    override fun getAllComics(isRead: Boolean?, isFavorite: Boolean?): Flow<List<Comic>> {
         return comics.map { comics ->
             comics.filter {
-                isRead == null || it.isRead == isRead
+                (isRead == null || it.isRead == isRead)
+                        && (isFavorite == null || it.isFavorite == isFavorite)
             }
         }
     }
@@ -43,13 +44,6 @@ class FakeComicRepository : ComicRepository {
         limit: Long
     ): Flow<List<Comic>> {
         TODO("Not yet implemented")
-    }
-
-
-    override fun getFavorites(): Flow<List<Comic>> {
-        return comics.filterValues {
-            it.isFavorite
-        }
     }
 
     override suspend fun insertComics(comics: List<ComicEntity>) {
