@@ -12,6 +12,7 @@ sealed interface ComicState : UiState {
         val altText: String,
         val imageDescription: String,
         val permalink: String,
+        val explainXckdPermalink: String,
         val isFavorite: Boolean,
         val showDialog: Boolean
     ) : ComicState

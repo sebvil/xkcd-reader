@@ -12,12 +12,17 @@ import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Share
+import androidx.compose.material.icons.outlined.OpenInNew
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.AlertDialogDefaults
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -43,6 +48,7 @@ import coil.annotation.ExperimentalCoilApi
 import coil.imageLoader
 import com.colibrez.xkcdreader.android.ui.components.FavoriteButton
 import com.colibrez.xkcdreader.android.ui.components.images.ZoomableImage
+import com.colibrez.xkcdreader.android.util.webpage.InBrowserWebPageViewer
 import java.io.File
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -112,10 +118,12 @@ private fun ComicBody(
 ) {
     if (state.showDialog) {
         AlertDialog(
-            modifier = Modifier.background(
-                color = AlertDialogDefaults.containerColor,
-                shape = AlertDialogDefaults.shape,
-            ).padding(28.dp),
+            modifier = Modifier
+                .background(
+                    color = AlertDialogDefaults.containerColor,
+                    shape = AlertDialogDefaults.shape,
+                )
+                .padding(28.dp),
             onDismissRequest = { handleUserAction(ComicUserAction.OverlayClicked) },
         ) {
             Text(text = state.altText)
@@ -179,7 +187,6 @@ private fun RowScope.ComicTopBarActions(
     imageFile: File?,
     handleUserAction: (ComicUserAction) -> Unit = {}
 ) {
-    val context = LocalContext.current
     FavoriteButton(
         isFavorite = state.isFavorite,
         onFavoriteChanged = {
@@ -191,42 +198,102 @@ private fun RowScope.ComicTopBarActions(
             )
         },
     )
+    ShareButton(state = state, imageFile = imageFile)
+    OverflowMenu(state)
+}
 
-    IconButton(onClick = {
-        val sendIntent: Intent = Intent().apply {
-            action = Intent.ACTION_SEND
+@Composable
+private fun OverflowMenu(state: ComicState.Data, modifier: Modifier = Modifier) {
+    var expanded by remember { mutableStateOf(false) }
+    val context = LocalContext.current
+    val webPageViewer = remember {
+        InBrowserWebPageViewer(context)
+    }
 
-            imageFile?.let {
-                val contentUri: Uri = FileProvider.getUriForFile(
-                    /* context = */
-                    context,
-                    /* authority = */
-                    "com.colibrez.xkcdreader",
-                    /* file = */
-                    it,
-                )
-                clipData =
-                    ClipData.newUri(context.contentResolver, "", contentUri)
-                putExtra(Intent.EXTRA_STREAM, contentUri)
+    Box(
+        modifier = modifier
+            .wrapContentSize(Alignment.TopStart),
+    ) {
+        IconButton(onClick = { expanded = true }) {
+            Icon(Icons.Default.MoreVert, contentDescription = "More")
+        }
+        DropdownMenu(
+            expanded = expanded,
+            onDismissRequest = { expanded = false },
+        ) {
+            DropdownMenuItem(
+                text = { Text("View on xkcd.com") },
+                onClick = {
+                    webPageViewer.viewWebPage(state.permalink)
+                },
+                leadingIcon = {
+                    Icon(
+                        Icons.Outlined.OpenInNew,
+                        contentDescription = null,
+                    )
+                },
+            )
+            DropdownMenuItem(
+                text = { Text("Explain xkcd") },
+                onClick = {
+                    webPageViewer.viewWebPage(state.explainXckdPermalink)
+                },
+                leadingIcon = {
+                    Icon(
+                        Icons.Outlined.OpenInNew,
+                        contentDescription = null,
+                    )
+                },
+            )
+        }
+    }
+}
 
-                putExtra(
-                    Intent.EXTRA_TEXT,
-                    """
+@Composable
+private fun ShareButton(
+    state: ComicState.Data,
+    imageFile: File?,
+    modifier: Modifier = Modifier
+) {
+    val context = LocalContext.current
+    IconButton(
+        onClick = {
+            val sendIntent: Intent = Intent().apply {
+                action = Intent.ACTION_SEND
+
+                imageFile?.let {
+                    val contentUri: Uri = FileProvider.getUriForFile(
+                        /* context = */
+                        context,
+                        /* authority = */
+                        "com.colibrez.xkcdreader",
+                        /* file = */
+                        it,
+                    )
+                    clipData =
+                        ClipData.newUri(context.contentResolver, "", contentUri)
+                    putExtra(Intent.EXTRA_STREAM, contentUri)
+
+                    putExtra(
+                        Intent.EXTRA_TEXT,
+                        """
                     ${state.comicNumber}. ${state.comicTitle}
                     
                     "${state.altText}"
                     
                     ${state.permalink}
-                    """.trimIndent(),
-                )
-                type = "image/*"
-                flags = Intent.FLAG_GRANT_READ_URI_PERMISSION
+                        """.trimIndent(),
+                    )
+                    type = "image/*"
+                    flags = Intent.FLAG_GRANT_READ_URI_PERMISSION
+                }
             }
-        }
 
-        val shareIntent = Intent.createChooser(sendIntent, null)
-        ContextCompat.startActivity(context, shareIntent, null)
-    }) {
+            val shareIntent = Intent.createChooser(sendIntent, null)
+            ContextCompat.startActivity(context, shareIntent, null)
+        },
+        modifier = modifier,
+    ) {
         Icon(imageVector = Icons.Default.Share, contentDescription = "Share")
     }
 }

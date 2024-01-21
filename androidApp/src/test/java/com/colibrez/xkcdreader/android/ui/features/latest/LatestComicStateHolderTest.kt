@@ -49,6 +49,7 @@ class LatestComicStateHolderTest : FreeSpec({
                         altText = comic.altText,
                         imageDescription = comic.transcript,
                         permalink = comic.permalink,
+                        explainXckdPermalink = comic.explainXkcdPermalink,
                         isFavorite = comic.isFavorite,
                         showDialog = false,
                     )
