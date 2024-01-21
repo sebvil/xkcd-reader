@@ -30,8 +30,18 @@ class LocalComicDataSource(
         return database.comicEntityQueries.count().getOne(ioDispatcher)
     }
 
-    override fun getAllComics(isRead: Boolean?, isFavorite: Boolean?): Flow<List<Comic>> {
-        return database.comicEntityQueries.selectAll(isRead = isRead, isFavorite = isFavorite)
+    override fun getAllComics(
+        isRead: Boolean?,
+        isFavorite: Boolean?,
+        searchQuery: String
+    ): Flow<List<Comic>> {
+        return database.comicEntityQueries.selectAll(
+            isRead = isRead,
+            isFavorite = isFavorite,
+            searchQuery = if (searchQuery.isNotEmpty()) {
+                "\"$searchQuery*\""
+            } else ""
+        )
             .asExternalModelsFlow()
     }
 

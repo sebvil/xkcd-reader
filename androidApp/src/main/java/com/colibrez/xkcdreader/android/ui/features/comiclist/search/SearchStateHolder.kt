@@ -6,27 +6,28 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import app.cash.molecule.RecompositionMode
 import app.cash.molecule.launchMolecule
-import com.colibrez.xkcdreader.android.ui.components.comic.ListComic
 import com.colibrez.xkcdreader.android.ui.core.mvvm.StateHolder
-import com.colibrez.xkcdreader.data.repository.SearchRepository
-import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.FlowPreview
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.update
+import kotlin.time.Duration.Companion.milliseconds
 
+@OptIn(FlowPreview::class)
 @Stable
 class SearchStateHolder(
     viewModelScope: CoroutineScope,
-    private val searchRepository: SearchRepository
-) :
-    StateHolder<SearchState, SearchUserAction> {
+) : StateHolder<SearchState, SearchUserAction> {
 
     private val queryFlow = MutableStateFlow("")
+    private val debouncedQueryFlow = queryFlow.debounce(200.milliseconds)
 
     override val state: StateFlow<SearchState> =
         viewModelScope.launchMolecule(RecompositionMode.Immediate) {
-            Presenter(queryFlow = queryFlow, searchRepository = searchRepository)
+            Presenter(queryFlow = debouncedQueryFlow)
         }
 
     override fun handle(action: SearchUserAction) {
@@ -40,14 +41,11 @@ class SearchStateHolder(
 
         @Composable
         fun Presenter(
-            queryFlow: StateFlow<String>,
-            searchRepository: SearchRepository
+            queryFlow: Flow<String>,
         ): SearchState {
-            val query by queryFlow.collectAsState()
-            val results by searchRepository.searchComics(query).collectAsState(initial = listOf())
+            val query by queryFlow.collectAsState("")
             return SearchState(
-                results = results.map { ListComic.fromExternalModel(it) }
-                    .toImmutableList(),
+                query,
             )
         }
     }

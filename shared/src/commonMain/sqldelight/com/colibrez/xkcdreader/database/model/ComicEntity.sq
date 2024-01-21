@@ -31,6 +31,14 @@ WHERE
         OR (ComicInfo.isFavorite IS NULL AND CAST (:isFavorite AS INTEGER) = 0)
         OR (:isFavorite IS NULL)
     )
+    AND (
+        (:searchQuery = "")
+        OR ComicInfo.num IN (
+            SELECT ComicInfo.num  FROM ComicInfo JOIN ComicSearch
+            ON ComicSearch.num = ComicInfo.num
+            WHERE ComicSearch MATCH :searchQuery
+        )
+    )
 ORDER BY ComicInfo.num DESC;
 
 selectLatest:

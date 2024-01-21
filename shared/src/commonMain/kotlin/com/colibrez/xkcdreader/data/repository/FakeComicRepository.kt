@@ -1,7 +1,6 @@
 package com.colibrez.xkcdreader.data.repository
 
 import com.colibrez.xkcdreader.database.model.ComicEntity
-import com.colibrez.xkcdreader.extensions.filterValues
 import com.colibrez.xkcdreader.model.Comic
 import com.colibrez.xkcdreader.model.comicFixtures
 import kotlinx.coroutines.flow.Flow
@@ -29,11 +28,16 @@ class FakeComicRepository : ComicRepository {
         return comics.map { it.size.toLong() }
     }
 
-    override fun getAllComics(isRead: Boolean?, isFavorite: Boolean?): Flow<List<Comic>> {
+    override fun getAllComics(
+        isRead: Boolean?,
+        isFavorite: Boolean?,
+        searchQuery: String
+    ): Flow<List<Comic>> {
         return comics.map { comics ->
             comics.filter {
                 (isRead == null || it.isRead == isRead)
                         && (isFavorite == null || it.isFavorite == isFavorite)
+                        && (searchQuery.isEmpty() || it.number.toString().startsWith(searchQuery))
             }
         }
     }

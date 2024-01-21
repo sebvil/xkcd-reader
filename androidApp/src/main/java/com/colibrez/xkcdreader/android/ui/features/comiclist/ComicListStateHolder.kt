@@ -1,8 +1,10 @@
 package com.colibrez.xkcdreader.android.ui.features.comiclist
 
+import android.util.Log
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import app.cash.molecule.RecompositionMode
 import app.cash.molecule.launchMolecule
 import com.colibrez.xkcdreader.android.ui.components.comic.ListComic
@@ -14,49 +16,31 @@ import com.colibrez.xkcdreader.android.ui.features.comiclist.filters.FavoriteFil
 import com.colibrez.xkcdreader.android.ui.features.comiclist.filters.FilterUserAction
 import com.colibrez.xkcdreader.android.ui.features.comiclist.filters.FiltersState
 import com.colibrez.xkcdreader.android.ui.features.comiclist.filters.ReadFilter
+import com.colibrez.xkcdreader.android.ui.features.comiclist.search.SearchState
+import com.colibrez.xkcdreader.android.ui.features.comiclist.search.SearchUserAction
 import com.colibrez.xkcdreader.data.repository.ComicRepository
-import com.colibrez.xkcdreader.model.Comic
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.emitAll
-import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 
 class ComicListStateHolder(
     private val viewModelScope: CoroutineScope,
-    filterStateHolder: StateHolder<FiltersState, FilterUserAction>,
     private val comicRepository: ComicRepository,
+    filterStateHolder: StateHolder<FiltersState, FilterUserAction>,
+    searchStateHolder: StateHolder<SearchState, SearchUserAction>,
 ) : BaseStateHolder<ComicListState, ComicListUserAction>() {
-
-    @OptIn(ExperimentalCoroutinesApi::class)
-    private val comicsFlow: Flow<List<Comic>?> =
-        filterStateHolder.state.flatMapLatest { filterState ->
-            flow {
-                // This forces the loading screen to show up after a filter change
-                emit(null)
-                emitAll(
-                    comicRepository.getAllComics(
-                        isRead = when (filterState.isReadFilter.selection) {
-                            ReadFilter.All -> null
-                            ReadFilter.Unread -> false
-                            ReadFilter.Read -> true
-                        },
-                        isFavorite = when (filterState.favoriteFilter.selection) {
-                            FavoriteFilter.All -> null
-                            FavoriteFilter.Favorites -> true
-                        },
-                    ),
-                )
-            }
-        }
 
     override val state: StateFlow<ComicListState> by lazy {
         viewModelScope.launchMolecule(RecompositionMode.Immediate) {
-            Presenter(comicsFlow = comicsFlow)
+            Presenter(
+                filterStateFlow = filterStateHolder.state,
+                searchStateFlow = searchStateHolder.state,
+                comicRepository = comicRepository,
+            )
         }
     }
 
@@ -83,8 +67,34 @@ class ComicListStateHolder(
 
     companion object {
         @Composable
-        private fun Presenter(comicsFlow: Flow<List<Comic>?>): ComicListState {
-            val comics by comicsFlow.collectAsState(initial = null)
+        private fun Presenter(
+            filterStateFlow: StateFlow<FiltersState>,
+            searchStateFlow: StateFlow<SearchState>,
+            comicRepository: ComicRepository
+        ): ComicListState {
+            val filterState by filterStateFlow.collectAsState()
+            val searchState by searchStateFlow.collectAsState()
+            val comics by remember(filterState, searchState) {
+                flow {
+                    emit(null)
+                    emitAll(
+                        comicRepository.getAllComics(
+                            isRead = when (filterState.isReadFilter.selection) {
+                                ReadFilter.All -> null
+                                ReadFilter.Unread -> false
+                                ReadFilter.Read -> true
+                            },
+                            isFavorite = when (filterState.favoriteFilter.selection) {
+                                FavoriteFilter.All -> null
+                                FavoriteFilter.Favorites -> true
+                            },
+                            searchQuery = searchState.searchQuery,
+                        ),
+                    )
+                }.onEach {
+                    Log.i("COMIC", "Emitted values: ${it?.size}")
+                }
+            }.collectAsState(initial = null)
 
             return comics?.let {
                 ComicListState.Data(
