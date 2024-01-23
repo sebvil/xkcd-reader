@@ -55,6 +55,9 @@ class LatestComicStateHolder(
             ComicUserAction.BackButtonClicked -> {
                 TODO()
             }
+
+            is ComicUserAction.NavigateToComic -> TODO()
+
         }
     }
 
@@ -77,6 +80,10 @@ class LatestComicStateHolder(
                 explainXckdPermalink = comic.explainXkcdPermalink,
                 isFavorite = comic.isFavorite,
                 showDialog = showDialog,
+                nextComic = null,
+                previousComic = null,
+                firstComic = 0,
+                lastComic = 0
             )
         } ?: ComicState.Loading(comicNumber = null)
     }

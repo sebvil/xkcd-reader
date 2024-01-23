@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -15,7 +16,11 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.LastPage
+import androidx.compose.material.icons.automirrored.filled.NavigateBefore
+import androidx.compose.material.icons.automirrored.filled.NavigateNext
 import androidx.compose.material.icons.automirrored.outlined.OpenInNew
+import androidx.compose.material.icons.filled.FirstPage
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Share
 import androidx.compose.material3.AlertDialogDefaults
@@ -154,7 +159,7 @@ private fun ComicBody(
         ZoomableImage(
             imageUrl = state.imageUrl,
             modifier = Modifier
-                .fillMaxSize()
+                .weight(1f)
                 .padding(horizontal = 16.dp)
                 .padding(bottom = 16.dp),
             contentDescription = state.imageDescription,
@@ -178,6 +183,55 @@ private fun ComicBody(
                 }
             },
         )
+
+        Row(
+            horizontalArrangement = Arrangement.spacedBy(24.dp),
+            modifier = Modifier.align(Alignment.CenterHorizontally)
+        ) {
+            IconButton(
+                onClick = {
+                    handleUserAction(ComicUserAction.NavigateToComic(state.firstComic))
+                },
+                enabled = state.firstComic != state.comicNumber
+            ) {
+                Icon(imageVector = Icons.Default.FirstPage, contentDescription = "First comic")
+            }
+
+            IconButton(
+                onClick = {
+                    state.previousComic?.also {
+                        handleUserAction(ComicUserAction.NavigateToComic(it))
+                    }
+                },
+                enabled = state.previousComic != null
+            ) {
+                Icon(
+                    imageVector = Icons.AutoMirrored.Filled.NavigateBefore,
+                    contentDescription = "Previous comic"
+                )
+            }
+
+            IconButton(
+                onClick = {
+                    state.nextComic?.also {
+                        handleUserAction(ComicUserAction.NavigateToComic(it))
+                    }
+                },
+                enabled = state.nextComic != null
+            ) {
+                Icon(imageVector = Icons.AutoMirrored.Filled.NavigateNext, contentDescription = "Next comic")
+            }
+
+
+            IconButton(
+                onClick = {
+                    handleUserAction(ComicUserAction.NavigateToComic(state.lastComic))
+                },
+                enabled = state.lastComic != state.comicNumber
+            ) {
+                Icon(imageVector = Icons.AutoMirrored.Filled.LastPage, contentDescription = "Last comic")
+            }
+        }
     }
 }
 

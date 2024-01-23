@@ -14,7 +14,11 @@ sealed interface ComicState : UiState {
         val permalink: String,
         val explainXckdPermalink: String,
         val isFavorite: Boolean,
-        val showDialog: Boolean
+        val showDialog: Boolean,
+        val nextComic: Long?,
+        val previousComic: Long?,
+        val firstComic: Long,
+        val lastComic: Long
     ) : ComicState
 
     data class Loading(override val comicNumber: Long?) : ComicState

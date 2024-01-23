@@ -53,6 +53,19 @@ class ComicStateHolder(
             is ComicUserAction.BackButtonClicked -> {
                 delegate.popScreen()
             }
+
+            is ComicUserAction.NavigateToComic -> {
+                setNavigationState(
+                    NavigationState.ShowScreen(
+                        ComicScreenArguments(
+                            comicNumber = action.comicNumber,
+                            comicTitle = "",
+                            shownComics = arguments.shownComics
+                        ),
+                        popBackStack = true
+                    )
+                )
+            }
         }
     }
 
@@ -64,7 +77,7 @@ class ComicStateHolder(
     ): ComicState {
         val comic by comicFlow.collectAsState(initial = null)
         val showDialog by showDialogFlow.collectAsState(initial = false)
-
+        val shownComics = arguments.shownComics
         return comic?.let {
             ComicState.Data(
                 comicNumber = it.number,
@@ -76,6 +89,10 @@ class ComicStateHolder(
                 explainXckdPermalink = it.explainXkcdPermalink,
                 isFavorite = it.isFavorite,
                 showDialog = showDialog,
+                nextComic = shownComics.firstOrNull { comicNum -> comicNum > it.number },
+                previousComic = shownComics.lastOrNull { comicNum -> comicNum < it.number },
+                firstComic = shownComics.first(),
+                lastComic = shownComics.last(),
             )
         } ?: ComicState.Loading(
             comicNumber = arguments.comicNumber,
