@@ -62,7 +62,6 @@ class ComicStateHolder(
                             comicTitle = "",
                             shownComics = arguments.shownComics
                         ),
-                        popBackStack = true
                     )
                 )
             }
