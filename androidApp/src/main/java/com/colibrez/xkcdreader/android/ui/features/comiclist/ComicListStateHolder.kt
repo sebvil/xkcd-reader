@@ -8,9 +8,7 @@ import androidx.compose.runtime.remember
 import app.cash.molecule.RecompositionMode
 import app.cash.molecule.launchMolecule
 import com.colibrez.xkcdreader.android.ui.components.comic.ListComic
-import com.colibrez.xkcdreader.android.ui.core.mvvm.BaseStateHolder
 import com.colibrez.xkcdreader.android.ui.core.mvvm.StateHolder
-import com.colibrez.xkcdreader.android.ui.core.navigation.NavigationState
 import com.colibrez.xkcdreader.android.ui.features.comic.ComicScreenArguments
 import com.colibrez.xkcdreader.android.ui.features.comiclist.filters.FavoriteFilter
 import com.colibrez.xkcdreader.android.ui.features.comiclist.filters.FilterUserAction
@@ -30,9 +28,10 @@ import kotlinx.coroutines.launch
 class ComicListStateHolder(
     private val viewModelScope: CoroutineScope,
     private val comicRepository: ComicRepository,
+    private val showComic: (ComicScreenArguments) -> Unit,
     filterStateHolder: StateHolder<FiltersState, FilterUserAction>,
     searchStateHolder: StateHolder<SearchState, SearchUserAction>,
-) : BaseStateHolder<ComicListState, ComicListUserAction>() {
+) : StateHolder<ComicListState, ComicListUserAction> {
 
     override val state: StateFlow<ComicListState> by lazy {
         viewModelScope.launchMolecule(RecompositionMode.Immediate) {
@@ -53,12 +52,10 @@ class ComicListStateHolder(
             }
 
             is ComicListUserAction.ComicClicked -> {
-                setNavigationState(
-                    NavigationState.ShowScreen(
-                        ComicScreenArguments(
-                            comicNumber = action.comicNum,
-                            comicTitle = action.comicTitle,
-                        ),
+                showComic(
+                    ComicScreenArguments(
+                        comicNumber = action.comicNum,
+                        comicTitle = action.comicTitle,
                     ),
                 )
             }
@@ -91,8 +88,6 @@ class ComicListStateHolder(
                             searchQuery = searchState.searchQuery,
                         ),
                     )
-                }.onEach {
-                    Log.i("COMIC", "Emitted values: ${it?.size}")
                 }
             }.collectAsState(initial = null)
 

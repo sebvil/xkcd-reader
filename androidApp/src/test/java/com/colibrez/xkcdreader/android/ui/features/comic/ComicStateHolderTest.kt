@@ -2,7 +2,6 @@ package com.colibrez.xkcdreader.android.ui.features.comic
 
 import app.cash.turbine.test
 import com.colibrez.xkcdreader.android.extension.advanceUntilIdle
-import com.colibrez.xkcdreader.android.ui.core.navigation.NavigationState
 import com.colibrez.xkcdreader.data.repository.FakeComicRepository
 import com.colibrez.xkcdreader.model.comicFixtures
 import io.kotest.core.spec.style.FreeSpec
@@ -20,6 +19,8 @@ class ComicStateHolderTest : FreeSpec({
     lateinit var comicRepositoryDep: FakeComicRepository
     lateinit var subject: ComicStateHolder
 
+    var popScreenInvocations: Int = 0
+
     fun TestScope.getSubject(
         comicNumber: Long = DEFAULT_COMIC_NUMBER,
         comicTitle: String = ""
@@ -29,12 +30,16 @@ class ComicStateHolderTest : FreeSpec({
                 comicNumber = comicNumber,
                 comicTitle = comicTitle,
             ),
+            popScreen = {
+                popScreenInvocations++
+            },
             viewModelScope = this,
             comicRepository = comicRepositoryDep,
         )
     }
 
     beforeTest {
+        popScreenInvocations = 0
         comicRepositoryDep = FakeComicRepository()
     }
 
@@ -119,11 +124,9 @@ class ComicStateHolderTest : FreeSpec({
 
         "BackButtonClicked sets navigation state to NavigateUp" {
             subject = getSubject()
-            subject.navigationState.test {
-                awaitItem() shouldBe null
-                subject.handle(ComicUserAction.BackButtonClicked)
-                awaitItem() shouldBe NavigationState.NavigateUp
-            }
+            popScreenInvocations shouldBe 0
+            subject.handle(ComicUserAction.BackButtonClicked)
+            popScreenInvocations shouldBe 1
         }
     }
 }) {

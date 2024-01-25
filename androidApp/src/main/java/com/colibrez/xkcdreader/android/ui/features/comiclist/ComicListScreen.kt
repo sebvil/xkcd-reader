@@ -10,45 +10,20 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Divider
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalSavedStateRegistryOwner
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.savedstate.SavedStateRegistryOwner
-import com.colibrez.xkcdreader.android.XkcdReaderApplication
+import com.colibrez.xkcdreader.android.DependencyContainer
 import com.colibrez.xkcdreader.android.ui.components.comic.ComicListItem
-import com.colibrez.xkcdreader.android.ui.core.navigation.Screen
+import com.colibrez.xkcdreader.android.ui.core.mvvm.BaseUiComponent
+import com.colibrez.xkcdreader.android.ui.core.mvvm.componentScope
+import com.colibrez.xkcdreader.android.ui.features.comic.ComicScreenArguments
 import com.colibrez.xkcdreader.android.ui.features.comiclist.filters.FilterBar
+import com.colibrez.xkcdreader.android.ui.features.comiclist.filters.FilterStateHolder
 import com.colibrez.xkcdreader.android.ui.features.comiclist.search.SearchBar
-import com.ramcosta.composedestinations.annotation.Destination
-import com.ramcosta.composedestinations.annotation.RootNavGraph
-import com.ramcosta.composedestinations.navigation.DestinationsNavigator
-
-@RootNavGraph(start = true)
-@Destination
-@Composable
-fun ComicListScreen(
-    navigator: DestinationsNavigator,
-    modifier: Modifier = Modifier,
-    viewModel: ComicListViewModel = comicListViewModel(),
-) {
-    Screen(viewModel = viewModel, navigator = navigator) { state, handleUserAction ->
-        Column(modifier = modifier.fillMaxSize()) {
-            SearchBar(
-                searchStateHolder = viewModel.searchStateHolder,
-                modifier = Modifier.align(Alignment.CenterHorizontally),
-            )
-            FilterBar(
-                stateHolder = viewModel.filterStateHolder,
-                contentPadding = PaddingValues(horizontal = 16.dp),
-            )
-            Divider(modifier = Modifier.fillMaxWidth())
-            ComicListLayout(state = state, handleUserAction = handleUserAction)
-        }
-    }
-}
+import com.colibrez.xkcdreader.android.ui.features.comiclist.search.SearchStateHolder
+import kotlinx.coroutines.CoroutineScope
 
 @Composable
 fun ComicListLayout(
@@ -92,16 +67,42 @@ fun ComicListLayout(
     }
 }
 
-@Composable
-fun comicListViewModel(
-    savedStateRegistryOwner: SavedStateRegistryOwner = LocalSavedStateRegistryOwner.current
-): ComicListViewModel {
-    val dependencyContainer =
-        (LocalContext.current.applicationContext as XkcdReaderApplication).dependencyContainer
+class ComicListScreen(
+    private val showComic: (ComicScreenArguments) -> Unit,
+    override val componentScope: CoroutineScope = componentScope()
+) : BaseUiComponent<ComicListState, ComicListUserAction>() {
 
-    val factory = ComicListViewModel.Factory(
-        owner = savedStateRegistryOwner,
-        comicRepository = dependencyContainer.comicRepository,
-    )
-    return viewModel(factory = factory)
+    private val filterStateHolder: FilterStateHolder = FilterStateHolder()
+
+    private val searchStateHolder = SearchStateHolder(componentScope)
+
+    override fun createStateHolder(dependencyContainer: DependencyContainer): ComicListStateHolder {
+        return ComicListStateHolder(
+            viewModelScope = componentScope,
+            comicRepository = dependencyContainer.comicRepository,
+            showComic = showComic,
+            filterStateHolder = filterStateHolder,
+            searchStateHolder = searchStateHolder,
+        )
+    }
+
+    @Composable
+    override fun Content(
+        state: ComicListState,
+        handle: (ComicListUserAction) -> Unit,
+        modifier: Modifier
+    ) {
+        Column(modifier = modifier.fillMaxSize()) {
+            SearchBar(
+                searchStateHolder = searchStateHolder,
+                modifier = Modifier.align(Alignment.CenterHorizontally),
+            )
+            FilterBar(
+                stateHolder = filterStateHolder,
+                contentPadding = PaddingValues(horizontal = 16.dp),
+            )
+            Divider(modifier = Modifier.fillMaxWidth())
+            ComicListLayout(state = state, handleUserAction = handle)
+        }
+    }
 }
