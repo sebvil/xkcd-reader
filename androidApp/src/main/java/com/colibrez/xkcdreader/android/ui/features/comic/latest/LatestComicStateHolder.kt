@@ -5,7 +5,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import app.cash.molecule.RecompositionMode
 import app.cash.molecule.launchMolecule
-import com.colibrez.xkcdreader.android.ui.core.mvvm.BaseStateHolder
+import com.colibrez.xkcdreader.android.ui.core.mvvm.StateHolder
 import com.colibrez.xkcdreader.android.ui.features.comic.ComicState
 import com.colibrez.xkcdreader.android.ui.features.comic.ComicUserAction
 import com.colibrez.xkcdreader.data.repository.ComicRepository
@@ -21,7 +21,7 @@ import kotlinx.coroutines.launch
 class LatestComicStateHolder(
     private val viewModelScope: CoroutineScope,
     private val comicRepository: ComicRepository,
-) : BaseStateHolder<ComicState, ComicUserAction>() {
+) : StateHolder<ComicState, ComicUserAction> {
 
     private val _showDialogFlow: MutableStateFlow<Boolean> = MutableStateFlow(false)
     private val _latestComicFlow = comicRepository.getLatest()

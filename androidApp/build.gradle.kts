@@ -1,6 +1,5 @@
 plugins {
     alias(libs.plugins.androidApplication)
-    alias(libs.plugins.com.google.devtools.ksp)
     alias(libs.plugins.detekt)
     alias(libs.plugins.kotlinAndroid)
     alias(libs.plugins.molecule)
@@ -62,9 +61,6 @@ dependencies {
     implementation(libs.androidx.paging3.extensions)
     implementation(libs.coil.compose)
     implementation(libs.androidx.material.icons.extended)
-
-    implementation(libs.compose.destinations.core)
-    ksp(libs.compose.destinations.ksp)
 
     implementation(libs.kotlinx.serialization)
 

@@ -4,7 +4,6 @@ import app.cash.turbine.test
 import com.colibrez.xkcdreader.android.extension.advanceUntilIdle
 import com.colibrez.xkcdreader.android.ui.components.comic.ListComic
 import com.colibrez.xkcdreader.android.ui.core.mvvm.FakeStateHolder
-import com.colibrez.xkcdreader.android.ui.core.navigation.NavigationState
 import com.colibrez.xkcdreader.android.ui.features.comic.ComicScreenArguments
 import com.colibrez.xkcdreader.android.ui.features.comiclist.filters.FavoriteFilter
 import com.colibrez.xkcdreader.android.ui.features.comiclist.filters.Filter
@@ -19,6 +18,7 @@ import io.kotest.core.spec.style.FreeSpec
 import io.kotest.core.test.TestScope
 import io.kotest.datatest.withData
 import io.kotest.matchers.collections.shouldContainExactly
+import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.toImmutableList
@@ -28,11 +28,16 @@ class ComicListStateHolderTest : FreeSpec({
     lateinit var comicRepositoryDep: FakeComicRepository
     lateinit var filterStateHolderDep: FakeStateHolder<FiltersState, FilterUserAction>
     lateinit var searchStateHolderDep: FakeStateHolder<SearchState, SearchUserAction>
+    lateinit var showComicInvocations: MutableList<ComicScreenArguments>
+
     lateinit var subject: ComicListStateHolder
 
     fun TestScope.getSubject() = ComicListStateHolder(
         viewModelScope = this,
         comicRepository = comicRepositoryDep,
+        showComic = {
+            showComicInvocations.add(it)
+        },
         filterStateHolder = filterStateHolderDep,
         searchStateHolder = searchStateHolderDep,
     )
@@ -48,6 +53,7 @@ class ComicListStateHolderTest : FreeSpec({
             )
 
         searchStateHolderDep = FakeStateHolder(initialState = SearchState(searchQuery = ""))
+        showComicInvocations = mutableListOf()
     }
 
     "state" - {
@@ -237,16 +243,14 @@ class ComicListStateHolderTest : FreeSpec({
         "ComicClicked shows comic screen for comic" - {
             withData(nameFn = { "${it.number}. ${it.title}" }, comicFixtures) { comic ->
                 subject = getSubject()
-                subject.navigationState.test {
-                    awaitItem() shouldBe null
-                    subject.handle(ComicListUserAction.ComicClicked(comic.number, comic.title))
-                    awaitItem() shouldBe NavigationState.ShowScreen(
-                        ComicScreenArguments(
-                            comicNumber = comic.number,
-                            comicTitle = comic.title,
-                        ),
-                    )
-                }
+                showComicInvocations shouldHaveSize 0
+                subject.handle(ComicListUserAction.ComicClicked(comic.number, comic.title))
+                showComicInvocations shouldContainExactly listOf(
+                    ComicScreenArguments(
+                        comicNumber = comic.number,
+                        comicTitle = comic.title,
+                    ),
+                )
             }
         }
     }
