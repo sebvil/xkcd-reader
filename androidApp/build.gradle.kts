@@ -56,6 +56,7 @@ dependencies {
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.foundation)
     implementation(libs.androidx.material)
+    implementation(libs.compose.animation)
     implementation(libs.androidx.activity.compose)
 
     implementation(libs.androidx.paging3.extensions)
