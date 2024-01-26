@@ -17,8 +17,8 @@ sealed interface ComicState : UiState {
         val showDialog: Boolean,
         val nextComic: Long?,
         val previousComic: Long?,
-        val firstComic: Long,
-        val lastComic: Long
+        val firstComic: Long?,
+        val lastComic: Long?
     ) : ComicState
 
     data class Loading(override val comicNumber: Long?) : ComicState

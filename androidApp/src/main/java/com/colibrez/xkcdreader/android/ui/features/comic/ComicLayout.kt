@@ -190,9 +190,11 @@ private fun ComicBody(
         ) {
             IconButton(
                 onClick = {
-                    handleUserAction(ComicUserAction.NavigateToComic(state.firstComic))
+                    state.firstComic?.also {
+                        handleUserAction(ComicUserAction.NavigateToComic(it))
+                    }
                 },
-                enabled = state.firstComic != state.comicNumber
+                enabled = state.firstComic != state.comicNumber && state.firstComic != null
             ) {
                 Icon(imageVector = Icons.Default.FirstPage, contentDescription = "First comic")
             }
@@ -219,17 +221,25 @@ private fun ComicBody(
                 },
                 enabled = state.nextComic != null
             ) {
-                Icon(imageVector = Icons.AutoMirrored.Filled.NavigateNext, contentDescription = "Next comic")
+                Icon(
+                    imageVector = Icons.AutoMirrored.Filled.NavigateNext,
+                    contentDescription = "Next comic"
+                )
             }
 
 
             IconButton(
                 onClick = {
-                    handleUserAction(ComicUserAction.NavigateToComic(state.lastComic))
+                    state.lastComic?.also {
+                        handleUserAction(ComicUserAction.NavigateToComic(it))
+                    }
                 },
-                enabled = state.lastComic != state.comicNumber
+                enabled = state.lastComic != state.comicNumber && state.lastComic != null
             ) {
-                Icon(imageVector = Icons.AutoMirrored.Filled.LastPage, contentDescription = "Last comic")
+                Icon(
+                    imageVector = Icons.AutoMirrored.Filled.LastPage,
+                    contentDescription = "Last comic"
+                )
             }
         }
     }

@@ -3,13 +3,13 @@ package com.colibrez.xkcdreader.android.ui.features.comiclist
 import com.colibrez.xkcdreader.android.ui.core.mvvm.StateHolder
 import com.colibrez.xkcdreader.android.ui.core.mvvm.UiState
 import com.colibrez.xkcdreader.android.ui.core.mvvm.UserAction
-import com.colibrez.xkcdreader.android.ui.features.comic.ComicArguments
 import com.colibrez.xkcdreader.android.ui.features.comic.ComicComponent
 import com.colibrez.xkcdreader.android.ui.features.comic.ComicDelegate
 import com.colibrez.xkcdreader.android.ui.features.comiclist.filters.FiltersComponent
 import com.colibrez.xkcdreader.android.ui.features.comiclist.filters.FiltersDelegate
 import com.colibrez.xkcdreader.android.ui.features.comiclist.search.SearchComponent
 import com.colibrez.xkcdreader.android.ui.features.comiclist.search.SearchDelegate
+import com.colibrez.xkcdreader.android.ui.features.comic.ComicProps
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -17,14 +17,17 @@ import kotlinx.coroutines.flow.update
 
 data class AllComicsState(
     val listScreen: ComicListComponent,
-    val comicScreen: ComicComponent?,
+    val comicScreen: ComicComponent,
     val filtersComponent: FiltersComponent,
     val searchComponent: SearchComponent,
+    val selectedComic: Long?
 ) : UiState
 
+
 sealed interface AllComicsAction : UserAction {
-    data class ShowComic(val arguments: ComicArguments) : AllComicsAction
+    data class ShowComic(val comicNumber: Long) : AllComicsAction
     data object HideComic : AllComicsAction
+    data class ShownComicsChanged(val newShownComics: List<Long>) : AllComicsAction
 }
 
 class AllComicsStateHolder : StateHolder<AllComicsState, AllComicsAction> {
@@ -37,17 +40,42 @@ class AllComicsStateHolder : StateHolder<AllComicsState, AllComicsAction> {
         ),
     )
 
+    private val comicProps = MutableStateFlow(
+        ComicProps(
+            comicNumber = null,
+            shownComics = listOf(),
+            isShowingComic = false,
+            popScreen = {
+                handle(AllComicsAction.HideComic)
+            },
+            showComic = {
+                handle(AllComicsAction.ShowComic(it))
+            }
+        )
+    )
+
     private val _state: MutableStateFlow<AllComicsState> = MutableStateFlow(
         AllComicsState(
             listScreen = ComicListComponent(
                 props = comicListProps,
                 delegate = object : ComicListDelegate {
-                    override fun showComic(comicArguments: ComicArguments) {
-                        handle(AllComicsAction.ShowComic(comicArguments))
+                    override fun onComicSelected(comicNumber: Long) {
+                        handle(AllComicsAction.ShowComic(comicNumber = comicNumber))
+                    }
+
+                    override fun onShownComicsChanged(shownComics: List<Long>) {
+                        handle(AllComicsAction.ShownComicsChanged(newShownComics = shownComics))
                     }
                 },
             ),
-            comicScreen = null,
+            comicScreen = ComicComponent(
+                props = comicProps,
+                delegate = object : ComicDelegate {
+                    override fun popScreen() {
+                        handle(AllComicsAction.HideComic)
+                    }
+                }
+            ),
             filtersComponent = FiltersComponent(
                 delegate = object : FiltersDelegate {
                     override fun onUnreadFilterChanged(newValue: Boolean) {
@@ -66,7 +94,8 @@ class AllComicsStateHolder : StateHolder<AllComicsState, AllComicsAction> {
                     }
                 },
             ),
-        ),
+            selectedComic = null
+        )
     )
 
     override val state: StateFlow<AllComicsState>
@@ -75,25 +104,29 @@ class AllComicsStateHolder : StateHolder<AllComicsState, AllComicsAction> {
     override fun handle(action: AllComicsAction) {
         when (action) {
             is AllComicsAction.ShowComic -> {
+                comicProps.update {
+                    it.copy(comicNumber = action.comicNumber, isShowingComic = true)
+                }
+
                 _state.update {
-                    it.copy(
-                        comicScreen = ComicComponent(
-                            arguments = action.arguments,
-                            delegate = object : ComicDelegate {
-                                override fun popScreen() {
-                                    handle(AllComicsAction.HideComic)
-                                }
-                            },
-                        ),
-                    )
+                    it.copy(selectedComic = action.comicNumber)
                 }
             }
 
             is AllComicsAction.HideComic -> {
                 _state.update {
-                    it.comicScreen?.onClear()
-                    it.copy(comicScreen = null)
+                    it.copy(selectedComic = null)
                 }
+                comicProps.update {
+                    it.copy(isShowingComic = false)
+                }
+            }
+
+            is AllComicsAction.ShownComicsChanged -> {
+                comicProps.update {
+                    it.copy(shownComics = action.newShownComics)
+                }
+
             }
         }
     }
