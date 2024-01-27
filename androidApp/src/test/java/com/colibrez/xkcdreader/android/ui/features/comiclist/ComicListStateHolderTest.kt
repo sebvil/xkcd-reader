@@ -3,15 +3,7 @@ package com.colibrez.xkcdreader.android.ui.features.comiclist
 import app.cash.turbine.test
 import com.colibrez.xkcdreader.android.extension.advanceUntilIdle
 import com.colibrez.xkcdreader.android.ui.components.comic.ListComic
-import com.colibrez.xkcdreader.android.ui.core.mvvm.FakeStateHolder
-import com.colibrez.xkcdreader.android.ui.features.comic.ComicScreenArguments
-import com.colibrez.xkcdreader.android.ui.features.comiclist.filters.FavoriteFilter
-import com.colibrez.xkcdreader.android.ui.features.comiclist.filters.Filter
-import com.colibrez.xkcdreader.android.ui.features.comiclist.filters.FilterUserAction
-import com.colibrez.xkcdreader.android.ui.features.comiclist.filters.FiltersState
-import com.colibrez.xkcdreader.android.ui.features.comiclist.filters.ReadFilter
-import com.colibrez.xkcdreader.android.ui.features.comiclist.search.SearchState
-import com.colibrez.xkcdreader.android.ui.features.comiclist.search.SearchUserAction
+import com.colibrez.xkcdreader.android.ui.features.comic.ComicArguments
 import com.colibrez.xkcdreader.data.repository.FakeComicRepository
 import com.colibrez.xkcdreader.model.comicFixtures
 import io.kotest.core.spec.style.FreeSpec
@@ -22,37 +14,36 @@ import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.toImmutableList
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.update
 
 class ComicListStateHolderTest : FreeSpec({
     lateinit var comicRepositoryDep: FakeComicRepository
-    lateinit var filterStateHolderDep: FakeStateHolder<FiltersState, FilterUserAction>
-    lateinit var searchStateHolderDep: FakeStateHolder<SearchState, SearchUserAction>
-    lateinit var showComicInvocations: MutableList<ComicScreenArguments>
+    lateinit var showComicInvocations: MutableList<ComicArguments>
 
     lateinit var subject: ComicListStateHolder
+    lateinit var props: MutableStateFlow<ComicListProps>
 
     fun TestScope.getSubject() = ComicListStateHolder(
+        props = props,
         viewModelScope = this,
         comicRepository = comicRepositoryDep,
-        showComic = {
-            showComicInvocations.add(it)
+        delegate = object : ComicListDelegate {
+            override fun showComic(comicArguments: ComicArguments) {
+                showComicInvocations.add(comicArguments)
+            }
         },
-        filterStateHolder = filterStateHolderDep,
-        searchStateHolder = searchStateHolderDep,
     )
 
     beforeTest {
         comicRepositoryDep = FakeComicRepository()
-        filterStateHolderDep =
-            FakeStateHolder(
-                initialState = FiltersState(
-                    isReadFilter = Filter.IsRead(selection = ReadFilter.All),
-                    favoriteFilter = Filter.Favorite(selection = FavoriteFilter.All),
-                ),
-            )
-
-        searchStateHolderDep = FakeStateHolder(initialState = SearchState(searchQuery = ""))
+        props = MutableStateFlow(
+            ComicListProps(
+                isUnreadFilterApplied = false,
+                isFavoriteFilterApplied = false,
+                searchQuery = "",
+            ),
+        )
         showComicInvocations = mutableListOf()
     }
 
@@ -94,7 +85,7 @@ class ComicListStateHolderTest : FreeSpec({
                 )
 
                 // Our fake implementation only matches on comic number
-                searchStateHolderDep.stateFlow.update {
+                props.update {
                     it.copy(searchQuery = "1")
                 }
 
@@ -104,7 +95,7 @@ class ComicListStateHolderTest : FreeSpec({
                         .toImmutableList(),
                 )
 
-                searchStateHolderDep.stateFlow.update {
+                props.update {
                     it.copy(searchQuery = "")
                 }
 
@@ -127,27 +118,10 @@ class ComicListStateHolderTest : FreeSpec({
                         .toImmutableList(),
                 )
 
-                filterStateHolderDep.stateFlow.update {
-                    it.copy(
-                        isReadFilter = Filter.IsRead(
-                            selection = ReadFilter.Read,
-                        ),
-                    )
+                props.update {
+                    it.copy(isUnreadFilterApplied = true)
                 }
-                awaitItem() shouldBe ComicListState.Data(
-                    comics = comicFixtures
-                        .filter { it.isRead }
-                        .map { ListComic.fromExternalModel(it) }
-                        .toImmutableList(),
-                )
 
-                filterStateHolderDep.stateFlow.update {
-                    it.copy(
-                        isReadFilter = Filter.IsRead(
-                            selection = ReadFilter.Unread,
-                        ),
-                    )
-                }
                 awaitItem() shouldBe ComicListState.Data(
                     comics = comicFixtures
                         .filter { !it.isRead }
@@ -155,11 +129,9 @@ class ComicListStateHolderTest : FreeSpec({
                         .toImmutableList(),
                 )
 
-                filterStateHolderDep.stateFlow.update {
+                props.update {
                     it.copy(
-                        isReadFilter = Filter.IsRead(
-                            selection = ReadFilter.All,
-                        ),
+                        isUnreadFilterApplied = false,
                     )
                 }
                 awaitItem() shouldBe ComicListState.Data(
@@ -181,12 +153,8 @@ class ComicListStateHolderTest : FreeSpec({
                         .toImmutableList(),
                 )
 
-                filterStateHolderDep.stateFlow.update {
-                    it.copy(
-                        favoriteFilter = Filter.Favorite(
-                            selection = FavoriteFilter.Favorites,
-                        ),
-                    )
+                props.update {
+                    it.copy(isFavoriteFilterApplied = true)
                 }
                 awaitItem() shouldBe ComicListState.Data(
                     comics = comicFixtures
@@ -195,12 +163,8 @@ class ComicListStateHolderTest : FreeSpec({
                         .toImmutableList(),
                 )
 
-                filterStateHolderDep.stateFlow.update {
-                    it.copy(
-                        favoriteFilter = Filter.Favorite(
-                            selection = FavoriteFilter.All,
-                        ),
-                    )
+                props.update {
+                    it.copy(isFavoriteFilterApplied = false)
                 }
                 awaitItem() shouldBe ComicListState.Data(
                     comics = comicFixtures
@@ -246,7 +210,7 @@ class ComicListStateHolderTest : FreeSpec({
                 showComicInvocations shouldHaveSize 0
                 subject.handle(ComicListUserAction.ComicClicked(comic.number, comic.title))
                 showComicInvocations shouldContainExactly listOf(
-                    ComicScreenArguments(
+                    ComicArguments(
                         comicNumber = comic.number,
                         comicTitle = comic.title,
                     ),

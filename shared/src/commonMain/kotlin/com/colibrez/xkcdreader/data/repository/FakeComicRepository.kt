@@ -29,14 +29,14 @@ class FakeComicRepository : ComicRepository {
     }
 
     override fun getAllComics(
-        isRead: Boolean?,
-        isFavorite: Boolean?,
+        isUnread: Boolean,
+        isFavorite: Boolean,
         searchQuery: String
     ): Flow<List<Comic>> {
         return comics.map { comics ->
             comics.filter {
-                (isRead == null || it.isRead == isRead)
-                        && (isFavorite == null || it.isFavorite == isFavorite)
+                (!isUnread || !it.isRead)
+                        && (!isFavorite || it.isFavorite)
                         && (searchQuery.isEmpty() || it.number.toString().startsWith(searchQuery))
             }
         }
