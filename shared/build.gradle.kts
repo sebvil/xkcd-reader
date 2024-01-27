@@ -19,6 +19,10 @@ kotlin {
     }
     jvm()
 
+    compilerOptions {
+        freeCompilerArgs.addAll("-Xexpect-actual-classes")
+    }
+
 
     sourceSets {
         val commonMain by getting {

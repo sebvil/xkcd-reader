@@ -7,8 +7,8 @@ import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Text
@@ -36,7 +36,7 @@ fun BottomSheet(
         ) {
             Text(text = title, style = MaterialTheme.typography.titleLarge)
         }
-        Divider()
+        HorizontalDivider()
         Column(
             modifier = Modifier
                 .padding(horizontal = 28.dp)
