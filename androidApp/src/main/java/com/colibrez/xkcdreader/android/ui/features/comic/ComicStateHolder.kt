@@ -15,8 +15,8 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 class ComicStateHolder(
-    arguments: ComicScreenArguments,
-    private val popScreen: () -> Unit,
+    arguments: ComicArguments,
+    private val delegate: ComicDelegate,
     private val viewModelScope: CoroutineScope,
     private val comicRepository: ComicRepository,
 ) : StateHolder<ComicState, ComicUserAction> {
@@ -51,14 +51,14 @@ class ComicStateHolder(
             }
 
             is ComicUserAction.BackButtonClicked -> {
-                popScreen()
+                delegate.popScreen()
             }
         }
     }
 
     @Composable
     private fun Presenter(
-        arguments: ComicScreenArguments,
+        arguments: ComicArguments,
         comicFlow: Flow<Comic>,
         showDialogFlow: Flow<Boolean>
     ): ComicState {

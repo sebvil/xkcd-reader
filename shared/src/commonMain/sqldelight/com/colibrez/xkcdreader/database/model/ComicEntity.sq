@@ -21,15 +21,14 @@ selectAll:
 SELECT * FROM ComicInfo
 WHERE
     (
-        (ComicInfo.isRead = :isRead)
-        OR (ComicInfo.isRead IS NULL AND CAST (:isRead AS INTEGER) = 0)
-        OR (:isRead IS NULL)
+        (CAST (:isUnread AS INTEGER) = 0)
+        OR (ComicInfo.isRead != :isUnread)
+        OR (ComicInfo.isRead IS NULL AND CAST (:isUnread AS INTEGER) = 1)
     )
     AND
     (
-        (ComicInfo.isFavorite = :isFavorite)
-        OR (ComicInfo.isFavorite IS NULL AND CAST (:isFavorite AS INTEGER) = 0)
-        OR (:isFavorite IS NULL)
+        (CAST (:isFavorite AS INTEGER) = 0)
+        OR (ComicInfo.isFavorite = :isFavorite)
     )
     AND (
         (:searchQuery = "")

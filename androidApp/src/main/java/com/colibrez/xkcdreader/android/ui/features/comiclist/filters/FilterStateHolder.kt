@@ -6,12 +6,13 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 
-class FilterStateHolder : StateHolder<FiltersState, FilterUserAction> {
+class FilterStateHolder(private val delegate: FiltersDelegate) :
+    StateHolder<FiltersState, FilterUserAction> {
     private val _state =
         MutableStateFlow(
             FiltersState(
-                isReadFilter = Filter.IsRead(selection = ReadFilter.All),
-                favoriteFilter = Filter.Favorite(selection = FavoriteFilter.All),
+                unread = Filter.Unread(selected = false),
+                favorites = Filter.Favorites(selected = false),
             ),
         )
 
@@ -20,25 +21,18 @@ class FilterStateHolder : StateHolder<FiltersState, FilterUserAction> {
 
     override fun handle(action: FilterUserAction) {
         when (action) {
-            is FilterUserAction.IsReadFilterSelected -> {
+            is FilterUserAction.UnreadFilterSelected -> {
                 _state.update {
-                    it.copy(isReadFilter = Filter.IsRead(selection = action.newFilterValue))
+                    it.copy(unread = Filter.Unread(action.newValue))
                 }
+                delegate.onUnreadFilterChanged(newValue = action.newValue)
             }
 
-            is FilterUserAction.IsFavoriteFilterSelected -> {
+            is FilterUserAction.FavoriteFilterSelected -> {
                 _state.update {
-                    it.copy(favoriteFilter = Filter.Favorite(selection = action.newFilterValue))
+                    it.copy(favorites = Filter.Favorites(action.newValue))
                 }
-            }
-
-            is FilterUserAction.ClearFilter -> {
-                _state.update {
-                    when (action.filter) {
-                        is Filter.IsRead -> it.copy(isReadFilter = Filter.IsRead(selection = ReadFilter.All))
-                        is Filter.Favorite -> it.copy(favoriteFilter = Filter.Favorite(selection = FavoriteFilter.All))
-                    }
-                }
+                delegate.onFavoriteFilterChanges(newValue = action.newValue)
             }
         }
     }

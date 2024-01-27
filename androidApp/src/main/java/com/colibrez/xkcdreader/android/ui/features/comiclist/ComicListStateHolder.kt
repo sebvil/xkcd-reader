@@ -1,6 +1,5 @@
 package com.colibrez.xkcdreader.android.ui.features.comiclist
 
-import android.util.Log
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -9,35 +8,26 @@ import app.cash.molecule.RecompositionMode
 import app.cash.molecule.launchMolecule
 import com.colibrez.xkcdreader.android.ui.components.comic.ListComic
 import com.colibrez.xkcdreader.android.ui.core.mvvm.StateHolder
-import com.colibrez.xkcdreader.android.ui.features.comic.ComicScreenArguments
-import com.colibrez.xkcdreader.android.ui.features.comiclist.filters.FavoriteFilter
-import com.colibrez.xkcdreader.android.ui.features.comiclist.filters.FilterUserAction
-import com.colibrez.xkcdreader.android.ui.features.comiclist.filters.FiltersState
-import com.colibrez.xkcdreader.android.ui.features.comiclist.filters.ReadFilter
-import com.colibrez.xkcdreader.android.ui.features.comiclist.search.SearchState
-import com.colibrez.xkcdreader.android.ui.features.comiclist.search.SearchUserAction
+import com.colibrez.xkcdreader.android.ui.features.comic.ComicArguments
 import com.colibrez.xkcdreader.data.repository.ComicRepository
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.emitAll
 import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 
 class ComicListStateHolder(
+    private val props: StateFlow<ComicListProps>,
     private val viewModelScope: CoroutineScope,
     private val comicRepository: ComicRepository,
-    private val showComic: (ComicScreenArguments) -> Unit,
-    filterStateHolder: StateHolder<FiltersState, FilterUserAction>,
-    searchStateHolder: StateHolder<SearchState, SearchUserAction>,
+    private val delegate: ComicListDelegate,
 ) : StateHolder<ComicListState, ComicListUserAction> {
 
     override val state: StateFlow<ComicListState> by lazy {
         viewModelScope.launchMolecule(RecompositionMode.Immediate) {
             Presenter(
-                filterStateFlow = filterStateHolder.state,
-                searchStateFlow = searchStateHolder.state,
+                propsFlow = props,
                 comicRepository = comicRepository,
             )
         }
@@ -52,8 +42,8 @@ class ComicListStateHolder(
             }
 
             is ComicListUserAction.ComicClicked -> {
-                showComic(
-                    ComicScreenArguments(
+                delegate.showComic(
+                    ComicArguments(
                         comicNumber = action.comicNum,
                         comicTitle = action.comicTitle,
                     ),
@@ -65,27 +55,19 @@ class ComicListStateHolder(
     companion object {
         @Composable
         private fun Presenter(
-            filterStateFlow: StateFlow<FiltersState>,
-            searchStateFlow: StateFlow<SearchState>,
+            propsFlow: StateFlow<ComicListProps>,
             comicRepository: ComicRepository
         ): ComicListState {
-            val filterState by filterStateFlow.collectAsState()
-            val searchState by searchStateFlow.collectAsState()
-            val comics by remember(filterState, searchState) {
+            val props by propsFlow.collectAsState()
+
+            val comics by remember(props) {
                 flow {
                     emit(null)
                     emitAll(
                         comicRepository.getAllComics(
-                            isRead = when (filterState.isReadFilter.selection) {
-                                ReadFilter.All -> null
-                                ReadFilter.Unread -> false
-                                ReadFilter.Read -> true
-                            },
-                            isFavorite = when (filterState.favoriteFilter.selection) {
-                                FavoriteFilter.All -> null
-                                FavoriteFilter.Favorites -> true
-                            },
-                            searchQuery = searchState.searchQuery,
+                            isUnread = props.isUnreadFilterApplied,
+                            isFavorite = props.isFavoriteFilterApplied,
+                            searchQuery = props.searchQuery,
                         ),
                     )
                 }

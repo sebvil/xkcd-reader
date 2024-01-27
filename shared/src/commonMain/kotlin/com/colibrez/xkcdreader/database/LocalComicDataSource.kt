@@ -31,12 +31,12 @@ class LocalComicDataSource(
     }
 
     override fun getAllComics(
-        isRead: Boolean?,
-        isFavorite: Boolean?,
+        isUnread: Boolean,
+        isFavorite: Boolean,
         searchQuery: String
     ): Flow<List<Comic>> {
         return database.comicEntityQueries.selectAll(
-            isRead = isRead,
+            isUnread = isUnread,
             isFavorite = isFavorite,
             searchQuery = if (searchQuery.isNotEmpty()) {
                 "\"$searchQuery*\""

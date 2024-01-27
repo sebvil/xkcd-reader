@@ -14,11 +14,12 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import com.colibrez.xkcdreader.android.ui.core.mvvm.Handler
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SearchBar(
-    searchStateHolder: SearchStateHolder,
+    handle: Handler<SearchUserAction>,
     modifier: Modifier = Modifier,
 ) {
     var query by rememberSaveable {
@@ -29,7 +30,7 @@ fun SearchBar(
         query = query,
         onQueryChange = {
             query = it
-            searchStateHolder.handle(SearchUserAction.QuerySubmitted(it))
+            handle(SearchUserAction.QuerySubmitted(it))
         },
         onSearch = {},
         active = false,
@@ -42,7 +43,7 @@ fun SearchBar(
             {
                 IconButton(onClick = {
                     query = ""
-                    searchStateHolder.handle(SearchUserAction.SearchCleared)
+                    handle(SearchUserAction.SearchCleared)
                 }) {
                     Icon(imageVector = Icons.Default.Clear, contentDescription = "Clear search")
                 }

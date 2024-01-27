@@ -19,19 +19,21 @@ class ComicStateHolderTest : FreeSpec({
     lateinit var comicRepositoryDep: FakeComicRepository
     lateinit var subject: ComicStateHolder
 
-    var popScreenInvocations: Int = 0
+    var popScreenInvocations = 0
 
     fun TestScope.getSubject(
         comicNumber: Long = DEFAULT_COMIC_NUMBER,
         comicTitle: String = ""
     ): ComicStateHolder {
         return ComicStateHolder(
-            arguments = ComicScreenArguments(
+            arguments = ComicArguments(
                 comicNumber = comicNumber,
                 comicTitle = comicTitle,
             ),
-            popScreen = {
-                popScreenInvocations++
+            delegate = object : ComicDelegate {
+                override fun popScreen() {
+                    popScreenInvocations++
+                }
             },
             viewModelScope = this,
             comicRepository = comicRepositoryDep,
