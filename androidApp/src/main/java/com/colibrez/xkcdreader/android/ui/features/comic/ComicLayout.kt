@@ -14,12 +14,12 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.outlined.OpenInNew
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Share
-import androidx.compose.material.icons.outlined.OpenInNew
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.AlertDialogDefaults
+import androidx.compose.material3.BasicAlertDialog
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
@@ -72,7 +72,7 @@ fun ComicLayout(
                 navigationIcon = {
                     if (hasBackButton) {
                         IconButton(onClick = { handleUserAction(ComicUserAction.BackButtonClicked) }) {
-                            Icon(imageVector = Icons.Default.ArrowBack, contentDescription = "Back")
+                            Icon(imageVector = Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
                         }
                     }
                 },
@@ -117,7 +117,7 @@ private fun ComicBody(
     setImageFile: (File) -> Unit = {}
 ) {
     if (state.showDialog) {
-        AlertDialog(
+        BasicAlertDialog(
             modifier = Modifier
                 .background(
                     color = AlertDialogDefaults.containerColor,
@@ -228,7 +228,7 @@ private fun OverflowMenu(state: ComicState.Data, modifier: Modifier = Modifier) 
                 },
                 leadingIcon = {
                     Icon(
-                        Icons.Outlined.OpenInNew,
+                        Icons.AutoMirrored.Outlined.OpenInNew,
                         contentDescription = null,
                     )
                 },
@@ -240,7 +240,7 @@ private fun OverflowMenu(state: ComicState.Data, modifier: Modifier = Modifier) 
                 },
                 leadingIcon = {
                     Icon(
-                        Icons.Outlined.OpenInNew,
+                        Icons.AutoMirrored.Outlined.OpenInNew,
                         contentDescription = null,
                     )
                 },
