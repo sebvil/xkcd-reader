@@ -7,6 +7,5 @@ sealed interface ComicListUserAction : UserAction {
     data class ComicClicked(
         val comicNum: Long,
         val comicTitle: String,
-        val shownComics: List<Long>
     ) : ComicListUserAction
 }
