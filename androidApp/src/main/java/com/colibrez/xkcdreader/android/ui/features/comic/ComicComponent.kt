@@ -4,21 +4,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import com.colibrez.xkcdreader.android.DependencyContainer
 import com.colibrez.xkcdreader.android.ui.core.mvvm.BaseUiComponent
-import com.colibrez.xkcdreader.android.ui.core.mvvm.ComponentProps
 import com.colibrez.xkcdreader.android.ui.core.mvvm.NoArguments
 import com.colibrez.xkcdreader.android.ui.core.mvvm.componentScope
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.StateFlow
-
-
-data class ComicProps(
-    val comicNumber: Long?,
-    val shownComics: List<Long>,
-    val isShowingComic: Boolean,
-    val popScreen: () -> Unit,
-    val showComic: (Long) -> Unit,
-) : ComponentProps
-
 
 class ComicComponent(
     props: StateFlow<ComicProps>,
@@ -37,8 +26,8 @@ class ComicComponent(
         delegate: ComicDelegate
     ): ComicStateHolder {
         return ComicStateHolder(
-            delegate = delegate,
             comicProps = props,
+            delegate = delegate,
             viewModelScope = componentScope,
             comicRepository = dependencyContainer.comicRepository,
         )
@@ -48,8 +37,7 @@ class ComicComponent(
     override fun Content(state: ComicState, handle: (ComicUserAction) -> Unit, modifier: Modifier) {
         ComicLayout(
             state = state,
-            handleUserAction = handle,
-            hasBackButton = true,
+            handle = handle,
             modifier = modifier,
         )
     }

@@ -5,11 +5,11 @@ import com.colibrez.xkcdreader.android.ui.core.mvvm.UiState
 import com.colibrez.xkcdreader.android.ui.core.mvvm.UserAction
 import com.colibrez.xkcdreader.android.ui.features.comic.ComicComponent
 import com.colibrez.xkcdreader.android.ui.features.comic.ComicDelegate
+import com.colibrez.xkcdreader.android.ui.features.comic.ComicProps
 import com.colibrez.xkcdreader.android.ui.features.comiclist.filters.FiltersComponent
 import com.colibrez.xkcdreader.android.ui.features.comiclist.filters.FiltersDelegate
 import com.colibrez.xkcdreader.android.ui.features.comiclist.search.SearchComponent
 import com.colibrez.xkcdreader.android.ui.features.comiclist.search.SearchDelegate
-import com.colibrez.xkcdreader.android.ui.features.comic.ComicProps
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -22,7 +22,6 @@ data class AllComicsState(
     val searchComponent: SearchComponent,
     val selectedComic: Long?
 ) : UiState
-
 
 sealed interface AllComicsAction : UserAction {
     data class ShowComic(val comicNumber: Long) : AllComicsAction
@@ -45,13 +44,7 @@ class AllComicsStateHolder : StateHolder<AllComicsState, AllComicsAction> {
             comicNumber = null,
             shownComics = listOf(),
             isShowingComic = false,
-            popScreen = {
-                handle(AllComicsAction.HideComic)
-            },
-            showComic = {
-                handle(AllComicsAction.ShowComic(it))
-            }
-        )
+        ),
     )
 
     private val _state: MutableStateFlow<AllComicsState> = MutableStateFlow(
@@ -74,7 +67,11 @@ class AllComicsStateHolder : StateHolder<AllComicsState, AllComicsAction> {
                     override fun popScreen() {
                         handle(AllComicsAction.HideComic)
                     }
-                }
+
+                    override fun showComic(comicNumber: Long) {
+                        handle(AllComicsAction.ShowComic(comicNumber))
+                    }
+                },
             ),
             filtersComponent = FiltersComponent(
                 delegate = object : FiltersDelegate {
@@ -94,8 +91,8 @@ class AllComicsStateHolder : StateHolder<AllComicsState, AllComicsAction> {
                     }
                 },
             ),
-            selectedComic = null
-        )
+            selectedComic = null,
+        ),
     )
 
     override val state: StateFlow<AllComicsState>
@@ -126,7 +123,6 @@ class AllComicsStateHolder : StateHolder<AllComicsState, AllComicsAction> {
                 comicProps.update {
                     it.copy(shownComics = action.newShownComics)
                 }
-
             }
         }
     }

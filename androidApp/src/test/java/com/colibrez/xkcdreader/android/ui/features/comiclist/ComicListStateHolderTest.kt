@@ -3,7 +3,6 @@ package com.colibrez.xkcdreader.android.ui.features.comiclist
 import app.cash.turbine.test
 import com.colibrez.xkcdreader.android.extension.advanceUntilIdle
 import com.colibrez.xkcdreader.android.ui.components.comic.ListComic
-import com.colibrez.xkcdreader.android.ui.features.comic.ComicArguments
 import com.colibrez.xkcdreader.data.repository.FakeComicRepository
 import com.colibrez.xkcdreader.model.comicFixtures
 import io.kotest.core.spec.style.FreeSpec
@@ -19,7 +18,8 @@ import kotlinx.coroutines.flow.update
 
 class ComicListStateHolderTest : FreeSpec({
     lateinit var comicRepositoryDep: FakeComicRepository
-    lateinit var showComicInvocations: MutableList<ComicArguments>
+    lateinit var showComicInvocations: MutableList<Long>
+    lateinit var onShownComicsChangedInvocations: MutableList<List<Long>>
 
     lateinit var subject: ComicListStateHolder
     lateinit var props: MutableStateFlow<ComicListProps>
@@ -29,8 +29,12 @@ class ComicListStateHolderTest : FreeSpec({
         viewModelScope = this,
         comicRepository = comicRepositoryDep,
         delegate = object : ComicListDelegate {
-            override fun showComic(comicArguments: ComicArguments) {
-                showComicInvocations.add(comicArguments)
+            override fun onComicSelected(comicNumber: Long) {
+                showComicInvocations.add(comicNumber)
+            }
+
+            override fun onShownComicsChanged(shownComics: List<Long>) {
+                onShownComicsChangedInvocations.add(shownComics)
             }
         },
     )
@@ -45,6 +49,7 @@ class ComicListStateHolderTest : FreeSpec({
             ),
         )
         showComicInvocations = mutableListOf()
+        onShownComicsChangedInvocations = mutableListOf()
     }
 
     "state" - {
@@ -209,12 +214,7 @@ class ComicListStateHolderTest : FreeSpec({
                 subject = getSubject()
                 showComicInvocations shouldHaveSize 0
                 subject.handle(ComicListUserAction.ComicClicked(comic.number, comic.title))
-                showComicInvocations shouldContainExactly listOf(
-                    ComicArguments(
-                        comicNumber = comic.number,
-                        comicTitle = comic.title,
-                    ),
-                )
+                showComicInvocations shouldContainExactly listOf(comic.number)
             }
         }
     }

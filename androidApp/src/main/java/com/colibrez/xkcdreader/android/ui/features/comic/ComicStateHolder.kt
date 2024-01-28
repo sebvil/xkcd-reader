@@ -72,16 +72,7 @@ class ComicStateHolder(
             }
 
             is ComicUserAction.NavigateToComic -> {
-                comicProps.value.showComic(action.comicNumber)
-//                setNavigationState(
-//                    NavigationState.ShowScreen(
-//                        ComicScreenArguments(
-//                            comicNumber = action.comicNumber,
-//                            comicTitle = "",
-//                            shownComics = arguments.shownComics
-//                        ),
-//                    )
-//                )
+                delegate.showComic(action.comicNumber)
             }
         }
     }
@@ -115,15 +106,17 @@ class ComicStateHolder(
                 explainXckdPermalink = it.explainXkcdPermalink,
                 isFavorite = it.isFavorite,
                 showDialog = showDialog,
-                nextComic = (shownComics.indexOf(it.number) + 1).takeUnless { index -> index == shownComics.size }
-                    ?.let { index -> shownComics[index] },
-                previousComic = (shownComics.indexOf(it.number) - 1).takeUnless { index -> index < 0 }
-                    ?.let { index -> shownComics[index] },
-                firstComic = shownComics.firstOrNull(),
-                lastComic = shownComics.lastOrNull(),
+                navigationState = NavigationState.fromComicAndShownComics(
+                    comicNumber = props.comicNumber,
+                    shownComics = shownComics,
+                ),
             )
         } ?: ComicState.Loading(
             comicNumber = props.comicNumber ?: 0,
+            navigationState = NavigationState.fromComicAndShownComics(
+                comicNumber = props.comicNumber,
+                shownComics = shownComics,
+            ),
         )
     }
 }

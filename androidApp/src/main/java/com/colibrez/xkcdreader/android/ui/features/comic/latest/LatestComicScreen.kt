@@ -4,6 +4,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import com.colibrez.xkcdreader.android.DependencyContainer
 import com.colibrez.xkcdreader.android.ui.core.mvvm.BaseUiComponent
+import com.colibrez.xkcdreader.android.ui.core.mvvm.Handler
 import com.colibrez.xkcdreader.android.ui.core.mvvm.NoArguments
 import com.colibrez.xkcdreader.android.ui.core.mvvm.NoDelegate
 import com.colibrez.xkcdreader.android.ui.core.mvvm.NoProps
@@ -24,11 +25,10 @@ class LatestComicScreen(
 ) {
 
     @Composable
-    override fun Content(state: ComicState, handle: (ComicUserAction) -> Unit, modifier: Modifier) {
+    override fun Content(state: ComicState, handle: Handler<ComicUserAction>, modifier: Modifier) {
         ComicLayout(
             state = state,
-            handleUserAction = handle,
-            hasBackButton = false,
+            handle = handle,
             modifier = modifier,
         )
     }

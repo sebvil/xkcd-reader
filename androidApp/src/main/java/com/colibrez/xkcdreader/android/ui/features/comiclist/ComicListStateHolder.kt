@@ -19,7 +19,6 @@ import kotlinx.coroutines.flow.mapNotNull
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 
-
 class ComicListStateHolder(
     private val props: StateFlow<ComicListProps>,
     private val viewModelScope: CoroutineScope,
@@ -76,7 +75,6 @@ class ComicListStateHolder(
                             searchQuery = props.searchQuery,
                         ),
                     )
-
                 }
             }.collectAsState(initial = null)
 
