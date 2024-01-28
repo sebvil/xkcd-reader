@@ -40,7 +40,7 @@ class LatestComicStateHolderTest : FreeSpec({
                 val comic = comics.last()
                 subject = getSubject()
                 subject.state.test {
-                    awaitItem() shouldBe ComicState.Loading(comicNumber = null)
+                    awaitItem() shouldBe ComicState.Loading(comicNumber = null, navigationState = null)
                     advanceUntilIdle()
                     awaitItem() shouldBe ComicState.Data(
                         comicNumber = comic.number,
@@ -52,6 +52,7 @@ class LatestComicStateHolderTest : FreeSpec({
                         explainXckdPermalink = comic.explainXkcdPermalink,
                         isFavorite = comic.isFavorite,
                         showDialog = false,
+                        navigationState = null,
                     )
                 }
             }
@@ -91,7 +92,7 @@ class LatestComicStateHolderTest : FreeSpec({
             }
             subject = getSubject()
             subject.state.test {
-                awaitItem() shouldBe ComicState.Loading(comicNumber = null)
+                awaitItem() shouldBe ComicState.Loading(comicNumber = null, navigationState = null)
                 advanceUntilIdle()
                 awaitItem() shouldHaveShowDialogValueOf false
                 subject.handle(ComicUserAction.ImageClicked)

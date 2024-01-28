@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -15,7 +16,11 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.LastPage
+import androidx.compose.material.icons.automirrored.filled.NavigateBefore
+import androidx.compose.material.icons.automirrored.filled.NavigateNext
 import androidx.compose.material.icons.automirrored.outlined.OpenInNew
+import androidx.compose.material.icons.filled.FirstPage
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Share
 import androidx.compose.material3.AlertDialogDefaults
@@ -48,6 +53,7 @@ import coil.annotation.ExperimentalCoilApi
 import coil.imageLoader
 import com.colibrez.xkcdreader.android.ui.components.FavoriteButton
 import com.colibrez.xkcdreader.android.ui.components.images.ZoomableImage
+import com.colibrez.xkcdreader.android.ui.core.mvvm.Handler
 import com.colibrez.xkcdreader.android.util.webpage.InBrowserWebPageViewer
 import java.io.File
 
@@ -55,9 +61,8 @@ import java.io.File
 @Composable
 fun ComicLayout(
     state: ComicState,
-    hasBackButton: Boolean,
     modifier: Modifier = Modifier,
-    handleUserAction: (ComicUserAction) -> Unit
+    handle: (ComicUserAction) -> Unit
 ) {
     var imageFile: File? by remember {
         mutableStateOf(null)
@@ -70,9 +75,12 @@ fun ComicLayout(
                     Text(text = state.comicNumber?.let { "xkcd $it" }.orEmpty())
                 },
                 navigationIcon = {
-                    if (hasBackButton) {
-                        IconButton(onClick = { handleUserAction(ComicUserAction.BackButtonClicked) }) {
-                            Icon(imageVector = Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                    if (state.navigationState != null) {
+                        IconButton(onClick = { handle(ComicUserAction.BackButtonClicked) }) {
+                            Icon(
+                                imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                                contentDescription = "Back",
+                            )
                         }
                     }
                 },
@@ -81,7 +89,7 @@ fun ComicLayout(
                         ComicTopBarActions(
                             state = it,
                             imageFile = imageFile,
-                            handleUserAction = handleUserAction,
+                            handle = handle,
                         )
                     }
                 },
@@ -93,7 +101,7 @@ fun ComicLayout(
                 ComicBody(
                     state = state,
                     paddingValues = paddingValues,
-                    handleUserAction = handleUserAction,
+                    handle = handle,
                     setImageFile = { imageFile = it },
                 )
             }
@@ -113,7 +121,7 @@ private fun ComicBody(
     state: ComicState.Data,
     paddingValues: PaddingValues,
     modifier: Modifier = Modifier,
-    handleUserAction: (ComicUserAction) -> Unit = {},
+    handle: (ComicUserAction) -> Unit = {},
     setImageFile: (File) -> Unit = {}
 ) {
     if (state.showDialog) {
@@ -124,7 +132,7 @@ private fun ComicBody(
                     shape = AlertDialogDefaults.shape,
                 )
                 .padding(28.dp),
-            onDismissRequest = { handleUserAction(ComicUserAction.OverlayClicked) },
+            onDismissRequest = { handle(ComicUserAction.OverlayClicked) },
         ) {
             Text(text = state.altText)
         }
@@ -154,11 +162,11 @@ private fun ComicBody(
         ZoomableImage(
             imageUrl = state.imageUrl,
             modifier = Modifier
-                .fillMaxSize()
+                .weight(1f)
                 .padding(horizontal = 16.dp)
                 .padding(bottom = 16.dp),
             contentDescription = state.imageDescription,
-            onClick = { handleUserAction(ComicUserAction.ImageClicked) },
+            onClick = { handle(ComicUserAction.ImageClicked) },
             onSuccess = {
                 context.imageLoader.diskCache?.also { cache ->
                     it.result.diskCacheKey?.also { key ->
@@ -178,6 +186,14 @@ private fun ComicBody(
                 }
             },
         )
+
+        if (state.navigationState != null) {
+            NavigationButtons(
+                state = state.navigationState,
+                handle = handle,
+                modifier = Modifier.align(Alignment.CenterHorizontally),
+            )
+        }
     }
 }
 
@@ -185,12 +201,12 @@ private fun ComicBody(
 private fun RowScope.ComicTopBarActions(
     state: ComicState.Data,
     imageFile: File?,
-    handleUserAction: (ComicUserAction) -> Unit = {}
+    handle: (ComicUserAction) -> Unit = {}
 ) {
     FavoriteButton(
         isFavorite = state.isFavorite,
         onFavoriteChanged = {
-            handleUserAction(
+            handle(
                 ComicUserAction.ToggleFavorite(
                     comicNum = state.comicNumber,
                     isFavorite = it,
@@ -295,5 +311,70 @@ private fun ShareButton(
         modifier = modifier,
     ) {
         Icon(imageVector = Icons.Default.Share, contentDescription = "Share")
+    }
+}
+
+@Composable
+fun NavigationButtons(
+    state: NavigationState,
+    handle: Handler<ComicUserAction>,
+    modifier: Modifier = Modifier
+) {
+    Row(
+        horizontalArrangement = Arrangement.spacedBy(24.dp),
+        modifier = modifier,
+    ) {
+        IconButton(
+            onClick = {
+                state.firstComic?.also {
+                    handle(ComicUserAction.NavigateToComic(it))
+                }
+            },
+            enabled = state.firstComic != state.currentComic && state.firstComic != null,
+        ) {
+            Icon(imageVector = Icons.Default.FirstPage, contentDescription = "First comic")
+        }
+
+        IconButton(
+            onClick = {
+                state.previousComic?.also {
+                    handle(ComicUserAction.NavigateToComic(it))
+                }
+            },
+            enabled = state.previousComic != null,
+        ) {
+            Icon(
+                imageVector = Icons.AutoMirrored.Filled.NavigateBefore,
+                contentDescription = "Previous comic",
+            )
+        }
+
+        IconButton(
+            onClick = {
+                state.nextComic?.also {
+                    handle(ComicUserAction.NavigateToComic(it))
+                }
+            },
+            enabled = state.nextComic != null,
+        ) {
+            Icon(
+                imageVector = Icons.AutoMirrored.Filled.NavigateNext,
+                contentDescription = "Next comic",
+            )
+        }
+
+        IconButton(
+            onClick = {
+                state.lastComic?.also {
+                    handle(ComicUserAction.NavigateToComic(it))
+                }
+            },
+            enabled = state.lastComic != state.currentComic && state.lastComic != null,
+        ) {
+            Icon(
+                imageVector = Icons.AutoMirrored.Filled.LastPage,
+                contentDescription = "Last comic",
+            )
+        }
     }
 }

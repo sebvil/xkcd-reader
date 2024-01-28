@@ -7,4 +7,5 @@ sealed interface ComicUserAction : UserAction {
     data object ImageClicked : ComicUserAction
     data object OverlayClicked : ComicUserAction
     data object BackButtonClicked : ComicUserAction
+    data class NavigateToComic(val comicNumber: Long) : ComicUserAction
 }

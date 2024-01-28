@@ -4,4 +4,5 @@ import com.colibrez.xkcdreader.android.ui.core.mvvm.ComponentDelegate
 
 interface ComicDelegate : ComponentDelegate {
     fun popScreen()
+    fun showComic(comicNumber: Long)
 }

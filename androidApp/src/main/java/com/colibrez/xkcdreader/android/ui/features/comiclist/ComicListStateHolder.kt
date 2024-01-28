@@ -8,13 +8,15 @@ import app.cash.molecule.RecompositionMode
 import app.cash.molecule.launchMolecule
 import com.colibrez.xkcdreader.android.ui.components.comic.ListComic
 import com.colibrez.xkcdreader.android.ui.core.mvvm.StateHolder
-import com.colibrez.xkcdreader.android.ui.features.comic.ComicArguments
 import com.colibrez.xkcdreader.data.repository.ComicRepository
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.emitAll
 import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.mapNotNull
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 
 class ComicListStateHolder(
@@ -33,6 +35,14 @@ class ComicListStateHolder(
         }
     }
 
+    init {
+        state.mapNotNull { (it as? ComicListState.Data)?.comics?.map { comic -> comic.comicNumber } }
+            .onEach {
+                delegate.onShownComicsChanged(it)
+            }
+            .launchIn(viewModelScope)
+    }
+
     override fun handle(action: ComicListUserAction) {
         when (action) {
             is ComicListUserAction.ToggleFavorite -> {
@@ -42,12 +52,7 @@ class ComicListStateHolder(
             }
 
             is ComicListUserAction.ComicClicked -> {
-                delegate.showComic(
-                    ComicArguments(
-                        comicNumber = action.comicNum,
-                        comicTitle = action.comicTitle,
-                    ),
-                )
+                delegate.onComicSelected(action.comicNum)
             }
         }
     }
